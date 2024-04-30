@@ -1,13 +1,16 @@
 import * as React from 'react';
 import app from "../firebaseConfig";
-import {getDatabase, ref, get} from "firebase/database";
+import {getDatabase, ref, get, remove} from "firebase/database";
 import { useNavigate } from 'react-router-dom';
 import * as _ from "lodash";
 
 export interface Fruit {
     fruitName: string;
     fruitDefinition: string;
+    fruitId: string;
 }
+
+
 
 function Read() {
     const navigate = useNavigate();
@@ -22,8 +25,22 @@ function Read() {
         const dbRef =ref(db, "nature/fruits");
         const snapshot = await get(dbRef);
         if(snapshot.exists()){
-            setFruitArray(Object.values(snapshot.val()));
+            const myData = snapshot.val();
+            const tempArray = Object.keys(myData).map(myFireId => {
+                return{
+                    ...myData[myFireId], 
+                    fruitId: myFireId
+                }
+            })
+            setFruitArray(tempArray);
         } else{ alert("error"); }
+      }
+
+      const deleteFruit = async (fruitParam : string) => {
+        const db = getDatabase(app);
+        const dbRef =ref(db, "nature/fruits/" + fruitParam);
+        await remove(dbRef);
+        window.location.reload();
       }
 
 return (
@@ -31,13 +48,16 @@ return (
 <button onClick={() => navigate("/")}>Home</button>
 <button onClick={() => navigate("/write")}>Write</button>
 <button onClick={fetchData}>Reload Data</button>
-<h1>Home</h1>
-<div style={{display: "grid", gridTemplateColumns: "max-content 1fr", columnGap: 20}}>
+<h1>Edit</h1>
+<div style={{display: "grid", gridTemplateColumns: "max-content max-content max-content max-content max-content", columnGap: 20}}>
 {_.map(fruitArray, (f, i) => {
     return(
         <React.Fragment key={i} >
             <div>{f.fruitName}</div>
             <div>{f.fruitDefinition}</div>
+            <div>{f.fruitId}</div>
+            <div><button onClick={() => deleteFruit(f.fruitId)}>DEL</button></div>
+            <div><button onClick={() => navigate("/edit/" + f.fruitId)}>EDIT</button></div>
         </React.Fragment >
     );
 })}

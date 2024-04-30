@@ -3,6 +3,7 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Write from "./components/Write";
 import Read from "./components/Read";
+import Edit from "./components/Edit";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Read/>} />
             <Route path="/write" element={<Write/>} />
+            <Route path="/edit/:firebaseId" element={<Edit/>} />
           </Routes>
         </Router>
     </div>
