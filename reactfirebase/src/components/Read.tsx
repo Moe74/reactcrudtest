@@ -1,20 +1,19 @@
 import * as React from 'react';
 import app from "../firebaseConfig";
-import {getDatabase, ref, get, remove} from "firebase/database";
+import { getDatabase, ref, get, remove } from "firebase/database";
 import { useNavigate } from 'react-router-dom';
 import * as _ from "lodash";
+import { Rezept } from './Helpers';
+import Header from './Header';
 
-export interface Fruit {
-    fruitName: string;
-    fruitDefinition: string;
-    fruitId: string;
-}
+
 
 
 
 function Read() {
     const navigate = useNavigate();
-    const[fruitArray, setFruitArray] = React.useState<Fruit[]>([]);
+    const [rezepte, setRezepte] = React.useState<Rezept[]>([]);
+    const [allowDel, setAllowDel] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         fetchData();
@@ -22,48 +21,56 @@ function Read() {
 
     const fetchData = async () => {
         const db = getDatabase(app);
-        const dbRef =ref(db, "nature/fruits");
+        const dbRef = ref(db, "recipes");
         const snapshot = await get(dbRef);
-        if(snapshot.exists()){
+        if (snapshot.exists()) {
             const myData = snapshot.val();
             const tempArray = Object.keys(myData).map(myFireId => {
-                return{
-                    ...myData[myFireId], 
-                    fruitId: myFireId
+                return {
+                    ...myData[myFireId],
+                    rezeptId: myFireId
                 }
             })
-            setFruitArray(tempArray);
-        } else{ alert("error"); }
-      }
+            setRezepte(tempArray);
+        } else { alert("error"); }
+    }
 
-      const deleteFruit = async (fruitParam : string) => {
+    const deleteRezept = async (rezParam: string) => {
         const db = getDatabase(app);
-        const dbRef =ref(db, "nature/fruits/" + fruitParam);
+        const dbRef = ref(db, "recipes/" + rezParam);
         await remove(dbRef);
         window.location.reload();
-      }
+    }
 
-return (
-<div>
-<button onClick={() => navigate("/")}>Home</button>
-<button onClick={() => navigate("/write")}>Write</button>
-<button onClick={fetchData}>Reload Data</button>
-<h1>Edit</h1>
-<div style={{display: "grid", gridTemplateColumns: "max-content max-content max-content max-content max-content", columnGap: 20}}>
-{_.map(fruitArray, (f, i) => {
-    return(
-        <React.Fragment key={i} >
-            <div>{f.fruitName}</div>
-            <div>{f.fruitDefinition}</div>
-            <div>{f.fruitId}</div>
-            <div><button onClick={() => deleteFruit(f.fruitId)}>DEL</button></div>
-            <div><button onClick={() => navigate("/edit/" + f.fruitId)}>EDIT</button></div>
-        </React.Fragment >
+    return (
+        <div>
+            <Header />
+            <h2>Read.tsx</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "40px max-content 1fr max-content max-content max-content max-content max-content", columnGap: 30, alignItems: "center" }}>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}></div>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}>Titel</div>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}>Beschreibung</div>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}>Dauer</div>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}>Schwierigkeit</div>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}><input type="checkbox" checked={allowDel} onChange={() => setAllowDel(!allowDel)} style={{ cursor: "pointer", float: "left", marginTop: 6, marginRight: 5 }} /> Delete</div>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}>Edit</div>
+                <div style={{ lineHeight: "50px", fontWeight: 600 }}>Open</div>
+                {_.map(rezepte, (f, i) => {
+                    return (
+                        <React.Fragment key={i} >
+                            <div><img src={`./images/rezepte/${f.image ?? "noImage.webp"}`} alt={f.title} style={{ width: 40, height: 40 }} /></div>
+                            <div>{f.title}</div>
+                            <div>{f.description}</div>
+                            <div>{f.duration}</div>
+                            <div>{f.difficulty}</div>
+                            <div><button onClick={() => deleteRezept(f.rezeptId)} disabled={!allowDel} className='btn'>DEL</button></div>
+                            <div><button onClick={() => navigate("/edit/" + f.rezeptId)} className='btn'>EDIT</button></div>
+                            <div><button onClick={() => navigate("/single/" + f.rezeptId)} className='btn'>OPEN</button></div>
+                        </React.Fragment >
+                    );
+                })}
+            </div>
+        </div >
     );
-})}
-        </div>
-
-</div>
-);
 }
 export default Read;
