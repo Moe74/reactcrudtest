@@ -23,3 +23,19 @@ export interface Rezept {
     image?: string;
     isVegi?: boolean;
 }
+
+export function replaceUndefinedWithNull(value: unknown): object {
+    if (value === undefined || value === null) {
+        return {};
+    }
+    if (Array.isArray(value)) {
+        return value.map(item => replaceUndefinedWithNull(item));
+    }
+    if (typeof value === 'object') {
+        return Object.keys(value).reduce((acc: { [key: string]: unknown }, key) => {
+            acc[key] = replaceUndefinedWithNull((value as { [key: string]: unknown })[key]);
+            return acc;
+        }, {});
+    }
+    return value as object;
+}

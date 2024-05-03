@@ -1,17 +1,17 @@
-import { getDatabase, push, ref, set } from "firebase/database";
+import { getDatabase, push, ref, set, update, get, remove } from "firebase/database";
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import app from "../firebaseConfig";
-import { Zutat } from "./Helpers";
+import { Zutat, replaceUndefinedWithNull } from "./Helpers";
 import Header from "./Header";
 
 function Write() {
   const navigate = useNavigate();
-  const inputRef = React.useRef<HTMLInputElement>(null); // Typisierung der ref als HTMLInputElement
-
+  const { firebaseId } = useParams();
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const [title, setTitle] = React.useState<string | undefined>(undefined);
   const [description, setDescription] = React.useState<string | undefined>(undefined);
-  const [duration, setDuration] = React.useState<number | undefined>(10);
+  const [duration, setDuration] = React.useState<number | undefined>(15);
   const [difficulty, setDifficulty] = React.useState<number>(1);
   const [persons, setPersons] = React.useState<number>(4);
   const [image, setImage] = React.useState<string | undefined>(undefined);
@@ -20,12 +20,63 @@ function Write() {
   const [currentStep, setCurrentStep] = React.useState<string>('');
   const [ingredients, setIngredients] = React.useState<Zutat[]>([]);
   const [currentIngredient, setCurrentIngredient] = React.useState<Zutat>({ text: '', amount: undefined, unit: undefined });
-
-  // const [editIndex, setEditIndex] = React.useState<number | null>(null);
-
   const [editStepIndex, setEditStepIndex] = React.useState<number | null>(null);
   const [editIngredientIndex, setEditIngredientIndex] = React.useState<number | null>(null);
 
+  React.useEffect(() => {
+    if (firebaseId) {
+      const db = getDatabase(app);
+      const recipeRef = ref(db, `recipes/${firebaseId}`);
+      get(recipeRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          setTitle(data.title);
+          setDescription(data.description);
+          setDuration(data.duration);
+          setDifficulty(data.difficulty);
+          setPersons(data.persons);
+          setImage(data.image);
+          setIsVegi(data.isVegi);
+          setManual(data.manual);
+          setIngredients(data.ingredients);
+        } else {
+          alert("Data not found");
+          navigate("/");
+        }
+      }).catch((error) => {
+        console.error(error);
+        alert("Error loading data");
+        navigate("/");
+      });
+    }
+  }, [firebaseId, navigate]);
+
+  const saveData = async () => {
+    const db = getDatabase(app);
+    const cleanedData = replaceUndefinedWithNull({
+      title,
+      description,
+      manual,
+      ingredients,
+      duration,
+      difficulty,
+      persons,
+      image,
+      isVegi
+    });
+
+    const recipeRef = firebaseId ? ref(db, `recipes/${firebaseId}`) : push(ref(db, "recipes"));
+    const saveMethod = firebaseId ? update : set;
+
+    saveMethod(recipeRef, cleanedData)
+      .then(() => {
+        // alert("Data saved successfully");
+        navigate("/");
+      })
+      .catch((error) => {
+        alert(`Error: ${error.message}`);
+      });
+  };
 
   const addOrUpdateStep = () => {
     const newManual = [...manual];
@@ -92,44 +143,6 @@ function Write() {
     setCurrentStep('');
   };
 
-  function replaceUndefinedWithNull(value: unknown): unknown {
-    if (value === undefined) {
-      return null;
-    }
-    if (Array.isArray(value)) {
-      return value.map(item => replaceUndefinedWithNull(item));
-    }
-    if (value !== null && typeof value === 'object') {
-      return Object.keys(value).reduce((acc: { [key: string]: unknown }, key) => {
-        acc[key] = replaceUndefinedWithNull((value as { [key: string]: unknown })[key]);
-        return acc;
-      }, {});
-    }
-    return value;
-  }
-
-  const saveData = async () => {
-    const db = getDatabase(app);
-    const newDocRef = push(ref(db, "recipes"));
-    const cleanedData = replaceUndefinedWithNull({
-      title,
-      description,
-      manual,
-      ingredients,
-      duration,
-      difficulty,
-      persons,
-      image,
-      isVegi
-    });
-    set(newDocRef, cleanedData).then(() => {
-      alert("data saved successfully");
-      navigate("/");
-    }).catch((error) => {
-      alert(`error: ${error.message}`);
-    });
-  };
-
   const addIngredient = () => {
     if (currentIngredient.text.trim() !== '') {
       const newIngredient: Zutat = {
@@ -146,12 +159,19 @@ function Write() {
     setCurrentIngredient({ ...currentIngredient, [field]: value === '' ? null : value });
   };
 
+  const deleteRezept = async (rezParam: string) => {
+    const db = getDatabase(app);
+    const dbRef = ref(db, "recipes/" + rezParam);
+    await remove(dbRef);
+    navigate("/");
+  }
+
   const saveable = title && description && duration !== undefined && difficulty > 0 && persons > 0 && manual.length > 0 && ingredients.length > 0;
 
   return (
     <div>
       <Header />
-      <h2>Write.tsx</h2>
+      <h2>Write.tsx {firebaseId ? "(Edit)" : "(Neu)"}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", gap: "10px 20px", alignItems: "center" }}>
 
         <div>Title</div>
@@ -165,14 +185,14 @@ function Write() {
           editStepIndex === i ? (
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} key={i}>
               <input type="text" value={currentStep} onChange={(e) => setCurrentStep(e.target.value)} ref={inputRef} />
-              <button onClick={addOrUpdateStep} className="btn">Update</button>
-              <button onClick={cancelEdit} className="btn">Cancel</button>
+              <button onClick={addOrUpdateStep} className="btn ml2">Update</button>
+              <button onClick={cancelEdit} className="btn ml2">Cancel</button>
             </div>
           ) : (
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} key={i}>
               <div style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,0,0,0.1)", width: "auto", float: "left", height: 38, padding: "0 10px", lineHeight: "40px", userSelect: "none" }}>step {i + 1}: {m}</div>
-              <button onClick={() => editStep(i)} className="btn">EDIT</button>
-              <button onClick={() => deleteStep(i)} className="btn">DELETE</button>
+              <button onClick={() => editStep(i)} className="btn ml2">EDIT</button>
+              <button onClick={() => deleteStep(i)} className="btn ml2">DELETE</button>
             </div>
           )
         ))}
@@ -187,7 +207,7 @@ function Write() {
               className={manual.length === 0 ? "error" : currentStep ? "success" : undefined}
             />
             {currentStep !== "" ?
-              <button onClick={addOrUpdateStep} className="btn">APPLY</button>
+              <button onClick={addOrUpdateStep} className="btn apply">APPLY</button>
               :
               manual.length > 0 ?
                 <div style={{ border: "1px solid rgba(0,0,0,0.1)", borderRight: "none", width: "auto", float: "left", height: 38, padding: "0 10px", lineHeight: "40px", userSelect: "none" }}>step {manual.length + 1}: </div>
@@ -203,8 +223,8 @@ function Write() {
               <input type="text" value={currentIngredient.text} onChange={(e) => handleIngredientChange('text', e.target.value)} autoFocus={true} />
               <input type="number" value={currentIngredient.amount || ''} onChange={(e) => handleIngredientChange('amount', e.target.value ? Number(e.target.value) : null)} />
               <input type="text" value={currentIngredient.unit || ''} onChange={(e) => handleIngredientChange('unit', e.target.value)} />
-              <button onClick={addOrUpdateIngredient} className="btn">Update</button>
-              <button onClick={cancelEditIngredient} className="btn">Cancel</button>
+              <button onClick={addOrUpdateIngredient} className="btn ml2">Update</button>
+              <button onClick={cancelEditIngredient} className="btn ml2">Cancel</button>
             </div>
           ) : (
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} key={index}>
@@ -229,8 +249,8 @@ function Write() {
               }}>{ingredient.text}
               </div>
 
-              <button onClick={() => editIngredient(index)} className="btn">Edit</button>
-              <button onClick={() => deleteIngredient(index)} className="btn">Delete</button>
+              <button onClick={() => editIngredient(index)} className="btn ml2">EDIT</button>
+              <button onClick={() => deleteIngredient(index)} className="btn ml2">DELETE</button>
             </div>
           )
         ))}
@@ -242,7 +262,7 @@ function Write() {
               placeholder="Zutat"
               value={currentIngredient.text}
               onChange={(e) => handleIngredientChange('text', e.target.value)}
-              style={{ marginRight: 2 }}
+              style={{ marginRight: 2, }}
               className={(currentIngredient.text !== undefined && ingredients.length === 0) ? "error" : undefined}
             />
             <input
@@ -259,7 +279,7 @@ function Write() {
               onChange={(e) => handleIngredientChange('unit', e.target.value ? e.target.value : null)}
             />
             {currentIngredient.text !== "" && (
-              <button onClick={addIngredient} className="btn">APPLY</button>
+              <button onClick={addIngredient} className="btn apply">APPLY</button>
             )}
           </div>
         )}
@@ -280,6 +300,7 @@ function Write() {
         <div>image</div>
         <div>
           <select onChange={(e) => setImage(e.target.value)} style={{ float: "left" }}>
+            <option selected={image === "noImage.webp"} value="noImage.webp">Kein Bild</option>
             <option selected={image === "ApfelZimtPorridge.webp"} value="ApfelZimtPorridge.webp" >ApfelZimtPorridge.webp</option>
             <option selected={image === "BurgerMitHausgemachtenPommes.webp"} value="BurgerMitHausgemachtenPommes.webp" >BurgerMitHausgemachtenPommes.webp</option>
             <option selected={image === "CaesarSalad.webp"} value="CaesarSalad.webp" >CaesarSalad.webp</option>
@@ -293,7 +314,6 @@ function Write() {
             <option selected={image === "Ratatouille.webp"} value="Ratatouille.webp" >Ratatouille.webp</option>
             <option selected={image === "SpaghettiBolognese.webp"} value="SpaghettiBolognese.webp" >SpaghettiBolognese.webp</option>
           </select>
-          <input type="text" value={image} onChange={(e) => setImage(e.target.value)} style={{ marginLeft: 2 }} placeholder="select or " />
         </div>
 
         <div>isVegi</div>
@@ -302,9 +322,14 @@ function Write() {
       </div>
 
       <br />
-      <button onClick={saveData} disabled={!saveable} className="btn">
-        {saveable ? "SAVE DATA" : "MISSING DATA"}
-      </button>
+      <div>
+        <button onClick={saveData} disabled={!saveable} className="btn" style={{ float: "left" }}>
+          {saveable ? "SAVE DATA" : "MISSING DATA"}
+        </button>
+        {firebaseId &&
+          <div><button onClick={() => deleteRezept(firebaseId)} className='btn' style={{ float: "right" }}>DELETE REZEPT</button></div>
+        }
+      </div>
     </div>
   );
 }

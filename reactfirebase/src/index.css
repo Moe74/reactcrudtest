@@ -37,6 +37,16 @@ body {
   background: rgba(0, 0, 0, 0.1);
 }
 
+.apply {
+  margin-left: 2px;
+  background: rgba(0, 255, 0, 0.2);
+}
+
+.ml2 {
+  margin-left: 2px;
+}
+
+
 input {
   height: 39px;
   border: none;
