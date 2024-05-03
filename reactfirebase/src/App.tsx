@@ -4,6 +4,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Read from "./components/Read";
 import Write from "./components/Write";
 import Single from "./components/Single";
+import UserManagement from "./components/UserManagement";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/single/:firebaseId" element={<Single />} />
           <Route path="/write" element={<Write />} />
           <Route path="/edit/:firebaseId" element={<Write />} />
+          <Route path="/user" element={<UserManagement />} />
         </Routes>
       </Router>
     </div>

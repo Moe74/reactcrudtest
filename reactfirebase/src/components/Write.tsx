@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import app from "../firebaseConfig";
 import { Zutat, replaceUndefinedWithNull } from "./Helpers";
 import Header from "./Header";
+import { useAuth } from "./AuthContext";
 
 function Write() {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ function Write() {
   const [currentIngredient, setCurrentIngredient] = React.useState<Zutat>({ text: '', amount: undefined, unit: undefined });
   const [editStepIndex, setEditStepIndex] = React.useState<number | null>(null);
   const [editIngredientIndex, setEditIngredientIndex] = React.useState<number | null>(null);
+  const { isLoggedIn, isAdmin } = useAuth();
+  const mayEdit = isLoggedIn && isAdmin;
 
   React.useEffect(() => {
     if (firebaseId) {
@@ -168,6 +171,13 @@ function Write() {
 
   const saveable = title && description && duration !== undefined && difficulty > 0 && persons > 0 && manual.length > 0 && ingredients.length > 0;
 
+  if (!mayEdit)
+    return (
+      <>
+        <Header />
+        <h3 className="missing">Du musst als Admin eingelogged sein um neue Rezepte anzulegen</h3>
+      </>
+    );
   return (
     <div>
       <Header />
@@ -178,9 +188,10 @@ function Write() {
         <div><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={title ? "success" : "error"} /></div>
 
         <div>Description</div>
-        <div><input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={description ? "success" : "error"} /></div>
+        {/* <div><input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={description ? "success" : "error"} /></div> */}
+        <div><textarea value={description} onChange={(e) => setDescription(e.target.value)} className={description ? "success" : "error"} /></div>
 
-        <div>Manual-Steps</div>
+        <div>Arbeitsschritte</div>
         {manual.map((m, i) => (
           editStepIndex === i ? (
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} key={i}>
@@ -216,7 +227,7 @@ function Write() {
           </div>
         )}
 
-        <div>Ingredients</div>
+        <div>Zutaten</div>
         {ingredients.map((ingredient, index) => (
           editIngredientIndex === index ? (
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} key={index}>
@@ -287,17 +298,17 @@ function Write() {
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>duration</div>
         <div><input type="number" value={duration} min={0} step={15} onChange={(e) => setDuration(Number(e.target.value))} className={duration ? "success" : "error"} /></div>
 
-        <div>difficulty</div>
+        <div>Schwierigkeit</div>
         <div><select onChange={(e) => setDifficulty(Number(e.target.value))} className={difficulty >= 1 ? "success" : "error"} >
           <option value="1" selected={difficulty === 1}>leicht</option>
           <option value="2" selected={difficulty === 2}>mittel</option>
           <option value="3" selected={difficulty === 3}>schwer</option>
         </select></div>
 
-        <div>persons</div>
+        <div>Personenanzahl</div>
         <div><input type="number" value={persons} min={1} max={99} onChange={(e) => setPersons(Number(e.target.value))} className={persons ? "success" : "error"} /></div>
 
-        <div>image</div>
+        <div>Bild</div>
         <div>
           <select onChange={(e) => setImage(e.target.value)} style={{ float: "left" }}>
             <option selected={image === "noImage.webp"} value="noImage.webp">Kein Bild</option>
@@ -316,7 +327,7 @@ function Write() {
           </select>
         </div>
 
-        <div>isVegi</div>
+        <div>Vegetarisch?</div>
         <div><input type="checkbox" checked={isVegi} onChange={() => setIsVegi(!isVegi)} /></div>
 
       </div>

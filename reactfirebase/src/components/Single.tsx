@@ -2,8 +2,10 @@ import { get, getDatabase, ref } from "firebase/database";
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import app from "../firebaseConfig";
-import { Rezept } from "./Helpers";
+import AverageRating from "./AverageRating";
+import Comments from "./Comments";
 import Header from "./Header";
+import { Rezept } from "./Helpers";
 
 function Single() {
     const { firebaseId } = useParams();
@@ -30,6 +32,10 @@ function Single() {
             {recipe ?
                 <>
                     <img src={`../images/rezepte/${recipe.image ?? "noImage.webp"}`} alt={recipe.title} style={{ height: 200, float: "right" }} />
+                    <strong>Id:</strong> {firebaseId}
+                    <br />
+                    <strong>Rating:</strong> <AverageRating firebaseId={firebaseId ?? ""} />
+                    <br />
                     <strong>Title:</strong> {recipe.title}
                     <br />
                     <strong>Description:</strong> {recipe.description}
@@ -54,6 +60,9 @@ function Single() {
                             <li key={index}>{ingredient.text} - {ingredient.amount} {ingredient.unit}</li>
                         ))}
                     </ul>
+                    <div style={{ padding: 10, border: "1px double rgba(0,0,0,0.2)", marginTop: 10 }}>
+                        <Comments />
+                    </div>
                 </>
                 :
                 <p>Loading...</p>
