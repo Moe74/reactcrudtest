@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import app from '../firebaseConfig';
 import { useAuth } from './AuthContext';
+import { Menubar } from 'primereact/menubar';
+import { InputText } from 'primereact/inputtext';
+import { Avatar } from 'primereact/avatar';
+import { Badge } from 'primereact/badge';
+import { MenuItem } from 'primereact/menuitem';
+import { Button } from 'primereact/button';
 
 type User = {
     id?: string;
@@ -70,10 +76,38 @@ function Header() {
         setIsAdmin(false);
     };
 
+    const items: MenuItem[] = [
+        {
+            label: 'Übersicht',
+            icon: 'pi pi-home',
+            url: "/"
+        },
+        {
+            label: 'Neues Rezept',
+            icon: 'pi pi-star',
+            url: "/write",
+            visible: isLoggedIn && isAdmin
+
+        },
+        {
+            label: 'Userverwaltung',
+            icon: 'pi pi-users',
+            url: "/user",
+            visible: isLoggedIn && isAdmin
+
+        },
+    ];
+    const end = isLoggedIn ?
+        <Button label={"Logout " + name} onClick={handleLogout} />
+        :
+        <Button label={showLoginForm ? "Cancel" : "Login"} onClick={showLogin} />
+        ;
+
     return (
         <>
+            <Menubar model={items} end={end} />
             <div>
-                <div style={{ background: "rgba(0,0,0,0.05)", borderBottom: "1px solid rgba(0,0,0,0.3)" }}>
+                {/* <div style={{ background: "rgba(0,0,0,0.05)", borderBottom: "1px solid rgba(0,0,0,0.3)" }}>
                     <button onClick={() => navigate("/")} className='btn'>ÜBERSICHT</button>
                     {isLoggedIn && isAdmin && (
                         <button onClick={() => navigate("/write")} className='btn'>NEUER EINTRAG</button>
@@ -90,7 +124,7 @@ function Header() {
                             {showLoginForm ? "CANCEL LOGIN" : "LOGIN"}
                         </button>
                     )}
-                </div>
+                </div> */}
                 {showLoginForm && !isLoggedIn && (
                     <div style={{ marginTop: 2 }}>
                         <button

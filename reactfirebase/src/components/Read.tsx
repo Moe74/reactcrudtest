@@ -133,7 +133,7 @@ function Read() {
                 <Column field="description" header="Beschreibung"></Column>
                 <Column field="duration" header="Dauer" sortable></Column>
                 <Column field="difficulty" header="Schwierigkeit" sortable></Column>
-                <Column field="rating" header="Ratings" body={ratingBodyTemplate} sortable></Column>
+                <Column field="rating" header="Ratings" body={ratingBodyTemplate} sortable style={{ width: 120 }}></Column>
                 <Column header="Actions" body={actionsBodyTemplate} style={{ width: mayEdit ? 190 : 100 }}></Column>
 
             </DataTable>
