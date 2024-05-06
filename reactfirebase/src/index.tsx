@@ -7,6 +7,9 @@ import { AuthProvider } from './components/AuthContext';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+// @Aytac: die Bibliothek Global State habe ich bereits installiert !!!
+
 root.render(
   <React.StrictMode>
     <AuthProvider>
