@@ -1,4 +1,4 @@
-import { getDatabase, query, ref, equalTo, orderByChild, onValue } from "firebase/database";
+import { getDatabase, onValue, ref } from "firebase/database";
 import * as React from "react";
 import app from "../firebaseConfig";
 
@@ -12,45 +12,49 @@ const AverageRating: React.FC<AverageRatingProps> = ({ firebaseId }) => {
 
     React.useEffect(() => {
         const db = getDatabase(app);
-        const commentsRef = query(ref(db, "comments"), orderByChild("rezeptId"), equalTo(firebaseId));
+        const recipeRef = ref(db, `recipes/${firebaseId}`);
 
-        const listener = onValue(commentsRef, (snapshot) => {
-            const ratings: number[] = [];
-            snapshot.forEach(childSnapshot => {
-                const rating = childSnapshot.val().rating;
-                if (rating !== null && rating !== undefined) {
-                    ratings.push(rating);
-                }
-            });
-
-            if (ratings.length === 0) {
-                setAverageRating(0);
+        const listener = onValue(recipeRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.rating !== undefined && data.rating !== null) {
+                setAverageRating(data.rating);
             } else {
-                const sum = ratings.reduce((acc, rating) => acc + rating, 0);
-                const average = sum / ratings.length;
-                const roundedAverage = Math.round(average * 2) / 2;
-                setAverageRating(roundedAverage);
+                setAverageRating(0);
             }
             setError(null);
         }, (error) => {
             setError(`Error fetching average rating: ${error.message}`);
         });
 
-        return () => listener();
+        return () => {
+            // Es ist wichtig, den Listener zu entfernen, wenn die Komponente unmounted wird
+            listener();
+        };
     }, [firebaseId]);
 
     if (error) {
         return <div>{error}</div>;
     }
 
+    if (averageRating === null) {
+        return <div>Loading average rating...</div>;
+    }
+
+    const fullStars = Math.floor(averageRating);
+    const halfStar = averageRating % 1 >= 0.5 ? 1 : 0;
+    const emptyStars = 5 - fullStars - halfStar;
+
     return (
-        <>
-            {averageRating !== null
-                ? averageRating === 0
-                    ? "n/v"
-                    : averageRating
-                : "Loading average rating..."}
-        </>
+        <span>
+            {Array(fullStars).fill(<span className="pi pi-star-fill" style={{ marginRight: 1 }} />).map((star, index) => <React.Fragment key={index}>{star}</React.Fragment>)}
+            {halfStar > 0 &&
+                <>
+                    <span className="pi pi-star-half-fill" style={{ marginRight: 1 }} />
+                    <span className="pi pi-star" style={{ transform: "translateX(-100%)", marginRight: "-15px", }} />
+                </>
+            }
+            {Array(emptyStars).fill(<span className="pi pi-star" style={{ marginRight: 1 }} />).map((star, index) => <React.Fragment key={index}>{star}</React.Fragment>)}
+        </span>
     );
 };
 

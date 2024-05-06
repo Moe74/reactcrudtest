@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import app from "../firebaseConfig";
 import { useAuth } from './AuthContext';
+import _ from "lodash";
 
 export type Comment = {
     id?: string;
@@ -105,16 +106,39 @@ function Comments() {
         setIsLoading(true);
         const db = getDatabase(app);
 
-        if (editId) {
-            const commentRef = ref(db, `comments/${editId}`);
-            await update(commentRef, newComment);
-            alert("Comment updated successfully");
-        } else {
-            const newCommentRef = push(ref(db, "comments"));
-            await set(newCommentRef, newComment);
-            alert("Comment saved successfully");
+        try {
+            if (editId) {
+                const commentRef = ref(db, `comments/${editId}`);
+                await update(commentRef, newComment);
+                alert("Comment updated successfully");
+            } else {
+                const newCommentRef = push(ref(db, "comments"));
+                await set(newCommentRef, newComment);
+                alert("Comment saved successfully");
+            }
+
+            // Calculate new average rating
+            if (rating !== null) {
+                const currentRatings = comments.filter(c => c.rating !== null).map(c => c.rating!);
+                currentRatings.push(rating);
+                const averageRating = _.round(_.mean(currentRatings) * 2) / 2;
+
+                // Update recipe with new average rating
+                const recipeRef = ref(db, `recipes/${firebaseId}`);
+                await update(recipeRef, { rating: averageRating });
+            }
+
+            resetForm();
+        } catch (error) {
+            if (error instanceof Error) {
+                // Hier können wir sicher sein, dass es sich um ein Error-Objekt handelt
+                alert(`An error occurred: ${error.message}`);
+            } else {
+                // Hier handeln Sie den Fall, wenn der Fehler nicht vom Typ Error ist
+                alert("An unknown error occurred.");
+            }
         }
-        resetForm();
+
         setIsLoading(false);
     };
 

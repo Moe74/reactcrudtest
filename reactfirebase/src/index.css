@@ -8,9 +8,9 @@ body {
   background: rgb(220, 229, 235);
   max-width: 1024px;
   font-weight: 100;
-  font-size: 14px;
 }
 
+/* 
 * {
   outline: none !important;
   border-radius: none !important;
@@ -138,4 +138,4 @@ select.error {
 
 tr {
   text-align: left;
-}
+} */

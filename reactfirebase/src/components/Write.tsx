@@ -13,6 +13,7 @@ function Write() {
   const [title, setTitle] = React.useState<string | undefined>(undefined);
   const [description, setDescription] = React.useState<string | undefined>(undefined);
   const [duration, setDuration] = React.useState<number | undefined>(15);
+  const [rating, setRating] = React.useState<number | undefined>(0);
   const [difficulty, setDifficulty] = React.useState<number>(1);
   const [persons, setPersons] = React.useState<number>(4);
   const [image, setImage] = React.useState<string | undefined>(undefined);
@@ -36,6 +37,7 @@ function Write() {
           setTitle(data.title);
           setDescription(data.description);
           setDuration(data.duration);
+          setRating(data.rating);
           setDifficulty(data.difficulty);
           setPersons(data.persons);
           setImage(data.image);
@@ -62,6 +64,7 @@ function Write() {
       manual,
       ingredients,
       duration,
+      rating,
       difficulty,
       persons,
       image,
@@ -179,7 +182,7 @@ function Write() {
         }
       }
       await remove(rezeptRef);
-      window.location.reload();
+      navigate("/");
     } catch (error) {
       console.error("Fehler beim Löschen des Rezepts und seiner Kommentare: ", error);
     }
@@ -313,6 +316,8 @@ function Write() {
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>duration</div>
         <div><input type="number" value={duration} min={0} step={15} onChange={(e) => setDuration(Number(e.target.value))} className={duration ? "success" : "error"} /></div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>rating</div>
+        <div><input type="number" value={rating} readOnly className={"success"} /></div>
 
         <div>Schwierigkeit</div>
         <div><select onChange={(e) => setDifficulty(Number(e.target.value))} className={difficulty >= 1 ? "success" : "error"} >

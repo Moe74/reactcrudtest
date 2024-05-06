@@ -46,6 +46,7 @@ export interface Rezept {
     rezeptId: string;
     title: string;
     description: string;
+    rating: number;
     manual: string[];
     ingredients: Zutat[];
     duration: number;
