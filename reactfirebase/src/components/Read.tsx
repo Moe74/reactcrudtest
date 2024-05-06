@@ -1,4 +1,4 @@
-import { get, getDatabase, ref, remove } from "firebase/database";
+import { getDatabase, ref, remove, query, orderByChild, equalTo, get } from 'firebase/database';
 import * as _ from "lodash";
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -37,10 +37,25 @@ function Read() {
     }
 
     const deleteRezept = async (rezParam: string) => {
-        const db = getDatabase(app);
-        const dbRef = ref(db, "recipes/" + rezParam);
-        await remove(dbRef);
-        window.location.reload();
+        const db = getDatabase();
+        const rezeptRef = ref(db, "recipes/" + rezParam);
+        const commentsRef = query(ref(db, "comments"), orderByChild('rezeptId'), equalTo(rezParam));
+
+        try {
+            const commentsSnapshot = await get(commentsRef);
+
+            if (commentsSnapshot.exists()) {
+                const comments = commentsSnapshot.val();
+                for (const commentKey in comments) {
+                    const commentRef = ref(db, "comments/" + commentKey);
+                    await remove(commentRef);
+                }
+            }
+            await remove(rezeptRef);
+            window.location.reload();
+        } catch (error) {
+            console.error("Fehler beim Löschen des Rezepts und seiner Kommentare: ", error);
+        }
     }
     const mayEdit = isLoggedIn && isAdmin;
     return (

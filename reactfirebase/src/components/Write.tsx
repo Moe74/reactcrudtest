@@ -1,4 +1,4 @@
-import { getDatabase, push, ref, set, update, get, remove } from "firebase/database";
+import { getDatabase, push, ref, set, update, get, remove, query, orderByChild, equalTo, } from "firebase/database";
 import * as React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import app from "../firebaseConfig";
@@ -162,11 +162,27 @@ function Write() {
     setCurrentIngredient({ ...currentIngredient, [field]: value === '' ? null : value });
   };
 
+
   const deleteRezept = async (rezParam: string) => {
-    const db = getDatabase(app);
-    const dbRef = ref(db, "recipes/" + rezParam);
-    await remove(dbRef);
-    navigate("/");
+    const db = getDatabase();
+    const rezeptRef = ref(db, "recipes/" + rezParam);
+    const commentsRef = query(ref(db, "comments"), orderByChild('rezeptId'), equalTo(rezParam));
+
+    try {
+      const commentsSnapshot = await get(commentsRef);
+
+      if (commentsSnapshot.exists()) {
+        const comments = commentsSnapshot.val();
+        for (const commentKey in comments) {
+          const commentRef = ref(db, "comments/" + commentKey);
+          await remove(commentRef);
+        }
+      }
+      await remove(rezeptRef);
+      window.location.reload();
+    } catch (error) {
+      console.error("Fehler beim Löschen des Rezepts und seiner Kommentare: ", error);
+    }
   }
 
   const saveable = title && description && duration !== undefined && difficulty > 0 && persons > 0 && manual.length > 0 && ingredients.length > 0;
