@@ -1,15 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { getDatabase, ref, onValue } from 'firebase/database';
-import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
+import { getDatabase, onValue, ref } from 'firebase/database';
+import { Button } from 'primereact/button';
+import { Menubar } from 'primereact/menubar';
+import { MenuItem } from 'primereact/menuitem';
+import React, { useEffect, useRef, useState } from 'react';
 import app from '../firebaseConfig';
 import { useAuth } from './AuthContext';
-import { Menubar } from 'primereact/menubar';
-import { InputText } from 'primereact/inputtext';
-import { Avatar } from 'primereact/avatar';
-import { Badge } from 'primereact/badge';
-import { MenuItem } from 'primereact/menuitem';
-import { Button } from 'primereact/button';
 
 type User = {
     id?: string;
@@ -20,7 +16,6 @@ type User = {
 };
 
 function Header() {
-    const navigate = useNavigate();
     const { isLoggedIn, setIsLoggedIn, isAdmin, setIsAdmin, setName, setEmail, name } = useAuth();
     const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
     const [username, setUsername] = useState<string>('');
