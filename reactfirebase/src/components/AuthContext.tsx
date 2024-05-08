@@ -6,7 +6,7 @@ interface AuthContextType {
   isAdmin: boolean;
   setIsAdmin: (value: boolean) => void;
   email: string | null;
-  setEmaile: (value: string | null) => void;
+  setEmail: (value: string | null) => void;
   name: string | null;
   setName: (value: string | null) => void;
 }
