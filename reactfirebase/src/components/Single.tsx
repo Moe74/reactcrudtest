@@ -1,10 +1,20 @@
 import { get, getDatabase, ref } from "firebase/database";
+import _ from "lodash";
+import { Accordion, AccordionTab } from "primereact/accordion";
+import { Button } from "primereact/button";
+import { Card } from "primereact/card";
+import {
+    InputNumber,
+    InputNumberValueChangeEvent,
+} from "primereact/inputnumber";
+import { Rating } from "primereact/rating";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import styled from "styled-components";
 import app from "../firebaseConfig";
 import AverageRating from "./AverageRating";
 import Comments from "./Comments";
-import Header from "./Header";
+import { setGlobalState, useGlobalState } from "./GlobalStates";
 import {
     Rezept,
     chefHatActive,
@@ -14,17 +24,6 @@ import {
     imageRezeptUrlPrefix,
     useElementWidth,
 } from "./Helpers";
-import { Card } from "primereact/card";
-import { Button } from "primereact/button";
-import styled from "styled-components";
-import { Rating } from "primereact/rating";
-import {
-    InputNumber,
-    InputNumberValueChangeEvent,
-} from "primereact/inputnumber";
-import { Accordion, AccordionTab } from "primereact/accordion";
-import { setGlobalState, useGlobalState } from "./GlobalStates";
-import _ from "lodash";
 
 const HeaderContainer = styled.div<{ imageUrl: string }>`
   width: 100%;
@@ -86,7 +85,7 @@ function Single() {
 
     return (
         <div ref={divRef}>
-            <Header />
+            {/* <Header /> */}
             {recipe && (
                 <Card
                     title={recipe.title}

@@ -218,3 +218,20 @@ export function convertUnits(value: number, unit: string): ConversionResult {
         };
     }
 }
+export const themeSettings = {
+    mainBackgroundColor: colors.greyVeryLight,
+    mainTextColor: '#495057',
+    sidebarLeftBackgroundColor: colors.greyDark,
+    sidebarLeftFontColor: colors.white,
+    sidebarRightBackgroundColor: colors.greyMiddleLight,
+    sidebarRightFontColor: colors.black,
+    menuBackgroundColor: colors.white,
+};
+
+export const breakpoints = {
+    largeDesktop: 1920,
+    desktop: 1440,
+    smallDesktop: 1080,
+    tablet: 768,
+    mobile: 440
+};

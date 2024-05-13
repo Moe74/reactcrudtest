@@ -1,10 +1,9 @@
-import { getDatabase, push, ref, set, update, get, remove, query, orderByChild, equalTo, } from "firebase/database";
+import { equalTo, get, getDatabase, orderByChild, push, query, ref, remove, set, update, } from "firebase/database";
 import * as React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import app from "../firebaseConfig";
-import { Zutat, replaceUndefinedWithNull } from "./Helpers";
-import Header from "./Header";
 import { useAuth } from "./AuthContext";
+import { Zutat, replaceUndefinedWithNull } from "./Helpers";
 
 function Write() {
   const navigate = useNavigate();
@@ -193,13 +192,13 @@ function Write() {
   if (!mayEdit)
     return (
       <>
-        <Header />
+        {/* <Header /> */}
         <h3 className="missing">Du musst als Admin eingelogged sein um neue Rezepte anzulegen</h3>
       </>
     );
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <h2>Write.tsx {firebaseId ? "(Edit)" : "(Neu)"}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", gap: "10px 20px", alignItems: "center" }}>
 

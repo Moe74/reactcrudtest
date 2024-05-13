@@ -74,9 +74,14 @@ function Header() {
 
     const items: MenuItem[] = [
         {
-            label: 'Übersicht',
+            label: 'Home',
             icon: 'pi pi-home',
             url: "/"
+        },
+        {
+            label: 'Übersicht',
+            icon: 'pi pi-table',
+            url: "/read"
         },
         {
             label: 'Neues Rezept',
@@ -103,24 +108,6 @@ function Header() {
         <>
             <Menubar model={items} end={end} />
             <div>
-                {/* <div style={{ background: "rgba(0,0,0,0.05)", borderBottom: "1px solid rgba(0,0,0,0.3)" }}>
-                    <button onClick={() => navigate("/")} className='btn'>ÜBERSICHT</button>
-                    {isLoggedIn && isAdmin && (
-                        <button onClick={() => navigate("/write")} className='btn'>NEUER EINTRAG</button>
-                    )}
-                    {isLoggedIn && isAdmin && (
-                        <button onClick={() => navigate("/user")} className='btn'>USERVERWALTUNG</button>
-                    )}
-                    {isLoggedIn ? (
-                        <button onClick={handleLogout} className='btn' style={{ float: "right" }}>
-                            LOGOUT {name}
-                        </button>
-                    ) : (
-                        <button onClick={showLogin} className='btn' style={{ float: "right" }}>
-                            {showLoginForm ? "CANCEL LOGIN" : "LOGIN"}
-                        </button>
-                    )}
-                </div> */}
                 {showLoginForm && !isLoggedIn && (
                     <div style={{ marginTop: 2 }}>
                         <button

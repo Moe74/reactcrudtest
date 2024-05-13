@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import app from "../firebaseConfig";
 import { useAuth } from './AuthContext';
 import AverageRating from "./AverageRating";
-import Header from './Header';
 import { Rezept } from './Helpers';
 
 function Read() {
@@ -105,7 +104,7 @@ function Read() {
     );
     return (
         <div>
-            <Header />
+            {/* <Header /> */}
             <h2>Read.tsx</h2>
 
             <DataTable

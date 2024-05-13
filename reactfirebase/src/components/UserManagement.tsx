@@ -1,8 +1,7 @@
+import bcrypt from 'bcryptjs';
 import { getDatabase, onValue, push, ref, remove, set, update } from "firebase/database";
 import * as React from 'react';
 import app from "../firebaseConfig";
-import bcrypt from 'bcryptjs';
-import Header from "./Header";
 import { useAuth } from "./AuthContext";
 
 type User = {
@@ -95,13 +94,13 @@ function UserManagement() {
     if (!mayEdit)
         return (
             <>
-                <Header />
+                {/* <Header /> */}
                 <h3 className="missing">Du musst als Admin eingelogged sein um neue Rezepte anzulegen</h3>
             </>
         );
     return (
         <div>
-            <Header />
+            {/* <Header /> */}
             <h2>UserManagement.tsx</h2>
             <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", gap: "10px 20px", alignItems: "center" }}>
                 <div>Name</div>
