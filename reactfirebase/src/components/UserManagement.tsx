@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { getDatabase, onValue, push, ref, remove, set, update } from "firebase/database";
 import * as React from 'react';
 import app from "../firebaseConfig";
-import { useAuth } from "./AuthContext";
+import { useGlobalState } from './GlobalStates';
 
 type User = {
     id?: string;
@@ -21,7 +21,9 @@ function UserManagement() {
     const [editId, setEditId] = React.useState<string | null>(null);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [showPassword, setShowPassword] = React.useState<boolean>(false);
-    const { isLoggedIn, isAdmin } = useAuth();
+    const [isLoggedIn] = useGlobalState("userIsLoggedIn");
+    const [isAdmin] = useGlobalState("userIsAdmin");
+
     const mayEdit = isLoggedIn && isAdmin;
 
     React.useEffect(() => {

@@ -13,8 +13,8 @@ import {
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import app from "../firebaseConfig";
-import { useAuth } from "./AuthContext";
 import _ from "lodash";
+import { useGlobalState } from "./GlobalStates";
 
 export type Comment = {
   id?: string;
@@ -28,12 +28,12 @@ export type Comment = {
 
 function Comments() {
   const { firebaseId } = useParams<{ firebaseId: string }>();
-  const {
-    isLoggedIn,
-    isAdmin,
-    name: loggedInName,
-    email: loggedInEmail,
-  } = useAuth();
+
+
+  const [isLoggedIn] = useGlobalState("userIsLoggedIn");
+  const [userIsAdmin] = useGlobalState("userIsAdmin");
+  const [loggedInName] = useGlobalState("userName");
+  const [loggedInEmail] = useGlobalState("userName");
 
   const [name, setName] = React.useState<string>("");
   const [email, setEmail] = React.useState<string>("");
@@ -334,7 +334,7 @@ function Comments() {
                     padding: 10,
                   }}
                 >
-                  {isLoggedIn && isAdmin && (
+                  {isLoggedIn && userIsAdmin && (
                     <>
                       <button
                         onClick={() => handleEdit(c)}

@@ -9,15 +9,16 @@ import { InputText } from 'primereact/inputtext';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import app from "../firebaseConfig";
-import { useAuth } from './AuthContext';
 import AverageRating from "./AverageRating";
 import { Rezept } from './Helpers';
+import { useGlobalState } from './GlobalStates';
 
 function Read() {
     const navigate = useNavigate();
     const [rezepte, setRezepte] = React.useState<Rezept[]>([]);
     const [allowDel, setAllowDel] = React.useState<boolean>(false);
-    const { isLoggedIn, isAdmin } = useAuth();
+    const [isLoggedIn] = useGlobalState("userIsLoggedIn");
+    const [isAdmin] = useGlobalState("userIsAdmin");
 
     React.useEffect(() => {
         fetchData();

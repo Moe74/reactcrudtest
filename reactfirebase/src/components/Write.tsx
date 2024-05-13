@@ -2,8 +2,12 @@ import { equalTo, get, getDatabase, orderByChild, push, query, ref, remove, set,
 import * as React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import app from "../firebaseConfig";
-import { useAuth } from "./AuthContext";
+import { useGlobalState } from "./GlobalStates";
 import { Zutat, replaceUndefinedWithNull } from "./Helpers";
+import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Button } from "primereact/button";
+import { InputNumber, InputNumberChangeEvent } from "primereact/inputnumber";
 
 function Write() {
   const navigate = useNavigate();
@@ -23,7 +27,8 @@ function Write() {
   const [currentIngredient, setCurrentIngredient] = React.useState<Zutat>({ text: '', amount: undefined, unit: undefined });
   const [editStepIndex, setEditStepIndex] = React.useState<number | null>(null);
   const [editIngredientIndex, setEditIngredientIndex] = React.useState<number | null>(null);
-  const { isLoggedIn, isAdmin } = useAuth();
+  const [isLoggedIn] = useGlobalState("userIsLoggedIn");
+  const [isAdmin] = useGlobalState("userIsAdmin");
   const mayEdit = isLoggedIn && isAdmin;
 
   React.useEffect(() => {
@@ -76,7 +81,7 @@ function Write() {
     saveMethod(recipeRef, cleanedData)
       .then(() => {
         // alert("Data saved successfully");
-        navigate("/");
+        navigate("/read");
       })
       .catch((error) => {
         alert(`Error: ${error.message}`);
@@ -166,6 +171,7 @@ function Write() {
 
 
   const deleteRezept = async (rezParam: string) => {
+    console.log('Delete where id: ', rezParam);
     const db = getDatabase();
     const rezeptRef = ref(db, "recipes/" + rezParam);
     const commentsRef = query(ref(db, "comments"), orderByChild('rezeptId'), equalTo(rezParam));
@@ -181,7 +187,7 @@ function Write() {
         }
       }
       await remove(rezeptRef);
-      navigate("/");
+      navigate("/read");
     } catch (error) {
       console.error("Fehler beim Löschen des Rezepts und seiner Kommentare: ", error);
     }
@@ -203,45 +209,48 @@ function Write() {
       <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", gap: "10px 20px", alignItems: "center" }}>
 
         <div>Title</div>
-        <div><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={title ? "success" : "error"} /></div>
+        <div>
+          <InputText style={{ width: "50%", borderColor: title ? "green" : "red", background: title ? "rgba(0,255,0,0.05)" : "rgba(255,0,0,0.05)" }} value={title} onChange={(e) => setTitle(e.target.value)} />
+        </div>
 
         <div>Description</div>
-        {/* <div><input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={description ? "success" : "error"} /></div> */}
-        <div><textarea value={description} onChange={(e) => setDescription(e.target.value)} className={description ? "success" : "error"} /></div>
+        <div>
+          <InputTextarea value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "50%", borderColor: description ? "green" : "red", background: description ? "rgba(0,255,0,0.05)" : "rgba(255,0,0,0.05)" }} />
+        </div>
 
         <div>Arbeitsschritte</div>
         {manual.map((m, i) => (
           editStepIndex === i ? (
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} key={i}>
-              <input type="text" value={currentStep} onChange={(e) => setCurrentStep(e.target.value)} ref={inputRef} />
-              <button onClick={addOrUpdateStep} className="btn ml2">Update</button>
-              <button onClick={cancelEdit} className="btn ml2">Cancel</button>
+              <InputText style={{ width: "50%", borderColor: title ? "green" : "red", background: title ? "rgba(0,255,0,0.05)" : "rgba(255,0,0,0.05)" }} value={currentStep} onChange={(e) => setCurrentStep(e.target.value)} ref={inputRef} />
+              <Button onClick={addOrUpdateStep} label="Update" severity="success" icon="pi pi-check" />
+              <Button onClick={cancelEdit} icon="pi pi-times" severity="secondary" />
             </div>
           ) : (
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} key={i}>
-              <div style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,0,0,0.1)", width: "auto", float: "left", height: 38, padding: "0 10px", lineHeight: "40px", userSelect: "none" }}>step {i + 1}: {m}</div>
-              <button onClick={() => editStep(i)} className="btn ml2">EDIT</button>
-              <button onClick={() => deleteStep(i)} className="btn ml2">DELETE</button>
+              <div style={{ background: "rgba(0,255,0,0.05)", border: "1px solid green", width: "50%", float: "left", height: 38, padding: "0 10px", lineHeight: "38px", userSelect: "none", fontSize: "1rem", color: "#323130" }}>step {i + 1}: {m}</div>
+
+              <Button onClick={() => editStep(i)} label="EDIT" severity="warning" icon="pi pi-pen-to-square" />
+              <Button onClick={() => deleteStep(i)} icon="pi pi-trash" severity="secondary" />
             </div>
           )
         ))}
 
         {editStepIndex === null && (
           <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-            <input
-              type="text"
+
+            <InputText
+              style={{ width: "50%", borderColor: manual.length === 0 ? "red" : currentStep ? "green" : undefined, background: manual.length === 0 ? "rgba(255,0,0,0.05)" : currentStep ? "rgba(0,255,0,0.05)" : undefined }}
               value={currentStep}
+              placeholder={manual.length === 0 ? undefined : `step ${manual.length + 1} (optional)`}
               onChange={(e) => setCurrentStep(e.target.value)}
-              placeholder={manual.length === 0 ? undefined : "optional"}
-              className={manual.length === 0 ? "error" : currentStep ? "success" : undefined}
+            // ref={inputRef}
             />
+
             {currentStep !== "" ?
-              <button onClick={addOrUpdateStep} className="btn apply">APPLY</button>
+              <Button onClick={addOrUpdateStep} label="APPLY" severity="success" icon="pi pi-check" />
               :
-              manual.length > 0 ?
-                <div style={{ border: "1px solid rgba(0,0,0,0.1)", borderRight: "none", width: "auto", float: "left", height: 38, padding: "0 10px", lineHeight: "40px", userSelect: "none" }}>step {manual.length + 1}: </div>
-                :
-                <div />}
+              <div />}
           </div>
         )}
 
@@ -278,38 +287,46 @@ function Write() {
               }}>{ingredient.text}
               </div>
 
-              <button onClick={() => editIngredient(index)} className="btn ml2">EDIT</button>
-              <button onClick={() => deleteIngredient(index)} className="btn ml2">DELETE</button>
+              <Button onClick={() => editIngredient(index)} label="EDIT" severity="warning" icon="pi pi-pen-to-square" />
+              <Button onClick={() => deleteIngredient(index)} icon="pi pi-trash" severity="secondary" />
             </div>
           )
         ))}
 
         {editIngredientIndex === null && (
-          <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-            <input
-              type="text"
-              placeholder="Zutat"
-              value={currentIngredient.text}
-              onChange={(e) => handleIngredientChange('text', e.target.value)}
-              style={{ marginRight: 2, }}
-              className={(currentIngredient.text !== undefined && ingredients.length === 0) ? "error" : undefined}
-            />
-            <input
-              type="number"
-              placeholder="Menge"
-              value={currentIngredient.amount || ''}
-              onChange={(e) => handleIngredientChange('amount', e.target.value ? Number(e.target.value) : null)}
-              style={{ marginRight: 2 }}
-            />
-            <input
-              type="text"
-              placeholder="Einheit"
-              value={currentIngredient.unit || ''}
-              onChange={(e) => handleIngredientChange('unit', e.target.value ? e.target.value : null)}
-            />
-            {currentIngredient.text !== "" && (
-              <button onClick={addIngredient} className="btn apply">APPLY</button>
-            )}
+          <div style={{ gridColumnStart: 2, gridColumnEnd: 3, display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+            <div>
+              <InputText
+                style={{ float: "left", marginRight: -1, width: "50%", borderColor: (currentIngredient.text !== undefined && ingredients.length === 0) ? "red" : undefined, background: (currentIngredient.text !== undefined && ingredients.length === 0) ? "rgba(255,0,0,0.05)" : undefined }}
+                value={currentIngredient.text}
+                placeholder="Zutat"
+                onChange={(e) => handleIngredientChange('text', e.target.value)}
+              />
+              <InputNumber
+                placeholder="Menge"
+                value={currentIngredient.amount}
+                onChange={(e: InputNumberChangeEvent) => handleIngredientChange('amount', e.value !== null ? e.value : null)}
+                style={{
+                  marginRight: "2px",
+                  float: "left",
+                  width: "70px",
+                  borderColor: (currentIngredient.text !== undefined && ingredients.length === 0) ? "red" : undefined,
+                  background: (currentIngredient.text !== undefined && ingredients.length === 0) ? "rgba(255,0,0,0.05)" : undefined
+                }}
+              />
+              <InputText
+                style={{ float: "right", width: "70px" }}
+                value={currentIngredient.unit || ''}
+                placeholder="Einheit"
+                onChange={(e) => handleIngredientChange('unit', e.target.value ? e.target.value : null)}
+
+              />
+            </div>
+            <div>
+              {currentIngredient.text !== "" && (
+                <Button onClick={addIngredient} label="APPLY" severity="success" icon="pi pi-check" />
+              )}
+            </div>
           </div>
         )}
 
@@ -365,3 +382,10 @@ function Write() {
   );
 }
 export default Write;
+
+// {
+//   "rules": {
+//     ".read": true,
+//       ".write": true
+//   }
+// }
