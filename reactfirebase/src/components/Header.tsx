@@ -15,6 +15,7 @@ type User = {
     email: string;
 };
 
+
 function Header() {
     const { isLoggedIn, setIsLoggedIn, isAdmin, setIsAdmin, setName, setEmail, name } = useAuth();
     const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
