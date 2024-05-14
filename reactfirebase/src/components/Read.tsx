@@ -1,6 +1,5 @@
-import { equalTo, get, getDatabase, orderByChild, query, ref, remove } from 'firebase/database';
+import { get, getDatabase, ref } from 'firebase/database';
 import { Button } from 'primereact/button';
-import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { IconField } from 'primereact/iconfield';
@@ -10,13 +9,12 @@ import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import app from "../firebaseConfig";
 import AverageRating from "./AverageRating";
-import { Rezept } from './Helpers';
 import { useGlobalState } from './GlobalStates';
+import { Rezept } from './Helpers';
 
 function Read() {
     const navigate = useNavigate();
     const [rezepte, setRezepte] = React.useState<Rezept[]>([]);
-    const [allowDel, setAllowDel] = React.useState<boolean>(false);
     const [isLoggedIn] = useGlobalState("userIsLoggedIn");
     const [isAdmin] = useGlobalState("userIsAdmin");
 
@@ -42,42 +40,21 @@ function Read() {
         }
     }
 
-    const deleteRezept = async (rezParam: string) => {
-        const db = getDatabase();
-        const rezeptRef = ref(db, "recipes/" + rezParam);
-        const commentsRef = query(ref(db, "comments"), orderByChild('rezeptId'), equalTo(rezParam));
-
-        try {
-            const commentsSnapshot = await get(commentsRef);
-
-            if (commentsSnapshot.exists()) {
-                const comments = commentsSnapshot.val();
-                for (const commentKey in comments) {
-                    const commentRef = ref(db, "comments/" + commentKey);
-                    await remove(commentRef);
-                }
-            }
-            await remove(rezeptRef);
-            window.location.reload();
-        } catch (error) {
-            console.error("Fehler beim Löschen des Rezepts und seiner Kommentare: ", error);
-        }
-    }
     const mayEdit = isLoggedIn && isAdmin;
 
     const imageBodyTemplate = (rezept: Rezept) => {
-        return <img src={`./images/rezepte/${rezept.image}`} alt={rezept.image} style={{ width: 40, height: 40 }} />;
+        const imagePath = `${process.env.PUBLIC_URL}/images/rezepte/${rezept.image}`;
+        return <img src={imagePath} alt={rezept.image} style={{ width: 40, height: 40 }} />;
     };
+
     const actionsBodyTemplate = (rezept: Rezept) => {
         return <>
             {mayEdit && (
                 <>
-                    <Button rounded icon="pi pi-trash" severity="danger" aria-label="Delete" onClick={() => deleteRezept(rezept.rezeptId)} disabled={!allowDel} style={{ float: "left", marginRight: 5 }} />
-
-                    <Button rounded icon="pi pi-pen-to-square" severity="warning" aria-label="Edit" onClick={() => navigate("/edit/" + rezept.rezeptId)} style={{ float: "left", marginRight: 5 }} />
+                    <Button icon="pi pi-pen-to-square" severity="warning" aria-label="Edit" onClick={() => navigate("/edit/" + rezept.rezeptId)} style={{ float: "left", marginRight: 5 }} />
                 </>
             )}
-            <Button rounded label="OPEN" severity="success" onClick={() => navigate("/single/" + rezept.rezeptId)} style={{ float: "left" }} />
+            <Button label="open" severity="success" onClick={() => navigate("/single/" + rezept.rezeptId)} style={{ float: "left", width: mayEdit ? "calc(100% - 50px)" : "100%" }} />
         </>
             ;
     };
@@ -90,13 +67,6 @@ function Read() {
     const [globalFilter, setGlobalFilter] = React.useState<string>('');
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            {mayEdit &&
-                <div style={{ float: "right", marginTop: 10 }}>
-                    <Checkbox inputId="ingredient1" onChange={() => setAllowDel(!allowDel)} checked={allowDel} />
-                    <label htmlFor="ingredient1" style={{ marginLeft: 5 }}>Löschen aktivieren</label>
-                </div>
-            }
-
             <IconField iconPosition="left">
                 <InputIcon className="pi pi-search" />
                 <InputText type="search" placeholder="Search..." onInput={(e) => { const target = e.target as HTMLInputElement; setGlobalFilter(target.value); }} />
@@ -134,7 +104,7 @@ function Read() {
                 <Column field="duration" header="Dauer" sortable></Column>
                 <Column field="difficulty" header="Schwierigkeit" sortable></Column>
                 <Column field="rating" header="Ratings" body={ratingBodyTemplate} sortable style={{ width: 120 }}></Column>
-                <Column header="Actions" body={actionsBodyTemplate} style={{ width: mayEdit ? 190 : 100 }}></Column>
+                <Column header="Actions" body={actionsBodyTemplate} style={{ width: mayEdit ? 150 : 50 }}></Column>
 
             </DataTable>
         </div >

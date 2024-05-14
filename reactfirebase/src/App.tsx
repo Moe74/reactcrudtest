@@ -1,5 +1,3 @@
-// https://github.com/abdulhakim-altunkaya/youtube_react_firebase_database/blob/main/connection_guide.txt
-
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Read from "./components/Read";
 import Write from "./components/Write";
@@ -9,38 +7,28 @@ import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/fluent-light/theme.css";
 import 'primeicons/primeicons.css';
 import Home from "./components/Home";
-import Header from "./components/Header";
 import Layout from "./components/Layout";
+
+const basename = process.env.REACT_APP_BASENAME || "/";
 
 function App() {
   return (
-    <PrimeReactProvider >
-      <Header />
-      <div className="App">
-        <Router>
+    <PrimeReactProvider>
+      <Router basename={basename}>
+        <div className="App">
           <Routes>
-            <Route element={<Layout />} path="/">
+            <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
-            </Route>
-            <Route element={<Layout />} path="/read">
-              <Route index element={<Read />} />
-            </Route>
-            <Route element={<Layout />} path="/single/:firebaseId">
-              <Route index element={<Single />} />
-            </Route>
-            <Route element={<Layout />} path="/write">
-              <Route index element={<Write />} />
-            </Route>
-            <Route element={<Layout />} path="/edit/:firebaseId">
-              <Route index element={<Write />} />
-            </Route>
-            <Route element={<Layout />} path="/user">
-              <Route index element={<UserManagement />} />
+              <Route path="read" element={<Read />} />
+              <Route path="single/:firebaseId" element={<Single />} />
+              <Route path="write" element={<Write />} />
+              <Route path="edit/:firebaseId" element={<Write />} />
+              <Route path="user" element={<UserManagement />} />
             </Route>
           </Routes>
-        </Router>
-      </div>
-    </PrimeReactProvider >
+        </div>
+      </Router>
+    </PrimeReactProvider>
   );
 }
 

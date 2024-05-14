@@ -254,6 +254,7 @@ function Write() {
     setImage(e.value);
   };
 
+
   const selectedRezeptOptionTemplate = (option: any) => {
     if (option) {
       return (
@@ -264,7 +265,7 @@ function Write() {
             padding: 0,
             margin: -7,
             marginRight: 10,
-            backgroundImage: `url("../images/rezepte/${option.value}")`,
+            backgroundImage: `url("${process.env.PUBLIC_URL}/images/rezepte/${option.value}")`,
             backgroundSize: "cover",
             backgroundPosition: "center center"
           }} />
@@ -283,7 +284,7 @@ function Write() {
             padding: 0,
             marginLeft: -7,
             marginRight: 10,
-            backgroundImage: `url("../images/rezepte/${option.value}")`,
+            backgroundImage: `url("${process.env.PUBLIC_URL}/images/rezepte/${option.value}")`,
             backgroundSize: "cover",
             backgroundPosition: "center center"
           }} />

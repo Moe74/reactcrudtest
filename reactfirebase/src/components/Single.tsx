@@ -21,8 +21,7 @@ import {
     chefHatInactive,
     colors,
     convertUnits,
-    imageRezeptUrlPrefix,
-    useElementWidth,
+    useElementWidth
 } from "./Helpers";
 
 const HeaderContainer = styled.div<{ imageUrl: string }>`
@@ -70,10 +69,11 @@ function Single() {
     const navigate = useNavigate();
 
     const rImage = recipe ? recipe.image ?? "noImage.webp" : "noImage.webp";
+    const imagePath = `${process.env.PUBLIC_URL}/images/rezepte/${rImage}`;
 
     const header = (
         <div>
-            <HeaderContainer imageUrl={imageRezeptUrlPrefix + rImage} />
+            <HeaderContainer imageUrl={imagePath} />
         </div>
     );
 
