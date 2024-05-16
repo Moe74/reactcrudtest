@@ -4,8 +4,9 @@ import { Button } from 'primereact/button';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import app from '../firebaseConfig';
-import { useAuth } from './AuthContext';
+import { useGlobalState, setUserIsLoggedIn, setUserIsAdmin, setUserEmail, setUserName } from './GlobalStates';
 
 type User = {
     id?: string;
@@ -15,9 +16,11 @@ type User = {
     email: string;
 };
 
-
 function Header() {
-    const { isLoggedIn, setIsLoggedIn, isAdmin, setIsAdmin, setName, setEmail, name } = useAuth();
+    const [isLoggedIn] = useGlobalState('userIsLoggedIn');
+    const [isAdmin] = useGlobalState('userIsAdmin');
+    const [name] = useGlobalState('userName');
+
     const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -41,10 +44,10 @@ function Header() {
     const handleLogin = async () => {
         const user = users.find((user) => user.name === username);
         if (user && await bcrypt.compare(password, user.password)) {
-            setIsLoggedIn(true);
-            setName(user.name);
-            setEmail(user.email);
-            setIsAdmin(user.userIsAdmin);
+            setUserIsLoggedIn(true);
+            setUserName(user.name);
+            setUserEmail(user.email);
+            setUserIsAdmin(user.userIsAdmin);
             setShowLoginForm(false);
             setUsername('');
             setPassword('');
@@ -66,38 +69,45 @@ function Header() {
     };
 
     const handleLogout = () => {
-        setIsLoggedIn(false);
-        setName(null);
-        setEmail(null);
-        setIsAdmin(false);
+        setUserIsLoggedIn(false);
+        setUserName('');
+        setUserEmail('');
+        setUserIsAdmin(false);
     };
 
     const items: MenuItem[] = [
         {
             label: 'Home',
             icon: 'pi pi-home',
-            url: "/"
+            template: (item, options) => (
+                <Link to="/" className={options.className} style={{ textDecoration: 'none' }}>{item.label}</Link>
+            )
         },
         {
             label: 'Übersicht',
             icon: 'pi pi-table',
-            url: "/read"
+            template: (item, options) => (
+                <Link to="/read" className={options.className} style={{ textDecoration: 'none' }}>{item.label}</Link>
+            )
         },
         {
             label: 'Neues Rezept',
             icon: 'pi pi-star',
-            url: "/write",
-            visible: isLoggedIn && isAdmin
-
+            visible: isLoggedIn && isAdmin,
+            template: (item, options) => (
+                <Link to="/write" className={options.className} style={{ textDecoration: 'none' }}>{item.label}</Link>
+            )
         },
         {
             label: 'Userverwaltung',
             icon: 'pi pi-users',
-            url: "/user",
-            visible: isLoggedIn && isAdmin
-
+            visible: isLoggedIn && isAdmin,
+            template: (item, options) => (
+                <Link to="/user" className={options.className} style={{ textDecoration: 'none' }}>{item.label}</Link>
+            )
         },
     ];
+
     const end = isLoggedIn ?
         <Button label={"Logout " + name} onClick={handleLogout} />
         :
