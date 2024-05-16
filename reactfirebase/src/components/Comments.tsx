@@ -26,19 +26,8 @@ export type Comment = {
   timestamp?: string;
 };
 
-export interface Comments {
-  id: string;
-  username: string;
-  email?: string;
-  date: string;
-  rezeptId: string;
-  rezeptRating: number;
-  rezeptComment?: string;
-}
-
 function Comments() {
   const { firebaseId } = useParams<{ firebaseId: string }>();
-
 
   const [isLoggedIn] = useGlobalState("userIsLoggedIn");
   const [userIsAdmin] = useGlobalState("userIsAdmin");

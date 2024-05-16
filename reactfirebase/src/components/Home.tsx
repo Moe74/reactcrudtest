@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {
   Rezept,
   breakpoints,
+  colors,
   imageRezeptUrlPrefix,
   useElementWidth,
 } from "./Helpers";
@@ -97,7 +98,12 @@ const Home = (p: HomeProps) => {
     }
   };
 
-  const sorted = _.sortBy(rezepte, (a) => a.rating);
+  const rezepteWithRating = _.filter(rezepte, (r) => r.rating > 0);
+  const sorted = _.orderBy(
+    rezepteWithRating,
+    ["rating", "title"],
+    ["desc", "asc"]
+  );
   /* const sorted = rezepte; */
   const shownPanes =
     contentWidth <= breakpoints.mobile
@@ -130,7 +136,10 @@ const Home = (p: HomeProps) => {
                     image={imageRezeptUrlPrefix + (r.image ?? "noImage.webp")}
                   >
                     <RatingContainer>
-                      <AverageRating firebaseId={r.rezeptId ?? ""} />
+                      <AverageRating
+                        color={colors.redDark}
+                        firebaseId={r.rezeptId ?? ""}
+                      />
                     </RatingContainer>
                   </PaneImage>
                   <PaneText>{r.title}</PaneText>
