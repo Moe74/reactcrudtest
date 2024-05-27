@@ -475,7 +475,6 @@ function Write() {
                   minFractionDigits={2}
                   locale="de-DE"
                   style={{
-                    marginRight: "2px",
                     float: "left",
                     width: "70px",
                     borderColor: (currentIngredient.text !== undefined && ingredients.length === 0) ? "red" : undefined,
