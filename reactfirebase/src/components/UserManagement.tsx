@@ -15,6 +15,8 @@ import { InputText } from "primereact/inputtext";
 import { title } from "process";
 import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
 
 type User = {
   id?: string;
@@ -105,15 +107,43 @@ function UserManagement() {
     setEditId(null);
     setShowPassword(false);
   };
-  if (!mayEdit)
+  if (!isLoggedIn)
     return (
       <>
         {/* <Header /> */}
         <h3 className="missing">
-          Du musst als Admin eingelogged sein um neue Rezepte anzulegen
+          Du musst als Admin eingelogged sein um User zu verwalten.
         </h3>
       </>
     );
+
+  const buttons = (user: User) => {
+    return (
+      <>
+        {mayEdit && (
+          <>
+            <Button
+              icon="pi pi-pen-to-square"
+              severity="warning"
+              aria-label="Edit"
+              onClick={() => handleEdit(user)}
+              style={{ float: "left", marginRight: 5 }}
+            />
+          </>
+        )}
+        <Button
+          label="delete"
+          severity="success"
+          onClick={() => handleDelete(user.id!)}
+          style={{
+            float: "left",
+            width: mayEdit ? "calc(100% - 50px)" : "100%",
+            backgroundColor: "red",
+          }}
+        />
+      </>
+    );
+  };
 
   const saveable = name && email && password;
 
@@ -130,134 +160,154 @@ function UserManagement() {
           width: "100%",
         }}
       >
-        <div>Name</div>
-        <div>
-          <InputText
-            style={{ width: "100%" }}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            invalid={!name}
-            variant={!name ? "filled" : undefined}
-          />
-        </div>
-        <div>
-          {!name && (
-            <span
-              className="pi pi-exclamation-circle"
-              style={{ color: "#D13438", fontSize: "1.5rem" }}
-            />
-          )}
-        </div>
-        <div>E-Mail</div>
-        <div>
-          <InputText
-            style={{ width: "100%" }}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            invalid={!email}
-            variant={!email ? "filled" : undefined}
-          />
-        </div>
-        <div>
-          {!email && (
-            <span
-              className="pi pi-exclamation-circle"
-              style={{ color: "#D13438", fontSize: "1.5rem" }}
-            />
-          )}
-        </div>
-        <div>Password</div>
-        <div>
-          <InputText
-            style={{ width: "100%" }}
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            invalid={!password}
-            variant={!password ? "filled" : undefined}
-            /*  type="checkbox" */
-            checked={showPassword}
-          />
-        </div>
-
-        <div>
-          {!password && (
-            <span
-              className="pi pi-exclamation-circle"
-              style={{ color: "#D13438", fontSize: "1.5rem" }}
-            />
-          )}
-        </div>
-        <div style={{ gridColumnStart: 2, gridColumnEnd: 4 }}>
-          <Checkbox
-            inputId="ingredient1"
-            name="pizza"
-            value="Cheese"
-            onChange={(e) => setShowPassword(!showPassword)}
-            checked={showPassword}
-          />
-          <label
-            style={{ marginLeft: "10px" }}
-            htmlFor="ingredient1"
-            className="ml-2"
-          >
-            Passwort anzeigen
-          </label>
-        </div>
-
-        {/*      Show Password */}
-        <div>Admin?</div>
-        <div>
-          <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-            <div className="p-inputgroup">
-              <span className="p-inputgroup-addon">
-                <Checkbox
-                  onChange={() => setUserIsAdmin(!userIsAdmin)}
-                  checked={userIsAdmin}
-                />
-              </span>
+        {isAdmin && (
+          <>
+            <div>Name</div>
+            <div>
               <InputText
-                value={userIsAdmin ? "ja" : "nein"}
-                style={{
-                  width: "100%",
-                  color: "#323130",
-                  pointerEvents: "none",
-                }}
-                variant="filled"
+                style={{ width: "100%" }}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                invalid={!name}
+                variant={!name ? "filled" : undefined}
               />
             </div>
-          </div>
-        </div>
-        <div
-          style={{
-            gridColumnStart: 1,
-            gridColumnEnd: 4,
-            background: "#323130",
-            height: 1,
-          }}
-        />
-        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <Button
-            onClick={handleSubmit}
-            disabled={!saveable}
-            className="btn"
-            label={saveable ? "Submit" : "MISSING DATA"}
-            style={{ float: "right" }}
-            severity={saveable ? "success" : "danger"}
-            outlined={!saveable}
-          />
-          <Button
-            onClick={resetForm}
-            disabled={isLoading}
-            className="btn"
-            label={"Reset"}
-            style={{ float: "right", marginRight: "20px" }}
-          />
-        </div>
-        {/*  <button className="btn">{editId ? "Update" : "Submit"}</button> */}
-        <div style={{ gridColumn: "1 / span 2" }}>
+            <div>
+              {!name && (
+                <span
+                  className="pi pi-exclamation-circle"
+                  style={{ color: "#D13438", fontSize: "1.5rem" }}
+                />
+              )}
+            </div>
+            <div>E-Mail</div>
+            <div>
+              <InputText
+                style={{ width: "100%" }}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                invalid={!email}
+                variant={!email ? "filled" : undefined}
+              />
+            </div>
+            <div>
+              {!email && (
+                <span
+                  className="pi pi-exclamation-circle"
+                  style={{ color: "#D13438", fontSize: "1.5rem" }}
+                />
+              )}
+            </div>
+            <div>Password</div>
+            <div>
+              <InputText
+                style={{ width: "100%" }}
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                invalid={!password}
+                variant={!password ? "filled" : undefined}
+                /*  type="checkbox" */
+                checked={showPassword}
+              />
+            </div>
+            <div>
+              {!password && (
+                <span
+                  className="pi pi-exclamation-circle"
+                  style={{ color: "#D13438", fontSize: "1.5rem" }}
+                />
+              )}
+            </div>
+            <div style={{ gridColumnStart: 2, gridColumnEnd: 4 }}>
+              <Checkbox
+                inputId="ingredient1"
+                name="pizza"
+                value="Cheese"
+                onChange={(e) => setShowPassword(!showPassword)}
+                checked={showPassword}
+              />
+              <label
+                style={{ marginLeft: "10px" }}
+                htmlFor="ingredient1"
+                className="ml-2"
+              >
+                Passwort anzeigen
+              </label>
+            </div>
+            {/*      Show Password */}
+            <div>Admin?</div>
+            <div>
+              <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                <div className="p-inputgroup">
+                  <span className="p-inputgroup-addon">
+                    <Checkbox
+                      onChange={() => setUserIsAdmin(!userIsAdmin)}
+                      checked={userIsAdmin}
+                    />
+                  </span>
+                  <InputText
+                    value={userIsAdmin ? "ja" : "nein"}
+                    style={{
+                      width: "100%",
+                      color: "#323130",
+                      pointerEvents: "none",
+                    }}
+                    variant="filled"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              style={{
+                gridColumnStart: 1,
+                gridColumnEnd: 4,
+                background: "#323130",
+                height: 1,
+              }}
+            />
+            <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+              <Button
+                onClick={handleSubmit}
+                disabled={!saveable}
+                className="btn"
+                label={saveable ? "Submit" : "MISSING DATA"}
+                style={{ float: "right" }}
+                severity={saveable ? "success" : "danger"}
+                outlined={!saveable}
+              />
+              <Button
+                onClick={resetForm}
+                disabled={isLoading}
+                className="btn"
+                label={"Reset"}
+                style={{ float: "right", marginRight: "20px" }}
+              />
+            </div>
+          </>
+        )}
+        <div style={{ width: "100%", gridColumnStart: 1, gridColumnEnd: 4 }}>
           <h3>User List</h3>
-          <table style={{ width: "100%" /*  borderCollapse: "collapse" */ }}>
+        </div>
+        <div style={{ width: "100%", gridColumnStart: 1, gridColumnEnd: 4 }}>
+          <DataTable value={users}>
+            <Column field="name" header="Name" />
+            <Column field="email" header="Email" />
+            <Column
+              field="userIsAdmin"
+              header="Admin"
+              body={(rowData) => (rowData.userIsAdmin ? "Yes" : "No")}
+            />
+            {isAdmin && <Column header="Actions" body={buttons} />}
+          </DataTable>
+        </div>
+        To-Do:
+        <ul>
+          <li>delete mit konfirmation</li>
+          <li>Ueberpruefung Name und Email unique</li>
+          <li>Passwort beim Editieren optional ändern</li>
+        </ul>
+        {/* <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -288,8 +338,7 @@ function UserManagement() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </table> */}
       </div>
     </div>
   );
