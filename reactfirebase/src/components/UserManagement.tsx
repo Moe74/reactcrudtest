@@ -8,15 +8,16 @@ import {
   set,
   update,
 } from "firebase/database";
+import { Button } from "primereact/button";
+import { Checkbox } from "primereact/checkbox";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
 import * as React from "react";
+import { useState } from "react";
 import app from "../firebaseConfig";
 import { useGlobalState } from "./GlobalStates";
-import { InputText } from "primereact/inputtext";
-import { title } from "process";
-import { Checkbox } from "primereact/checkbox";
-import { Button } from "primereact/button";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 
 type User = {
   id?: string;
@@ -37,6 +38,8 @@ function UserManagement() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isLoggedIn] = useGlobalState("userIsLoggedIn");
   const [isAdmin] = useGlobalState("userIsAdmin");
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const mayEdit = isLoggedIn && isAdmin;
 
@@ -92,11 +95,18 @@ function UserManagement() {
     setShowPassword(false); // Klartextanzeige beim Bearbeiten ausschalten.
   };
 
-  const handleDelete = async (id: string) => {
+  const confirmDelete = (id: string) => {
+    setDeleteUserId(id);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDelete = async () => {
     const db = getDatabase(app);
-    const userRef = ref(db, `users/${id}`);
+    const userRef = ref(db, `users/${deleteUserId}`);
     await remove(userRef);
     alert("User deleted successfully");
+    setShowDeleteDialog(false);
+    setDeleteUserId(null);
   };
 
   const resetForm = () => {
@@ -134,7 +144,7 @@ function UserManagement() {
         <Button
           label="delete"
           severity="success"
-          onClick={() => handleDelete(user.id!)}
+          onClick={() => confirmDelete(user.id!)}
           style={{
             float: "left",
             width: mayEdit ? "calc(100% - 50px)" : "100%",
@@ -307,39 +317,31 @@ function UserManagement() {
           <li>Ueberpruefung Name und Email unique</li>
           <li>Passwort beim Editieren optional ändern</li>
         </ul>
-        {/* <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Admin</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user, index) => (
-                <tr key={index}>
-                  <td style={{ textAlign: "center" }}>{user.name} </td>
-                  <td style={{ textAlign: "center" }}>{user.email}</td>
-                  <td style={{ textAlign: "center" }}>
-                    {user.userIsAdmin ? "Yes" : "No"}
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <button onClick={() => handleEdit(user)} className="btn">
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.id!)}
-                      className="btn"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table> */}
       </div>
+      <Dialog
+        header="Confirm Delete"
+        visible={showDeleteDialog}
+        style={{ width: "50vw" }}
+        onHide={() => setShowDeleteDialog(false)}
+        footer={
+          <>
+            <Button
+              label="No"
+              icon="pi pi-times"
+              onClick={() => setShowDeleteDialog(false)}
+              className="p-button-text"
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              onClick={handleDelete}
+              autoFocus
+            />
+          </>
+        }
+      >
+        <p>Are you sure you want to delete this user?</p>
+      </Dialog>
     </div>
   );
 }
