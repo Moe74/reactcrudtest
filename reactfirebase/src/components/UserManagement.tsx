@@ -104,7 +104,6 @@ function UserManagement() {
     const db = getDatabase(app);
     const userRef = ref(db, `users/${deleteUserId}`);
     await remove(userRef);
-    alert("User deleted successfully");
     setShowDeleteDialog(false);
     setDeleteUserId(null);
   };
@@ -143,12 +142,10 @@ function UserManagement() {
         )}
         <Button
           label="delete"
-          severity="success"
+          severity="danger"
           onClick={() => confirmDelete(user.id!)}
           style={{
             float: "left",
-            width: mayEdit ? "calc(100% - 50px)" : "100%",
-            backgroundColor: "red",
           }}
         />
       </>
@@ -313,7 +310,6 @@ function UserManagement() {
         </div>
         To-Do:
         <ul>
-          <li>delete mit konfirmation</li>
           <li>Ueberpruefung Name und Email unique</li>
           <li>Passwort beim Editieren optional ändern</li>
         </ul>
