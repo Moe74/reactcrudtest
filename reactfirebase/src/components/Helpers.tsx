@@ -235,3 +235,8 @@ export const breakpoints = {
   tablet: 768,
   mobile: 440,
 };
+
+export const isValidEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
