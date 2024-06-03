@@ -7,6 +7,7 @@ import {
   remove,
   set,
   update,
+  get,
 } from "firebase/database";
 import { Button } from "primereact/button";
 import { Checkbox } from "primereact/checkbox";
@@ -40,8 +41,66 @@ function UserManagement() {
   const [isAdmin] = useGlobalState("userIsAdmin");
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
 
   const mayEdit = isLoggedIn && isAdmin;
+
+  const handleSubmit = async () => {
+    if (!name || !email) {
+      alert("Name und E-Mail sind erforderlich.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const db = getDatabase(app);
+    const userRef = editId ? ref(db, `users/${editId}`) : push(ref(db, "users"));
+
+    let newUser: User = {
+      name,
+      email,
+      password: "",
+      userIsAdmin,
+    };
+
+    try {
+      if (editId) {
+        const snapshot = await get(userRef);
+        if (!snapshot.exists()) {
+          alert("Benutzer nicht gefunden.");
+          setIsLoading(false);
+          return;
+        }
+        const existingUser = snapshot.val() as User;
+
+        newUser = {
+          ...newUser,
+          password: existingUser.password,
+        };
+
+        await update(userRef, newUser);
+        alert("Benutzer erfolgreich aktualisiert");
+      } else {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        newUser = {
+          ...newUser,
+          password: hashedPassword,
+        };
+
+        await set(userRef, newUser);
+        alert("Benutzer erfolgreich gespeichert");
+      }
+      resetForm();
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Benutzers: ", error);
+      alert("Ein Fehler ist beim Aktualisieren des Benutzers aufgetreten.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   React.useEffect(() => {
     const db = getDatabase(app);
@@ -55,44 +114,16 @@ function UserManagement() {
     });
   }, []);
 
-  const handleSubmit = async () => {
-    if (!name || !email || !password) {
-      alert("Name, email, and password are required.");
-      return;
-    }
 
-    setIsLoading(true);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser: User = {
-      name,
-      email,
-      password: hashedPassword,
-      userIsAdmin,
-    };
-
-    const db = getDatabase(app);
-
-    if (editId) {
-      const userRef = ref(db, `users/${editId}`);
-      await update(userRef, newUser);
-      alert("User updated successfully");
-    } else {
-      const newUserRef = push(ref(db, "users"));
-      await set(newUserRef, newUser);
-      alert("User saved successfully");
-    }
-    resetForm();
-    setIsLoading(false);
-  };
 
   const handleEdit = (user: User) => {
     setName(user.name);
     setEmail(user.email);
-    setPassword(""); // Passwort beim Bearbeiten nicht anzeigen.
+    setPassword("");
     setUserIsAdmin(user.userIsAdmin);
     setEditId(user.id || null);
-    setShowPassword(false); // Klartextanzeige beim Bearbeiten ausschalten.
+    setShowPassword(false);
   };
 
   const confirmDelete = (id: string) => {
@@ -116,10 +147,48 @@ function UserManagement() {
     setEditId(null);
     setShowPassword(false);
   };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword) {
+      alert("Current password and new password are required.");
+      return;
+    }
+
+    const db = getDatabase(app);
+    const userRef = ref(db, `users/${editId}`);
+
+
+    try {
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        alert("User not found.");
+        return;
+      }
+
+      const user = snapshot.val() as User;
+
+      const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!passwordMatch) {
+        alert("Current password is incorrect.");
+        return;
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      await update(userRef, { password: hashedNewPassword });
+
+      setShowChangePasswordDialog(false);
+      setCurrentPassword("");
+      setNewPassword("");
+    } catch (error) {
+      console.error("Error changing password: ", error);
+      alert("An error occurred while changing the password.");
+    }
+  };
+
   if (!isLoggedIn)
     return (
       <>
-        {/* <Header /> */}
         <h3 className="missing">
           Du musst als Admin eingelogged sein um User zu verwalten.
         </h3>
@@ -152,11 +221,10 @@ function UserManagement() {
     );
   };
 
-  const saveable = name && email && password;
+  const saveable = name && email && (password || editId);
 
   return (
     <div>
-      {/* <Header /> */}
       <h2>UserManagement.tsx</h2>
       <div
         style={{
@@ -205,44 +273,44 @@ function UserManagement() {
                 />
               )}
             </div>
-            <div>Password</div>
-            <div>
-              <InputText
-                style={{ width: "100%" }}
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                invalid={!password}
-                variant={!password ? "filled" : undefined}
-                /*  type="checkbox" */
-                checked={showPassword}
-              />
-            </div>
-            <div>
-              {!password && (
-                <span
-                  className="pi pi-exclamation-circle"
-                  style={{ color: "#D13438", fontSize: "1.5rem" }}
-                />
-              )}
-            </div>
-            <div style={{ gridColumnStart: 2, gridColumnEnd: 4 }}>
-              <Checkbox
-                inputId="ingredient1"
-                name="pizza"
-                value="Cheese"
-                onChange={(e) => setShowPassword(!showPassword)}
-                checked={showPassword}
-              />
-              <label
-                style={{ marginLeft: "10px" }}
-                htmlFor="ingredient1"
-                className="ml-2"
-              >
-                Passwort anzeigen
-              </label>
-            </div>
-            {/*      Show Password */}
+            {!editId && (
+              <>
+                <div>Password</div>
+                <div>
+                  <InputText
+                    style={{ width: "100%" }}
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    invalid={!password}
+                    variant={!password ? "filled" : undefined}
+                  />
+                </div>
+                <div>
+                  {!password && (
+                    <span
+                      className="pi pi-exclamation-circle"
+                      style={{ color: "#D13438", fontSize: "1.5rem" }}
+                    />
+                  )}
+                </div>
+                <div style={{ gridColumnStart: 2, gridColumnEnd: 4 }}>
+                  <Checkbox
+                    inputId="showPassword"
+                    value="showPassword"
+                    onChange={(e) => setShowPassword(!showPassword)}
+                    checked={showPassword}
+                  />
+                  <label
+                    style={{ marginLeft: "10px" }}
+                    htmlFor="showPassword"
+                    className="ml-2"
+                  >
+                    Passwort anzeigen
+                  </label>
+                </div>
+              </>
+            )}
             <div>Admin?</div>
             <div>
               <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
@@ -290,6 +358,14 @@ function UserManagement() {
                 label={"Reset"}
                 style={{ float: "right", marginRight: "20px" }}
               />
+              {editId && (
+                <Button
+                  label="Change Password"
+                  severity="info"
+                  onClick={() => setShowChangePasswordDialog(true)}
+                  style={{ float: "right", marginRight: "20px" }}
+                />
+              )}
             </div>
           </>
         )}
@@ -308,11 +384,13 @@ function UserManagement() {
             {isAdmin && <Column header="Actions" body={buttons} />}
           </DataTable>
         </div>
-        To-Do:
-        <ul>
-          <li>Ueberpruefung Name und Email unique</li>
-          <li>Passwort beim Editieren optional ändern</li>
-        </ul>
+        <div style={{ border: "1px dashed #9e5f0c", padding: 20, width: "100%", gridColumnStart: 1, gridColumnEnd: 4, background: "#ebd0ad24", color: "#9e5f0c" }}>
+          To-Do:
+          <ul>
+            <li>Ueberpruefung Name und Email unique</li>
+            <li>Ueberpruefung Email valide</li>
+          </ul>
+        </div>
       </div>
       <Dialog
         header="Confirm Delete"
@@ -337,6 +415,51 @@ function UserManagement() {
         }
       >
         <p>Are you sure you want to delete this user?</p>
+      </Dialog>
+      <Dialog
+        header="Change Password"
+        visible={showChangePasswordDialog}
+        style={{ width: "50vw" }}
+        onHide={() => setShowChangePasswordDialog(false)}
+        footer={
+          <>
+            <Button
+              label="Cancel"
+              icon="pi pi-times"
+              onClick={() => setShowChangePasswordDialog(false)}
+              className="p-button-text"
+            />
+            <Button
+              label="Change"
+              icon="pi pi-check"
+              onClick={handleChangePassword}
+              autoFocus
+            />
+          </>
+        }
+      >
+        <div>
+          <div>
+            <label htmlFor="currentPassword">Current Password</label>
+            <InputText
+              id="currentPassword"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              style={{ width: "100%" }}
+            />
+          </div>
+          <div>
+            <label htmlFor="newPassword">New Password</label>
+            <InputText
+              id="newPassword"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              style={{ width: "100%" }}
+            />
+          </div>
+        </div>
       </Dialog>
     </div>
   );
