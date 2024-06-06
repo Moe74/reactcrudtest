@@ -1,9 +1,10 @@
 import { Button } from 'primereact/button';
 import * as React from 'react';
-import Rechner from './Rechner';
 import CheckPassword from './CheckPassword';
+import Rechner from './Rechner';
+import CheckPasswordMM from './CheckPassword_MM';
 
-export type Comps = "Calc" | "CheckPassword" | undefined
+export type Comps = "Calc" | "CheckPassword" | "CheckPasswordMM" | undefined
 
 
 
@@ -19,11 +20,13 @@ const Spielwiese = (p: SpielwieseProps) => {
             <h1>Spielwiese</h1>
             <div style={{ display: "flex", gap: 5, marginBottom: 40 }}>
                 <Button icon='pi pi-times' onClick={() => setcomp(undefined)} severity='danger' />
-                <Button label='Rechner' onClick={() => setcomp("Calc")} raised={comp === "Calc"} />
-                <Button label='Check Password' onClick={() => setcomp("CheckPassword")} raised={comp === "CheckPassword"} />
+                <Button label='Rechner' onClick={() => setcomp("Calc")} raised={comp === "Calc"} text={comp !== "Calc"} />
+                <Button label='Check Password' onClick={() => setcomp("CheckPassword")} raised={comp === "CheckPassword"} text={comp !== "CheckPassword"} />
+                <Button label='Check Password MM' onClick={() => setcomp("CheckPasswordMM")} raised={comp === "CheckPasswordMM"} text={comp !== "CheckPasswordMM"} />
             </div>
             {comp === "Calc" && <Rechner />}
             {comp === "CheckPassword" && <CheckPassword />}
+            {comp === "CheckPasswordMM" && <CheckPasswordMM />}
         </div>
     );
 }
