@@ -172,6 +172,20 @@ function Header() {
                 </Link>
             ),
         },
+        {
+            label: "Spielwiese",
+            icon: "pi pi-game",
+            visible: isLoggedIn,
+            template: (item, options) => (
+                <Link
+                    to="/spielwiese"
+                    className={options.className}
+                    style={{ textDecoration: "none" }}
+                >
+                    {item.label}
+                </Link>
+            ),
+        },
     ];
 
     const end = isLoggedIn ? (

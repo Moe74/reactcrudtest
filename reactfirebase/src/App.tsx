@@ -8,6 +8,7 @@ import "primereact/resources/themes/fluent-light/theme.css";
 import 'primeicons/primeicons.css';
 import Home from "./components/Home";
 import Layout from "./components/Layout";
+import Spielwiese from "./pages/spielwiese/Spielwiese";
 
 const basename = process.env.REACT_APP_BASENAME || "/";
 
@@ -24,6 +25,7 @@ function App() {
               <Route path="write" element={<Write />} />
               <Route path="edit/:firebaseId" element={<Write />} />
               <Route path="user" element={<UserManagement />} />
+              <Route path="spielwiese" element={<Spielwiese />} />
             </Route>
           </Routes>
         </div>

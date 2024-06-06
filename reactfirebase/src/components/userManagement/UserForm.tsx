@@ -6,8 +6,10 @@ import { Button } from 'primereact/button';
 interface UserFormProps {
     name: string;
     setName: (name: string) => void;
+    setNameError: (name: string) => void;
     email: string;
     setEmail: (email: string) => void;
+    setEmailError: (name: string) => void;
     password: string;
     setPassword: (password: string) => void;
     userIsAdmin: boolean;
@@ -28,6 +30,7 @@ const UserForm: React.FC<UserFormProps> = ({
     setName,
     email,
     setEmail,
+    setEmailError,
     password,
     setPassword,
     userIsAdmin,
@@ -40,9 +43,20 @@ const UserForm: React.FC<UserFormProps> = ({
     isLoading,
     nameError,
     emailError,
+    setNameError,
     setShowChangePasswordDialog, // Add this prop
 }) => {
     const saveable = name && email && (password || editId);
+
+    const settingName = (val: string) => {
+        setName(val)
+        setNameError('');
+    };
+
+    const settingEmail = (val: string) => {
+        setEmail(val)
+        setEmailError('');
+    };
 
     return (
         <>
@@ -52,7 +66,7 @@ const UserForm: React.FC<UserFormProps> = ({
                     id="name"
                     style={{ width: '100%' }}
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => settingName(e.target.value)}
                     invalid={!name}
                     variant={!name ? 'filled' : undefined}
                     autoComplete="off"
@@ -70,7 +84,7 @@ const UserForm: React.FC<UserFormProps> = ({
                     id="email"
                     style={{ width: '100%' }}
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => settingEmail(e.target.value)}
                     invalid={!email}
                     variant={!email ? 'filled' : undefined}
                     autoComplete="off"

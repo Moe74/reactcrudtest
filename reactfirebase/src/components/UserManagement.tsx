@@ -171,7 +171,9 @@ function UserManagement() {
 
   const resetForm = () => {
     setName('');
+    setNameError('');
     setEmail('');
+    setEmailError('');
     setPassword('');
     setUserIsAdmin(false);
     setEditId(null);
@@ -245,8 +247,10 @@ function UserManagement() {
           <UserForm
             name={name}
             setName={setName}
+            setNameError={setNameError}
             email={email}
             setEmail={setEmail}
+            setEmailError={setEmailError}
             password={password}
             setPassword={setPassword}
             userIsAdmin={userIsAdmin}
@@ -263,7 +267,7 @@ function UserManagement() {
           />
         )}
         <UserList users={users} isAdmin={isAdmin} handleEdit={handleEdit} confirmDelete={confirmDelete} />
-        <div
+        {/* <div
           style={{
             border: '1px dashed #9e5f0c',
             padding: 20,
@@ -279,7 +283,7 @@ function UserManagement() {
             <li>Ueberpruefung Name und Email unique</li>
             <li>Ueberpruefung Email valide</li>
           </ul>
-        </div>
+        </div> */}
       </div>
       <ConfirmDeleteDialog visible={showDeleteDialog} setVisible={setShowDeleteDialog} handleDelete={handleDelete} />
       <ChangePasswordDialog
