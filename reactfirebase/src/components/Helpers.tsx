@@ -240,3 +240,19 @@ export const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
+
+export function formatMinuteToHours(mins: number): string {
+  if (mins < 60) {
+    if (mins === 15) return "Viertelstunde";
+    else if (mins === 30) return "halbe Stunde";
+    else if (mins === 45) return "Dreiviertelstunde";
+    else return `${mins} min`;
+  } else {
+    const hours = Math.floor(mins / 60);
+    /* const remainMins = mins - hours * 60; */
+    const remainMins = mins % 60;
+    const showMins = remainMins > 0;
+    if (showMins) return `${hours} std ${remainMins} min`;
+    else return `${hours} std`;
+  }
+}

@@ -21,6 +21,7 @@ import {
   chefHatInactive,
   colors,
   convertUnits,
+  formatMinuteToHours,
   useElementWidth,
 } from "./Helpers";
 
@@ -120,7 +121,7 @@ function Single() {
                 style={{ marginRight: 5, paddingLeft: "30px" }}
                 className="pi pi-stopwatch"
               ></span>
-              <div>{recipe.duration}m </div>
+              <div>{formatMinuteToHours(recipe.duration)} </div>
             </div>
 
             <div
