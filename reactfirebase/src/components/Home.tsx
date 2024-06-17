@@ -12,8 +12,9 @@ import { get, getDatabase, ref } from "firebase/database";
 import app from "../firebaseConfig";
 import _ from "lodash";
 import AverageRating from "./AverageRating";
+import CarouselHome from "./CarouselHome";
 
-interface HomeProps { }
+interface HomeProps {}
 
 const OuterContainer = styled.div<{ shownPanes: number }>`
   width: 100%;
@@ -109,8 +110,8 @@ const Home = (p: HomeProps) => {
     contentWidth <= breakpoints.mobile
       ? 1
       : contentWidth > breakpoints.mobile && contentWidth <= breakpoints.tablet
-        ? 2
-        : 3;
+      ? 2
+      : 3;
 
   let navigate = useNavigate();
 
@@ -118,6 +119,7 @@ const Home = (p: HomeProps) => {
     <>
       <div>
         <h1>Home</h1>
+        <CarouselHome />
       </div>
       <div ref={divRef}>
         <Ueberschrift>Keine Gerichtideen?</Ueberschrift>
@@ -135,7 +137,7 @@ const Home = (p: HomeProps) => {
                   <PaneImage
                     image={imageRezeptUrlPrefix + (r.image ?? "noImage.webp")}
                   >
-                    <RatingContainer >
+                    <RatingContainer>
                       <AverageRating
                         color={colors.white}
                         firebaseId={r.rezeptId ?? ""}
