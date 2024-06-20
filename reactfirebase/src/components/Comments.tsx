@@ -32,7 +32,7 @@ function Comments() {
   const [isLoggedIn] = useGlobalState("userIsLoggedIn");
   const [userIsAdmin] = useGlobalState("userIsAdmin");
   const [loggedInName] = useGlobalState("userName");
-  const [loggedInEmail] = useGlobalState("userName");
+  const [loggedInEmail] = useGlobalState("userEmail");
 
   const [name, setName] = React.useState<string>("");
   const [email, setEmail] = React.useState<string>("");
