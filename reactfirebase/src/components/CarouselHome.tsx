@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Carousel } from "primereact/carousel";
 import { get, getDatabase, ref } from "firebase/database";
 import app from "../firebaseConfig";
-import { imageRezeptUrlPrefix, colors, Rezept } from "./Helpers";
+import {
+  imageRezeptUrlPrefix,
+  colors,
+  Rezept,
+  formatMinuteToHours,
+} from "./Helpers";
 import AverageRating from "./AverageRating";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -73,7 +78,7 @@ const CarouselHome: React.FC = () => {
               paddingLeft: 10,
             }}
           >
-            {recipe.duration} min
+            {formatMinuteToHours(recipe.duration)}
           </div>
           <RatingContainer>
             <AverageRating

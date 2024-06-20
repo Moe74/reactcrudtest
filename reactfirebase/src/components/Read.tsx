@@ -10,7 +10,13 @@ import { useNavigate } from "react-router-dom";
 import app from "../firebaseConfig";
 import AverageRating from "./AverageRating";
 import { useGlobalState } from "./GlobalStates";
-import { Rezept } from "./Helpers";
+import {
+  Rezept,
+  chefHatActive,
+  chefHatInactive,
+  formatMinuteToHours,
+} from "./Helpers";
+import { Rating } from "primereact/rating";
 
 function Read() {
   const navigate = useNavigate();
@@ -83,6 +89,22 @@ function Read() {
   const ratingBodyTemplate = (rezept: Rezept) => {
     return <AverageRating firebaseId={rezept.rezeptId ?? ""} />;
   };
+  const durationBodyTemplate = (rezept: Rezept) => {
+    return formatMinuteToHours(rezept.duration);
+  };
+  const difficultyBodyTemplate = (rezept: Rezept) => {
+    return (
+      <Rating
+        value={rezept.difficulty}
+        readOnly
+        cancel={false}
+        onIcon={chefHatActive}
+        stars={3}
+        offIcon={chefHatInactive}
+        /*   style={{ paddingLeft: "30px" }} */
+      />
+    );
+  };
   const [selectedProducts, setSelectedProducts] = React.useState<Rezept[]>([]);
   const dt = React.useRef<DataTable<Rezept[]>>(null);
   const [globalFilter, setGlobalFilter] = React.useState<string>("");
@@ -129,8 +151,18 @@ function Read() {
         <Column header="Image" body={imageBodyTemplate}></Column>
         <Column field="title" header="Titel" sortable></Column>
         <Column field="description" header="Beschreibung"></Column>
-        <Column field="duration" header="Dauer" sortable></Column>
-        <Column field="difficulty" header="Schwierigkeit" sortable></Column>
+        <Column
+          field="duration"
+          header="Dauer"
+          body={durationBodyTemplate}
+          sortable
+        ></Column>
+        <Column
+          field="difficulty"
+          header="Schwierigkeit"
+          body={difficultyBodyTemplate}
+          sortable
+        ></Column>
         <Column
           field="rating"
           header="Ratings"
