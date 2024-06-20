@@ -10,11 +10,14 @@ import {
   set,
   update,
 } from "firebase/database";
+import _ from "lodash";
+import { RatingChangeEvent } from "primereact/rating";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import app from "../firebaseConfig";
-import _ from "lodash";
+import CommentForm from "./CommentForm";
 import { useGlobalState } from "./GlobalStates";
+import SingleComment from "./SingleComment";
 
 export type Comment = {
   id?: string;
@@ -28,12 +31,9 @@ export type Comment = {
 
 function Comments() {
   const { firebaseId } = useParams<{ firebaseId: string }>();
-
   const [isLoggedIn] = useGlobalState("userIsLoggedIn");
-  const [userIsAdmin] = useGlobalState("userIsAdmin");
   const [loggedInName] = useGlobalState("userName");
   const [loggedInEmail] = useGlobalState("userEmail");
-
   const [name, setName] = React.useState<string>("");
   const [email, setEmail] = React.useState<string>("");
   const [comment, setComment] = React.useState<string | null>(null);
@@ -46,7 +46,6 @@ function Comments() {
   const [ratingError, setRatingError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    // Set name and email based on logged-in user
     if (isLoggedIn) {
       setName(loggedInName || "");
       setEmail(loggedInEmail || "");
@@ -79,8 +78,6 @@ function Comments() {
         }
         commentsList.push({ id: childSnapshot.key, ...commentData });
       });
-
-      /*  hallo */
 
       commentsList.sort((a, b) => {
         const dateA = new Date(a.timestamp ?? 0);
@@ -117,7 +114,6 @@ function Comments() {
       return;
     }
 
-    // Proceed to update or set the comment as the data is now valid
     const timestamp = new Date().toISOString();
     const newComment: Comment = {
       rezeptId: firebaseId,
@@ -142,7 +138,6 @@ function Comments() {
         alert("Comment saved successfully");
       }
 
-      // Calculate new average rating
       if (rating !== null) {
         const currentRatings = comments
           .filter((c) => c.rating !== null)
@@ -150,7 +145,6 @@ function Comments() {
         currentRatings.push(rating);
         const averageRating = _.round(_.mean(currentRatings) * 2) / 2;
 
-        // Update recipe with new average rating
         const recipeRef = ref(db, `recipes/${firebaseId}`);
         await update(recipeRef, { rating: averageRating });
       }
@@ -158,10 +152,8 @@ function Comments() {
       resetForm();
     } catch (error) {
       if (error instanceof Error) {
-        // Hier können wir sicher sein, dass es sich um ein Error-Objekt handelt
         alert(`An error occurred: ${error.message}`);
       } else {
-        // Hier handeln Sie den Fall, wenn der Fehler nicht vom Typ Error ist
         alert("An unknown error occurred.");
       }
     }
@@ -198,24 +190,9 @@ function Comments() {
     setEditId(null);
   };
 
-  const handleRatingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    setRating(value);
+  const handleRatingChange = (e: RatingChangeEvent) => {
+    setRating(e.value ?? null);
     setRatingError(null);
-  };
-
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const dateOptions = {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    } as const;
-    const timeOptions = { hour: "2-digit", minute: "2-digit" } as const;
-    return `${date.toLocaleDateString(
-      "de-DE",
-      dateOptions
-    )}, ${date.toLocaleTimeString("de-DE", timeOptions)} Uhr`;
   };
 
   const isEmailTaken = () => {
@@ -227,155 +204,44 @@ function Comments() {
   return (
     <div>
       <h3>Add Comment</h3>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "max-content 1fr",
-          gap: "10px 20px",
-          alignItems: "center",
+
+      <CommentForm
+        name={name}
+        email={email}
+        emailError={emailError}
+        ratingError={ratingError}
+        comment={comment}
+        rating={rating}
+        hasGivenRating={hasGivenRating}
+        isLoading={isLoading}
+        onResetForm={resetForm}
+        editId={editId}
+        onSubmitForm={handleSubmit}
+        onChangeName={(e) => setName(e.target.value)}
+        onChangeComment={(e) => setComment(e.target.value || null)}
+        onChangeRating={handleRatingChange}
+        onChangeEmail={(e) => {
+          setEmail(e.target.value);
+          setHasGivenRating(isEmailTaken());
         }}
-      >
-        <div>Name</div>
-        {isLoggedIn ? (
-          <div>{name}</div>
-        ) : (
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={name ? "success" : "error"}
-          />
-        )}
+      />
 
-        <div>Email</div>
-        {isLoggedIn ? (
-          <div>{email}</div>
-        ) : (
-          <>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setHasGivenRating(isEmailTaken());
-              }}
-              className={email ? "success" : "error"}
-            />
-            {emailError && (
-              <>
-                <div />
-                <div className="missing">{emailError}</div>
-              </>
-            )}
-          </>
-        )}
-
-        <div>Comment (optional)</div>
-        <textarea
-          value={comment || ""}
-          onChange={(e) => setComment(e.target.value || null)}
-        />
-
-        <div>Rating (optional, 1-5)</div>
-        <div>
-          {[1, 2, 3, 4, 5].map((val) => (
-            <span key={val}>
-              {val}
-              <input
-                type="radio"
-                value={val}
-                checked={rating === val}
-                onChange={handleRatingChange}
-                disabled={hasGivenRating}
-                style={{ marginRight: 10 }}
-              />
-            </span>
-          ))}
-        </div>
-        {ratingError && (
-          <>
-            <div />
-            <div className="missing">{ratingError}</div>
-          </>
-        )}
-        {hasGivenRating && (
-          <>
-            <div />
-            <div className="info">
-              You have already given a rating for this recipe.
-            </div>
-          </>
-        )}
-
-        <button onClick={resetForm} disabled={isLoading} className="btn">
-          Reset
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={
-            isLoading || !name || !email || (!comment && rating === null)
-          }
-          className="btn"
-        >
-          {editId ? "Update" : "Submit"}
-        </button>
-
+      <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", gap: "10px 20px", alignItems: "center" }}>
         {comments.length > 0 ? (
           <div style={{ gridColumn: "1 / span 2" }}>
             <h3>Existing Comments</h3>
             <div>
               {comments.map((c, index) => (
-                <div
+                <SingleComment
+                  email={c.email}
+                  name={c.name}
+                  comment={c.comment}
                   key={index}
-                  style={{
-                    marginBottom: 10,
-                    borderTop: "1px solid grey",
-                    padding: 10,
-                  }}
-                >
-                  {isLoggedIn && userIsAdmin && (
-                    <>
-                      <button
-                        onClick={() => handleEdit(c)}
-                        className="btn"
-                        style={{ float: "right" }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(c.id!)}
-                        className="btn"
-                        style={{ float: "right" }}
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                  <div style={{ fontWeight: 600 }}>
-                    {c.name}{" "}
-                    <span style={{ fontWeight: 100 }}>({c.email})</span>
-                  </div>
-                  <small>
-                    am{" "}
-                    {c.timestamp
-                      ? formatTimestamp(c.timestamp)
-                      : "No timestamp"}
-                  </small>
-                  {c.rating && <div>Rating: {c.rating}</div>}
-                  {c.comment && (
-                    <div
-                      style={{
-                        paddingLeft: 10,
-                        borderLeft: "3px double rgba(0,0,0,0.2)",
-                        marginTop: 10,
-                      }}
-                    >
-                      {c.comment}
-                    </div>
-                  )}
-                  <br />
-                  <br />
-                </div>
+                  rating={c.rating}
+                  timestamp={c.timestamp}
+                  onHandleEdit={() => handleEdit(c)}
+                  onHandleDelete={() => handleDelete(c.id!)}
+                />
               ))}
             </div>
           </div>

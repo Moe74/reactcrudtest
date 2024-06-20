@@ -105,7 +105,7 @@ export const LeftSidebarContainer = styled.div<{ sidebarWidth: number }>`
     background: ${themeSettings.sidebarLeftBackgroundColor};
     color: ${themeSettings.sidebarLeftFontColor};
     transition: width 0.1s ease-out;
-    padding: 10px;
+    padding: 0px;
     overflow: hidden;
     overflow-y: auto;
     &.hidden {
@@ -144,7 +144,7 @@ export const RightSidebarContainer = styled.div<{ sidebarWidth: number }>`
     background: ${themeSettings.sidebarRightBackgroundColor};
     color: ${themeSettings.sidebarRightFontColor};
     transition: width 0.1s ease-out;
-    padding: 10px;
+    padding: 0px;
     overflow: hidden;
     overflow-y: auto;
     &.hidden {

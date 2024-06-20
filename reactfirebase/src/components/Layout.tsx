@@ -37,7 +37,8 @@ const Layout: React.FunctionComponent<LayoutProps> = (p) => {
 
     const showLeftSideBar = browserWidth > breakpoints.smallDesktop;
     const showLRightSideBar = browserWidth >= breakpoints.tablet;
-    const sidebarWidth = browserWidth >= breakpoints.largeDesktop ? 350 : 300;
+    // const sidebarWidth = browserWidth >= breakpoints.largeDesktop ? 350 : 300;
+    const sidebarWidth = 0;
     const contentWidth = browserWidth >= breakpoints.largeDesktop ? 1800 : 1440;
     const location = useLocation();
     const pathName = location.pathname;

@@ -256,3 +256,17 @@ export function formatMinuteToHours(mins: number): string {
     else return `${hours} std`;
   }
 }
+
+export const formatTimestamp = (timestamp: string) => {
+  const date = new Date(timestamp);
+  const dateOptions = {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  } as const;
+  const timeOptions = { hour: "2-digit", minute: "2-digit" } as const;
+  return `${date.toLocaleDateString(
+    "de-DE",
+    dateOptions
+  )}, ${date.toLocaleTimeString("de-DE", timeOptions)} Uhr`;
+};
