@@ -216,7 +216,7 @@ function Single() {
                             }}
                             className="pi pi-arrow-right"
                           />
-                          {calc.value} {calc.unit}
+                          {Math.round(calc.value)} {calc.unit}
                         </div>
                       )}
                       <div
