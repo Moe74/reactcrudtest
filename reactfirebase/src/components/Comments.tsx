@@ -190,8 +190,8 @@ function Comments() {
     setEditId(null);
   };
 
-  const handleRatingChange = (e: RatingChangeEvent) => {
-    setRating(e.value ?? null);
+  const handleRatingChange = (event: React.SyntheticEvent<Element, Event>, value: number | null) => {
+    setRating(value ?? null);
     setRatingError(null);
   };
 
