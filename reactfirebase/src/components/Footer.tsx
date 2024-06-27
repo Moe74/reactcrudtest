@@ -1,13 +1,11 @@
-import _ from "lodash";
 import * as React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { FooterButton } from "../components/LayoutSC";
 import {
   getCookieConsentValue,
   resetCookieConsentValue,
 } from "react-cookie-consent";
+import { FooterButton } from "../components/LayoutSC";
 
-interface FooterProps {}
+interface FooterProps { }
 
 const Footer: React.FunctionComponent<FooterProps> = (p) => {
   const resetCookie = React.useMemo(

@@ -1,7 +1,5 @@
-import * as React from 'react';
 import styled from 'styled-components';
 import { colors } from './Helpers';
-import { Tag } from 'primereact/tag';
 
 const OuterContainer = styled.div<{ height?: number, width?: string, backgroundColor?: string, rounded?: boolean }>`
     height: ${p => p.height ?? 40}px;

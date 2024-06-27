@@ -37,7 +37,7 @@ interface ProgressProps {
 }
 
 const Progress = (p: ProgressProps) => {
-    const { height, width, backgroundColor, barColor, value, unit, showValue, label, rounded } = p;
+    const { height, width, backgroundColor, barColor, value, rounded } = p;
     const percent = 100 - value >= 0 ? 100 - value : 0;
     return (
         <OuterContainer
