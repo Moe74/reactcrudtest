@@ -1,7 +1,5 @@
 import { get, getDatabase, ref } from "firebase/database";
 import _ from "lodash";
-import { Accordion as AccordionPR, AccordionTab } from "primereact/accordion";
-import { Button } from "primereact/button";
 import {
   InputNumber,
   InputNumberValueChangeEvent,
@@ -28,13 +26,21 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Button,
   CardActions,
   CardContent,
   CardMedia,
+  FormControl,
+  Input,
+  InputAdornment,
+  InputLabel,
+  TextField,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CancelIcon from "@mui/icons-material/CancelOutlined";
 import Card from "@mui/material/Card";
+import UserIcon from "@mui/icons-material/Group";
 
 const HeaderContainer = styled.div<{ imageUrl: string }>`
   width: 100%;
@@ -168,34 +174,39 @@ function Single() {
                   marginLeft: contentWidth <= 700 ? undefined : "auto",
                 }}
               >
-                <span style={{ marginRight: 5 }} className="pi pi-users" />
                 <div style={{ position: "relative" }}>
-                  <InputNumber
-                    value={personen}
-                    onValueChange={(e: InputNumberValueChangeEvent) =>
-                      handlePersonCount(e.value ?? 5)
-                    }
-                    showButtons
-                    min={1}
-                  />
+                  <FormControl variant="standard">
+                    <Input
+                      value={personen}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const value = e.target.value;
+
+                        handlePersonCount(
+                          value === "" ? 0 : parseInt(value, 10)
+                        );
+                      }}
+                      type="number"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <UserIcon />
+                        </InputAdornment>
+                      }
+                    />
+                  </FormControl>
 
                   {recipe.persons !== personen && (
                     <Button
-                      icon="pi pi-times"
-                      rounded
-                      size="small"
-                      text
-                      severity="danger"
                       onClick={handleResetPersonCount}
-                      tooltip="zurücksetzen"
                       style={{
                         position: "absolute",
-                        top: 8,
-                        right: 45,
-                        width: 24,
-                        height: 24,
+                        top: 0,
+                        right: -5,
+                        transform: "scale(0.7)",
                       }}
-                    />
+                      size={"small"}
+                    >
+                      <CancelIcon />
+                    </Button>
                   )}
                 </div>
               </div>
@@ -309,7 +320,7 @@ function Single() {
             {/* <AccordionPR activeIndex={[0, 1, 2]} multiple={true}> */}
           </CardContent>
           <CardActions>
-            <Button label="go back" onClick={() => navigate(-1)} />
+            <Button onClick={() => navigate(-1)}>go back</Button>
           </CardActions>
         </Card>
       )}
