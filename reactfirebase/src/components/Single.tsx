@@ -1,13 +1,23 @@
+import CancelIcon from "@mui/icons-material/CancelOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import UserIcon from "@mui/icons-material/Group";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+  CardActions,
+  CardContent,
+  CardMedia,
+  TextField,
+  Typography
+} from "@mui/material";
+import Card from "@mui/material/Card";
 import { get, getDatabase, ref } from "firebase/database";
 import _ from "lodash";
-import {
-  InputNumber,
-  InputNumberValueChangeEvent,
-} from "primereact/inputnumber";
 import { Rating } from "primereact/rating";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import styled from "styled-components";
 import app from "../firebaseConfig";
 import AverageRating from "./AverageRating";
 import Comments from "./Comments";
@@ -21,35 +31,8 @@ import {
   formatMinuteToHours,
   useElementWidth,
 } from "./Helpers";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Button,
-  CardActions,
-  CardContent,
-  CardMedia,
-  FormControl,
-  Input,
-  InputAdornment,
-  InputLabel,
-  TextField,
-  Typography,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import CancelIcon from "@mui/icons-material/CancelOutlined";
-import Card from "@mui/material/Card";
-import UserIcon from "@mui/icons-material/Group";
 
-const HeaderContainer = styled.div<{ imageUrl: string }>`
-  width: 100%;
-  height: 100px;
-  background-image: ${(p) => `url("${p.imageUrl}")`};
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-`;
+
 
 function Single() {
   const { firebaseId } = useParams();
@@ -88,12 +71,6 @@ function Single() {
 
   const rImage = recipe ? recipe.image ?? "noImage.webp" : "noImage.webp";
   const imagePath = `${process.env.PUBLIC_URL}/images/rezepte/${rImage}`;
-
-  const header = (
-    <div>
-      <HeaderContainer imageUrl={imagePath} />
-    </div>
-  );
 
   return (
     <div ref={divRef}>
@@ -174,34 +151,32 @@ function Single() {
                   marginLeft: contentWidth <= 700 ? undefined : "auto",
                 }}
               >
+                <UserIcon sx={{ mr: 2 }} />
                 <div style={{ position: "relative" }}>
-                  <FormControl variant="standard">
-                    <Input
-                      value={personen}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = e.target.value;
+                  <TextField
+                    id="outlined-basic"
+                    label="Personen"
+                    variant="outlined"
+                    value={personen}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const value = e.target.value;
 
-                        handlePersonCount(
-                          value === "" ? 0 : parseInt(value, 10)
-                        );
-                      }}
-                      type="number"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <UserIcon />
-                        </InputAdornment>
-                      }
-                    />
-                  </FormControl>
+                      handlePersonCount(
+                        value === "" ? 1 : parseInt(value, 10) < 1 ? 1 : parseInt(value, 10)
+                      );
+                    }}
+                    type="number"
+                  />
 
                   {recipe.persons !== personen && (
                     <Button
                       onClick={handleResetPersonCount}
+                      color="error"
                       style={{
                         position: "absolute",
-                        top: 0,
-                        right: -5,
-                        transform: "scale(0.7)",
+                        top: 12,
+                        right: 20,
+                        transform: "scale(0.8)",
                       }}
                       size={"small"}
                     >
