@@ -130,11 +130,11 @@ function Comments() {
       if (editId) {
         const commentRef = ref(db, `comments/${editId}`);
         await update(commentRef, newComment);
-        alert("Comment updated successfully");
+        /* alert("Comment updated successfully"); */
       } else {
         const newCommentRef = push(ref(db, "comments"));
         await set(newCommentRef, newComment);
-        alert("Comment saved successfully");
+        /*   alert("Comment saved successfully"); */
       }
 
       if (rating !== null) {
@@ -173,7 +173,7 @@ function Comments() {
     const db = getDatabase(app);
     const commentRef = ref(db, `comments/${id}`);
     await remove(commentRef);
-    alert("Comment deleted successfully");
+    /*  alert("Comment deleted successfully"); */
   };
 
   const resetForm = () => {
@@ -189,7 +189,10 @@ function Comments() {
     setEditId(null);
   };
 
-  const handleRatingChange = (event: React.SyntheticEvent<Element, Event>, value: number | null) => {
+  const handleRatingChange = (
+    event: React.SyntheticEvent<Element, Event>,
+    value: number | null
+  ) => {
     setRating(value ?? null);
     setRatingError(null);
   };
@@ -225,7 +228,14 @@ function Comments() {
         }}
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", gap: "10px 20px", alignItems: "center" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "max-content 1fr",
+          gap: "10px 20px",
+          alignItems: "center",
+        }}
+      >
         {comments.length > 0 ? (
           <div style={{ gridColumn: "1 / span 2" }}>
             <h3>Existing Comments</h3>
