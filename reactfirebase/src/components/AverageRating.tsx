@@ -2,10 +2,20 @@ import { getDatabase, onValue, ref } from "firebase/database";
 import * as React from "react";
 import app from "../firebaseConfig";
 import styled from "styled-components";
+import { Rating } from "@mui/material";
+import FavoriteIcon from '@mui/icons-material/Star';
+import FavoriteBorderIcon from '@mui/icons-material/StarBorder';
 
-const OuterContainer = styled.span<{ col: string }>`
-  color: ${(p) => p.col};
-`;
+
+
+const StyledRating = styled(Rating)({
+  '& .MuiRating-iconFilled': {
+    // color: '#ff6d75',
+  },
+  '& .MuiRating-iconHover': {
+    // color: '#ff3d47',
+  },
+});
 
 interface AverageRatingProps {
   firebaseId: string;
@@ -37,7 +47,6 @@ const AverageRating: React.FC<AverageRatingProps> = ({ firebaseId, color }) => {
     );
 
     return () => {
-      // Es ist wichtig, den Listener zu entfernen, wenn die Komponente unmounted wird
       listener();
     };
   }, [firebaseId]);
@@ -50,33 +59,16 @@ const AverageRating: React.FC<AverageRatingProps> = ({ firebaseId, color }) => {
     return <div>Loading average rating...</div>;
   }
 
-  const fullStars = Math.floor(averageRating);
-  const halfStar = averageRating % 1 >= 0.5 ? 1 : 0;
-  const emptyStars = 5 - fullStars - halfStar;
-  const colorTrue = color ?? "black";
 
   return (
-    <OuterContainer col={colorTrue}>
-      {Array(fullStars)
-        .fill(<span className="pi pi-star-fill" style={{ marginRight: 1 }} />)
-        .map((star, index) => (
-          <React.Fragment key={index}>{star}</React.Fragment>
-        ))}
-      {halfStar > 0 && (
-        <>
-          <span className="pi pi-star-half-fill" style={{ marginRight: 1 }} />
-          <span
-            className="pi pi-star"
-            style={{ transform: "translateX(-100%)", marginRight: "-15px" }}
-          />
-        </>
-      )}
-      {Array(emptyStars)
-        .fill(<span className="pi pi-star" style={{ marginRight: 1 }} />)
-        .map((star, index) => (
-          <React.Fragment key={index}>{star}</React.Fragment>
-        ))}
-    </OuterContainer>
+    <StyledRating
+      name="customized-color"
+      value={averageRating}
+      precision={0.5}
+      readOnly
+      icon={<FavoriteIcon fontSize="inherit" />}
+      emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+    />
   );
 };
 

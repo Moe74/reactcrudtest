@@ -11,7 +11,6 @@ import {
   update,
 } from "firebase/database";
 import _ from "lodash";
-import { RatingChangeEvent } from "primereact/rating";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import app from "../firebaseConfig";

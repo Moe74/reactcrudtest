@@ -270,3 +270,17 @@ export const formatTimestamp = (timestamp: string) => {
     dateOptions
   )}, ${date.toLocaleTimeString("de-DE", timeOptions)} Uhr`;
 };
+
+export const calculateAllowRate = (editMode: boolean, hasGivenRating: boolean, userIsAuthor: boolean, userIsAdmin: boolean): boolean => {
+  if (editMode) {
+    if (userIsAuthor || userIsAdmin) {
+      return true;
+    }
+    return false;
+  } else {
+    if (hasGivenRating) {
+      return false;
+    }
+    return true;
+  }
+};
