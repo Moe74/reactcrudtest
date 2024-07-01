@@ -286,3 +286,4 @@ export const calculateAllowRate = (editMode: boolean, hasGivenRating: boolean, u
     return true;
   }
 };
+

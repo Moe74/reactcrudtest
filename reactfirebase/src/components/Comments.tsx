@@ -233,7 +233,7 @@ function Comments() {
   };
 
   return (
-    <Card variant="outlined" sx={{ mt: 5 }}>
+    <Card variant="outlined" sx={{ mt: 5 }} style={{ padding: 40 }}>
       <CardContent>
         <Grid container spacing={2}>
 

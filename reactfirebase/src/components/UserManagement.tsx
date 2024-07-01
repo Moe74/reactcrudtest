@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
 import bcrypt from 'bcryptjs';
-import { getDatabase, onValue, push, ref, remove, set, update, get } from 'firebase/database';
-import UserForm from './userManagement/UserForm';
-import UserList from './userManagement/UserList';
-import ChangePasswordDialog from './userManagement/ChangePasswordDialog';
-import ConfirmDeleteDialog from './userManagement/ConfirmDeleteDialog';
+import { get, getDatabase, onValue, push, ref, remove, set, update } from 'firebase/database';
+import { Toast, ToastMessage } from 'primereact/toast';
+import React from 'react';
 import app from '../firebaseConfig';
 import { useGlobalState } from './GlobalStates';
-import { Toast, ToastMessage } from 'primereact/toast';
+import ChangePasswordDialog from './userManagement/ChangePasswordDialog';
+import UserForm from './userManagement/UserForm';
+import UserList from './userManagement/UserList';
+import { isValidEmail } from './Helpers';
 
 export type User = {
   id?: string;
@@ -18,30 +18,27 @@ export type User = {
 };
 
 function UserManagement() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [userIsAdmin, setUserIsAdmin] = useState<boolean>(false);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [name, setName] = React.useState<string>('');
+  const [email, setEmail] = React.useState<string>('');
+  const [password, setPassword] = React.useState<string>('');
+  const [userIsAdmin, setUserIsAdmin] = React.useState<boolean>(false);
+  const [editId, setEditId] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isLoggedIn] = useGlobalState('userIsLoggedIn');
   const [isAdmin] = useGlobalState('userIsAdmin');
-  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState<string>('');
-  const [newPassword, setNewPassword] = useState<string>('');
+  const [deleteUserId, setDeleteUserId] = React.useState<string | null>(null);
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = React.useState(false);
+  const [currentPassword, setCurrentPassword] = React.useState<string>('');
+  const [newPassword, setNewPassword] = React.useState<string>('');
 
-  const [nameError, setNameError] = useState<string>('');
-  const [emailError, setEmailError] = useState<string>('');
+  const [nameError, setNameError] = React.useState<string>('');
+  const [emailError, setEmailError] = React.useState<string>('');
+
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
 
-  const isValidEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const handleSubmit = async () => {
     setNameError('');
@@ -135,7 +132,7 @@ function UserManagement() {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     const db = getDatabase(app);
     const usersRef = ref(db, 'users');
     onValue(usersRef, (snapshot) => {
@@ -150,23 +147,32 @@ function UserManagement() {
   const handleEdit = (user: User) => {
     setName(user.name);
     setEmail(user.email);
-    setPassword(''); // Make sure password is empty initially
+    setPassword('');
     setUserIsAdmin(user.userIsAdmin);
     setEditId(user.id || null);
     setShowPassword(false);
+
+    // Scroll the container to the top
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
-  const confirmDelete = (id: string) => {
+  React.useEffect(() => {
+    const prepareDelete = async () => {
+      if (deleteUserId !== null) {
+        const db = getDatabase(app);
+        const userRef = ref(db, `users/${deleteUserId}`);
+        await remove(userRef);
+        setDeleteUserId(null);
+      }
+    };
+
+    prepareDelete();
+  }, [deleteUserId]);
+
+  const settingDelete = (id: string) => {
     setDeleteUserId(id);
-    setShowDeleteDialog(true);
-  };
-
-  const handleDelete = async () => {
-    const db = getDatabase(app);
-    const userRef = ref(db, `users/${deleteUserId}`);
-    await remove(userRef);
-    setShowDeleteDialog(false);
-    setDeleteUserId(null);
   };
 
   const resetForm = () => {
@@ -232,7 +238,7 @@ function UserManagement() {
     );
 
   return (
-    <div>
+    <div ref={scrollContainerRef} style={{ overflow: 'auto', height: '100%', padding: 40 }}>
       <h2>UserManagement.tsx</h2>
       <div
         style={{
@@ -266,26 +272,9 @@ function UserManagement() {
             setShowChangePasswordDialog={setShowChangePasswordDialog} // Add this prop
           />
         )}
-        <UserList users={users} isAdmin={isAdmin} handleEdit={handleEdit} confirmDelete={confirmDelete} />
-        {/* <div
-          style={{
-            border: '1px dashed #9e5f0c',
-            padding: 20,
-            width: '100%',
-            gridColumnStart: 1,
-            gridColumnEnd: 4,
-            background: '#ebd0ad24',
-            color: '#9e5f0c',
-          }}
-        >
-          To-Do:
-          <ul>
-            <li>Ueberpruefung Name und Email unique</li>
-            <li>Ueberpruefung Email valide</li>
-          </ul>
-        </div> */}
+        <UserList users={users} isAdmin={isAdmin} handleEdit={handleEdit} confirmDelete={settingDelete} />
+
       </div>
-      <ConfirmDeleteDialog visible={showDeleteDialog} setVisible={setShowDeleteDialog} handleDelete={handleDelete} />
       <ChangePasswordDialog
         visible={showChangePasswordDialog}
         setVisible={setShowChangePasswordDialog}

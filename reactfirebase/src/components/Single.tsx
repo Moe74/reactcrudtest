@@ -83,7 +83,7 @@ function Single() {
             subTitle={recipe.description} */
             /* header={header}
             footer={footer} */
-            style={{ marginBottom: 50 }}
+            style={{ marginBottom: 50, padding: 40 }}
             component="div"
           >
             <Typography
