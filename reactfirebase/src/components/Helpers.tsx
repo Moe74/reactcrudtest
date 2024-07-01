@@ -135,6 +135,7 @@ export const chefHatActive = (
     id="Capa_1"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 219.792 219.792"
+    style={{ marginRight: 5 }}
   >
     <g>
       <path
@@ -162,6 +163,7 @@ export const chefHatInactive = (
     id="Capa_1"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 219.792 219.792"
+    style={{ marginRight: 5 }}
   >
     <g>
       <path

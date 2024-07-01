@@ -9,13 +9,13 @@ import {
   CardActions,
   CardContent,
   CardMedia,
+  Rating,
   TextField,
   Typography
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import { get, getDatabase, ref } from "firebase/database";
 import _ from "lodash";
-import { Rating } from "primereact/rating";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import app from "../firebaseConfig";
@@ -108,13 +108,12 @@ function Single() {
               <AverageRating firebaseId={firebaseId ?? ""} />
 
               <Rating
-                value={recipe.difficulty}
+                defaultValue={recipe.difficulty}
+                icon={chefHatActive}
+                emptyIcon={chefHatInactive}
+                max={3}
                 readOnly
-                cancel={false}
-                onIcon={chefHatActive}
-                stars={3}
-                offIcon={chefHatInactive}
-                style={{ paddingLeft: "30px" }}
+                sx={{ pl: 4 }}
               />
 
               <div style={{ display: "flex", alignItems: "center" }}>
@@ -154,13 +153,11 @@ function Single() {
                 <UserIcon sx={{ mr: 2 }} />
                 <div style={{ position: "relative" }}>
                   <TextField
-                    id="outlined-basic"
                     label="Personen"
                     variant="outlined"
                     value={personen}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
-
                       handlePersonCount(
                         value === "" ? 1 : parseInt(value, 10) < 1 ? 1 : parseInt(value, 10)
                       );
@@ -188,7 +185,7 @@ function Single() {
             </div>
 
             <div style={{ marginBottom: 10 }}>
-              <Accordion>
+              <Accordion defaultExpanded>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1-content"
@@ -216,6 +213,11 @@ function Single() {
                       const temp = x.amount ? x.amount * personsFactor : 0;
                       const calc = convertUnits(temp, x.unit ?? "");
 
+                      let roundedValue = Math.round(calc.value * 10) / 10;
+                      if (roundedValue < 0.5) {
+                        roundedValue = 0.5;
+                      }
+
                       return (
                         <React.Fragment key={index}>
                           {!isAmountHidden && (
@@ -229,7 +231,7 @@ function Single() {
                                 }}
                                 className="pi pi-arrow-right"
                               />
-                              {Math.round(calc.value)} {calc.unit}
+                              {roundedValue} {calc.unit}
                             </div>
                           )}
                           <div
@@ -263,7 +265,7 @@ function Single() {
               </Accordion>
             </div>
             <div>
-              <Accordion>
+              <Accordion defaultExpanded style={{ marginTop: 20 }}>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1-content"
@@ -300,17 +302,8 @@ function Single() {
         </Card>
       )}
       {recipe ? (
-        <>
-          <div
-            style={{
-              padding: 10,
-              border: "1px double rgba(0,0,0,0.2)",
-              marginTop: 10,
-            }}
-          >
-            <Comments />
-          </div>
-        </>
+
+        <Comments />
       ) : (
         <p>Loading...</p>
       )}

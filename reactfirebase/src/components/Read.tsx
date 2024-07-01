@@ -1,3 +1,4 @@
+import { Rating } from "@mui/material";
 import { get, getDatabase, ref } from "firebase/database";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
@@ -14,9 +15,8 @@ import {
   Rezept,
   chefHatActive,
   chefHatInactive,
-  formatMinuteToHours,
+  formatMinuteToHours
 } from "./Helpers";
-import { Rating } from "primereact/rating";
 
 function Read() {
   const navigate = useNavigate();
@@ -95,14 +95,13 @@ function Read() {
   const difficultyBodyTemplate = (rezept: Rezept) => {
     return (
       <Rating
-        value={rezept.difficulty}
+        defaultValue={rezept.difficulty}
+        icon={chefHatActive}
+        emptyIcon={chefHatInactive}
+        max={3}
         readOnly
-        cancel={false}
-        onIcon={chefHatActive}
-        stars={3}
-        offIcon={chefHatInactive}
-        /*   style={{ paddingLeft: "30px" }} */
       />
+
     );
   };
   const [selectedProducts, setSelectedProducts] = React.useState<Rezept[]>([]);

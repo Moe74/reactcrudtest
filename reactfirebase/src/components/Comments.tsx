@@ -17,6 +17,7 @@ import app from "../firebaseConfig";
 import CommentForm from "./CommentForm";
 import { useGlobalState } from "./GlobalStates";
 import SingleComment from "./SingleComment";
+import { Alert, Card, CardContent, Grid, Paper, Typography } from "@mui/material";
 
 export type Comment = {
   id?: string;
@@ -44,12 +45,18 @@ function Comments() {
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const [ratingError, setRatingError] = React.useState<string | null>(null);
 
+
+
   React.useEffect(() => {
     if (isLoggedIn) {
       setName(loggedInName || "");
       setEmail(loggedInEmail || "");
     }
   }, [isLoggedIn, loggedInName, loggedInEmail]);
+
+
+
+
 
   React.useEffect(() => {
     if (!firebaseId) {
@@ -62,6 +69,7 @@ function Comments() {
       orderByChild("rezeptId"),
       equalTo(firebaseId)
     );
+
     onValue(commentsRef, (snapshot) => {
       const commentsList: Comment[] = [];
       let hasExistingRating = false;
@@ -70,7 +78,7 @@ function Comments() {
         const commentData = childSnapshot.val() as Comment;
         if (
           commentData.email === email &&
-          commentData.rating !== null &&
+          (commentData.rating !== null || commentData.rating !== undefined || commentData.rating !== 0) &&
           commentData.id !== editId
         ) {
           hasExistingRating = true;
@@ -87,7 +95,10 @@ function Comments() {
       setComments(commentsList);
       setHasGivenRating(hasExistingRating);
     });
-  }, [firebaseId, email, editId]);
+  }, [firebaseId, email, editId, rating]);
+
+
+
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -137,11 +148,21 @@ function Comments() {
         /*   alert("Comment saved successfully"); */
       }
 
+
       if (rating !== null) {
         const currentRatings = comments
           .filter((c) => c.rating !== null)
-          .map((c) => c.rating!);
-        currentRatings.push(rating);
+          .map((c) => c.rating);
+
+        if (editId !== null) {
+          const editIndex = comments.findIndex((c) => c.id === editId);
+          if (editIndex !== -1) {
+            currentRatings[editIndex] = rating;
+          }
+        } else {
+          currentRatings.push(rating);
+        }
+
         const averageRating = _.round(_.mean(currentRatings) * 2) / 2;
 
         const recipeRef = ref(db, `recipes/${firebaseId}`);
@@ -161,12 +182,20 @@ function Comments() {
   };
 
   const handleEdit = (comment: Comment) => {
+    setRating(null);
+    handleEdit2(comment);
+
+
+  };
+  const handleEdit2 = (comment: Comment) => {
+
     setName(comment.name);
     setEmail(comment.email);
     setComment(comment.comment ?? null);
     setRating(comment.rating ?? null);
     setEditId(comment.id || null);
     setHasGivenRating(comment.rating !== null);
+
   };
 
   const handleDelete = async (id: string) => {
@@ -204,61 +233,79 @@ function Comments() {
   };
 
   return (
-    <div>
-      <h3>Add Comment</h3>
+    <Card variant="outlined" sx={{ mt: 5 }}>
+      <CardContent>
+        <Grid container spacing={2}>
 
-      <CommentForm
-        name={name}
-        email={email}
-        emailError={emailError}
-        ratingError={ratingError}
-        comment={comment}
-        rating={rating}
-        hasGivenRating={hasGivenRating}
-        isLoading={isLoading}
-        onResetForm={resetForm}
-        editId={editId}
-        onSubmitForm={handleSubmit}
-        onChangeName={(e) => setName(e.target.value)}
-        onChangeComment={(e) => setComment(e.target.value || null)}
-        onChangeRating={handleRatingChange}
-        onChangeEmail={(e) => {
-          setEmail(e.target.value);
-          setHasGivenRating(isEmailTaken());
-        }}
-      />
+          <Grid item xs={8}>
+            <Typography
+              style={{ fontWeight: "bold", marginBottom: 5 }}
+              color="text.primary"
+            >
+              Kommentare
+            </Typography>
+            <Paper elevation={1} sx={{ p: 5 }} >
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "max-content 1fr",
-          gap: "10px 20px",
-          alignItems: "center",
-        }}
-      >
-        {comments.length > 0 ? (
-          <div style={{ gridColumn: "1 / span 2" }}>
-            <h3>Existing Comments</h3>
-            <div>
-              {comments.map((c, index) => (
-                <SingleComment
-                  email={c.email}
-                  name={c.name}
-                  comment={c.comment}
-                  key={index}
-                  rating={c.rating}
-                  timestamp={c.timestamp}
-                  onHandleEdit={() => handleEdit(c)}
-                  onHandleDelete={() => handleDelete(c.id!)}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div style={{ gridColumn: "1 / span 2" }}>No comments yet.</div>
-        )}
-      </div>
-    </div>
+              {comments.length > 0 ? (
+                <>
+                  {comments.map((c, index) => (
+                    <SingleComment
+                      email={c.email}
+                      name={c.name}
+                      comment={c.comment}
+                      key={index}
+                      rating={c.rating}
+                      timestamp={c.timestamp}
+                      onHandleEdit={() => handleEdit(c)}
+                      onHandleDelete={() => handleDelete(c.id!)}
+                    />
+                  ))}
+                </>
+              ) : (
+                <Alert severity="info">Bisher wurden keine Kommentare geschrieben</Alert>
+              )}
+            </Paper>
+          </Grid>
+
+
+
+          <Grid item xs={4}>
+            <Typography
+              style={{ fontWeight: "bold", marginBottom: 5 }}
+              color="text.primary"
+            >
+              Kommentar hinzufügen
+            </Typography>
+            <Paper elevation={1} sx={{ p: 5, background: "rgba(0,0,0,0.03)" }} >
+
+              <CommentForm
+                name={name}
+                email={email}
+                emailError={emailError}
+                ratingError={ratingError}
+                comment={comment}
+                rating={rating}
+                hasGivenRating={hasGivenRating}
+                isLoading={isLoading}
+                onResetForm={resetForm}
+                editId={editId}
+                onSubmitForm={handleSubmit}
+                onChangeName={(e) => setName(e.target.value)}
+                onChangeComment={(e) => setComment(e.target.value || null)}
+                onChangeRating={handleRatingChange}
+                onChangeEmail={(e) => {
+                  setEmail(e.target.value);
+                  setHasGivenRating(isEmailTaken());
+                }}
+              />
+            </Paper>
+          </Grid>
+
+        </Grid>
+
+
+      </CardContent>
+    </Card>
   );
 }
 

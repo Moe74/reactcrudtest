@@ -12,6 +12,7 @@ import app from "../firebaseConfig";
 import { useGlobalState } from "./GlobalStates";
 import { Zutat, replaceUndefinedWithNull } from "./Helpers";
 import { Toast } from "primereact/toast";
+import ConfirmButton from "./ConfirmButton";
 
 
 // interface ShowMessageParams {
@@ -36,7 +37,6 @@ function Write() {
   const [persons, setPersons] = React.useState<number>(4);
   const [image, setImage] = React.useState<string | undefined>("noImage.webp");
   const [isVegi, setIsVegi] = React.useState<boolean>(false);
-  const [mayDelete, setMayDelete] = React.useState<boolean>(false);
   const [manual, setManual] = React.useState<string[]>([]);
   const [currentStep, setCurrentStep] = React.useState<string>('');
   const [ingredients, setIngredients] = React.useState<Zutat[]>([]);
@@ -608,21 +608,15 @@ function Write() {
         <div>
           {firebaseId &&
             <div className="p-inputgroup" style={{ width: "100%" }}>
-              <span className="p-inputgroup-addon">
-                <Checkbox onChange={() => setMayDelete(!mayDelete)} checked={mayDelete} />
-              </span>
-              <Button onClick={() => deleteRezept(firebaseId)} style={{ float: "left" }} label="Rezept löschen" severity="danger" outlined={!mayDelete} disabled={!mayDelete} />
+              <ConfirmButton action={() => deleteRezept(firebaseId)} style={{ float: "left" }} text="Rezept löschen" />
             </div>
           }
         </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} >
-          {mayDelete &&
-            <span style={{ float: "left", lineHeight: "39px", fontWeight: "bold" }}>Wirklich löschen?</span>
-          }
           <Button onClick={() => navigate("/read")} style={{ float: "right" }} label="Abbrechen" severity="secondary" />
         </div>
         <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-          <Button onClick={saveData} disabled={!saveable || mayDelete} style={{ width: "100%" }} label={saveable ? "SAVE DATA" : "MISSING DATA"} severity={saveable ? "success" : "danger"} outlined={!saveable} />
+          <Button onClick={saveData} disabled={!saveable} style={{ width: "100%" }} label={saveable ? "SAVE DATA" : "MISSING DATA"} severity={saveable ? "success" : "danger"} outlined={!saveable} />
         </div>
 
       </div>

@@ -3,10 +3,9 @@ import * as React from 'react';
 import CheckPassword from './CheckPassword';
 import Rechner from './Rechner';
 import CheckPasswordMM from './CheckPassword_MM';
+import ConfirmButton from '../../components/ConfirmButton';
 
 export type Comps = "Calc" | "CheckPassword" | "CheckPasswordMM" | undefined
-
-
 
 interface SpielwieseProps {
 }
@@ -14,9 +13,15 @@ interface SpielwieseProps {
 const Spielwiese = (p: SpielwieseProps) => {
     const [comp, setcomp] = React.useState<Comps>(undefined);
 
+    const onAction = React.useMemo(() => () => {
+        console.log('...clicked');
+
+    }, []);
+
 
     return (
         <div>
+            <ConfirmButton action={onAction} text='Löschen' />
             <h1>Spielwiese</h1>
             <div style={{ display: "flex", gap: 5, marginBottom: 40 }}>
                 <Button icon='pi pi-times' onClick={() => setcomp(undefined)} severity='danger' />
