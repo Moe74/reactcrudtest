@@ -62,8 +62,7 @@ const UserForm: React.FC<UserFormProps> = ({
 
   return (
     <>
-      <div>Name</div>
-      <div>
+      <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
         <TextField
           id="name"
           style={{ width: "100%" }}
@@ -82,11 +81,11 @@ const UserForm: React.FC<UserFormProps> = ({
           />
         )}
       </div>
-      <div>E-Mail</div>
-      <div>
+      <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
         <TextField
           id="email"
           label="Email"
+          style={{ width: "100%" }}
           value={email}
           onChange={(e) => settingEmail(e.target.value)}
           helperText={emailError ?? undefined}
@@ -103,8 +102,7 @@ const UserForm: React.FC<UserFormProps> = ({
       </div>
       {!editId && (
         <>
-          <div>Password</div>
-          <div>
+          <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
             <TextField
               id="password"
               label="Passwort"
@@ -123,7 +121,7 @@ const UserForm: React.FC<UserFormProps> = ({
               />
             )}
           </div>
-          <div style={{ gridColumnStart: 2, gridColumnEnd: 4 }}>
+          <div style={{ gridColumnStart: 1, gridColumnEnd: 4 }}>
             <FormControlLabel
               control={
                 <Switch
@@ -138,19 +136,16 @@ const UserForm: React.FC<UserFormProps> = ({
           </div>
         </>
       )}
-      <div>Admin?</div>
-      <div>
-        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={userIsAdmin}
-                onChange={() => setUserIsAdmin(!userIsAdmin)}
-              />
-            }
-            label={userIsAdmin ? "ja" : "nein"}
-          />
-        </div>
+      <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={userIsAdmin}
+              onChange={() => setUserIsAdmin(!userIsAdmin)}
+            />
+          }
+          label={userIsAdmin ? "User ist Admin" : "User ist kein Admin"}
+        />
       </div>
       <div
         style={{
