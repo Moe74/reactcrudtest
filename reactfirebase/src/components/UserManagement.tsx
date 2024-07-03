@@ -4,7 +4,6 @@ import { Toast, ToastMessage } from 'primereact/toast';
 import React from 'react';
 import app from '../firebaseConfig';
 import { useGlobalState } from './GlobalStates';
-import ChangePasswordDialog from './userManagement/ChangePasswordDialog';
 import UserForm from './userManagement/UserForm';
 import UserList from './userManagement/UserList';
 import { isValidEmail } from './Helpers';
@@ -29,9 +28,6 @@ function UserManagement() {
   const [isLoggedIn] = useGlobalState('userIsLoggedIn');
   const [isAdmin] = useGlobalState('userIsAdmin');
   const [deleteUserId, setDeleteUserId] = React.useState<string | null>(null);
-  const [showChangePasswordDialog, setShowChangePasswordDialog] = React.useState(false);
-  const [currentPassword, setCurrentPassword] = React.useState<string>('');
-  const [newPassword, setNewPassword] = React.useState<string>('');
 
   const [nameError, setNameError] = React.useState<string>('');
   const [emailError, setEmailError] = React.useState<string>('');
@@ -186,42 +182,7 @@ function UserManagement() {
     setShowPassword(false);
   };
 
-  const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword) {
-      alert('Current password and new password are required.');
-      return;
-    }
 
-    const db = getDatabase(app);
-    const userRef = ref(db, `users/${editId}`);
-
-    try {
-      const snapshot = await get(userRef);
-
-      if (!snapshot.exists()) {
-        alert('User not found.');
-        return;
-      }
-
-      const user = snapshot.val() as User;
-
-      const passwordMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!passwordMatch) {
-        showMessage(toastCenter, 'error', "Error", "Current password is incorrect.")
-        return;
-      }
-
-      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      await update(userRef, { password: hashedNewPassword });
-
-      setShowChangePasswordDialog(false);
-      setCurrentPassword('');
-      setNewPassword('');
-    } catch (error) {
-      console.error('Error changing password: ', error);
-      alert('An error occurred while changing the password.');
-    }
-  };
   const toastCenter = React.useRef(null);
 
   const showMessage = (ref: React.RefObject<Toast>, severity: ToastMessage['severity'], label: string, summary: string) => {
@@ -269,21 +230,12 @@ function UserManagement() {
             isLoading={isLoading}
             nameError={nameError}
             emailError={emailError}
-            setShowChangePasswordDialog={setShowChangePasswordDialog} // Add this prop
           />
         )}
         <UserList users={users} isAdmin={isAdmin} handleEdit={handleEdit} confirmDelete={settingDelete} />
 
       </div>
-      <ChangePasswordDialog
-        visible={showChangePasswordDialog}
-        setVisible={setShowChangePasswordDialog}
-        currentPassword={currentPassword}
-        setCurrentPassword={setCurrentPassword}
-        newPassword={newPassword}
-        setNewPassword={setNewPassword}
-        handleChangePassword={handleChangePassword}
-      />
+
       <Toast ref={toastCenter} position="top-center" />
     </div>
   );
