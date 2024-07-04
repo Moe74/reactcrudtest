@@ -37,17 +37,14 @@ const UserList: React.FC<UserListProps> = ({
               <TableCell>Name</TableCell>
               <TableCell align="left">Email</TableCell>
               <TableCell align="left">Admin</TableCell>
-              {isAdmin && <TableCell align="left">Actions</TableCell>}
+              {isAdmin && <TableCell width={295}>Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
             {_.map(users, (user) => {
               const uId = user.id ?? "";
               return (
-                <TableRow
-                  key={user.name}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
+                <TableRow key={user.name}>
                   <TableCell component="th" scope="row">
                     {user.name}
                   </TableCell>
@@ -56,21 +53,19 @@ const UserList: React.FC<UserListProps> = ({
                     {user.userIsAdmin ? "Yes" : "No"}
                   </TableCell>
                   {isAdmin && (
-                    <TableCell align="left">
+                    <TableCell align="right">
                       <Button
                         variant="contained"
                         startIcon={<EditIcon />}
                         onClick={() => handleEdit(user)}
-                        style={{ float: "right" }}
-                        sx={{ ml: 2 }}
+                        sx={{ ml: 1, width: "auto", float: "right" }}
                       >
                         Edit User
                       </Button>
-
                       <ConfirmButton
                         text="Delete"
                         action={() => confirmDelete(uId)}
-                        style={{ float: "right" }}
+                        sx={{ float: "right", width: "right" }}
                       />
                     </TableCell>
                   )}
