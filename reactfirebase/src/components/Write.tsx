@@ -304,7 +304,7 @@ function Write() {
       </>
     );
   return (
-    <div>
+    <div style={{ padding: 40 }}>
       <Toast ref={toastCenter} position="center" />
       {/* <Button label="Center" onClick={(e) => showMessage({ ref: toastCenter })} /> */}
 

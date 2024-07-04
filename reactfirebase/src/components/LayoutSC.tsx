@@ -85,7 +85,6 @@ export const ContentContainer = styled.div`
     grid-column-end: 3;
     background: ${themeSettings.menuBackgroundColor};
     overflow-y: auto;
-    padding: 40px;
 `;
 export const FooterContainer = styled.div`
     width: 100%;

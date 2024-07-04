@@ -20,7 +20,7 @@ const Spielwiese = (p: SpielwieseProps) => {
 
 
     return (
-        <div>
+        <div style={{ padding: 40 }}>
             <ConfirmButton action={onAction} text='Löschen' />
             <h1>Spielwiese</h1>
             <div style={{ display: "flex", gap: 5, marginBottom: 40 }}>

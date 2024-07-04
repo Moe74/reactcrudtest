@@ -14,7 +14,7 @@ import _ from "lodash";
 import AverageRating from "./AverageRating";
 import CarouselHome from "./CarouselHome";
 
-interface HomeProps {}
+interface HomeProps { }
 
 const OuterContainer = styled.div<{ shownPanes: number }>`
   width: 100%;
@@ -110,13 +110,13 @@ const Home = (p: HomeProps) => {
     contentWidth <= breakpoints.mobile
       ? 1
       : contentWidth > breakpoints.mobile && contentWidth <= breakpoints.tablet
-      ? 2
-      : 3;
+        ? 2
+        : 3;
 
   let navigate = useNavigate();
 
   return (
-    <>
+    <div style={{ padding: 40 }}>
       <div>
         <h1>Home</h1>
         <CarouselHome />
@@ -150,7 +150,7 @@ const Home = (p: HomeProps) => {
           })}
         </OuterContainer>
       </div>
-    </>
+    </div>
   );
 };
 

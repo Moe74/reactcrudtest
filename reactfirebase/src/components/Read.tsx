@@ -123,7 +123,7 @@ function Read() {
     </div>
   );
   return (
-    <div>
+    <div style={{ padding: 40 }}>
       {/* <Header /> */}
       <h2>Read.tsx</h2>
 
