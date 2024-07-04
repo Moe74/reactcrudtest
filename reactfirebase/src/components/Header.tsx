@@ -1,22 +1,21 @@
+import LogoutIcon from "@mui/icons-material/Logout";
+import Button from "@mui/material/Button";
 import bcrypt from "bcryptjs";
 import { getDatabase, onValue, ref } from "firebase/database";
-import { Button as ButtonPR } from "primereact/button";
+import { InputText } from "primereact/inputtext";
 import { Menubar } from "primereact/menubar";
 import { MenuItem } from "primereact/menuitem";
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import app from "../firebaseConfig";
-import {
-  useGlobalState,
-  setUserIsLoggedIn,
-  setUserIsAdmin,
-  setUserEmail,
-  setUserName,
-} from "./GlobalStates";
-import { InputText } from "primereact/inputtext";
-import Button from "@mui/material/Button";
 import ConfirmButton from "./ConfirmButton";
-import LogoutIcon from "@mui/icons-material/Logout";
+import {
+  setUserEmail,
+  setUserIsAdmin,
+  setUserIsLoggedIn,
+  setUserName,
+  useGlobalState,
+} from "./GlobalStates";
 
 type User = {
   id?: string;

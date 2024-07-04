@@ -37,7 +37,7 @@ const UserList: React.FC<UserListProps> = ({
               <TableCell>Name</TableCell>
               <TableCell align="left">Email</TableCell>
               <TableCell align="left">Admin</TableCell>
-              {isAdmin && <TableCell width={295}>Actions</TableCell>}
+              {isAdmin && <TableCell width={310}>Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -58,14 +58,14 @@ const UserList: React.FC<UserListProps> = ({
                         variant="contained"
                         startIcon={<EditIcon />}
                         onClick={() => handleEdit(user)}
-                        sx={{ ml: 1, width: "auto", float: "right" }}
+                        sx={{ float: "right" }}
                       >
                         Edit User
                       </Button>
                       <ConfirmButton
                         text="Delete"
                         action={() => confirmDelete(uId)}
-                        sx={{ float: "right", width: "right" }}
+                        sx={{ float: "left" }}
                       />
                     </TableCell>
                   )}
