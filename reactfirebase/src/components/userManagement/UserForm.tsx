@@ -9,14 +9,17 @@ import {
   DialogContent,
   DialogTitle,
   Alert,
+  IconButton,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorIcon from "@mui/icons-material/Error";
 import ExclamationIcon from "@mui/icons-material/ErrorOutline";
 import PasswordIcon from "@mui/icons-material/Password";
+import BackIcon from "@mui/icons-material/ArrowBack";
 import { getDatabase, ref, get, update } from "firebase/database";
 import bcrypt from "bcryptjs";
+import { colors, useElementWidth } from "../Helpers";
 
 interface UserFormProps {
   name: string;
@@ -66,6 +69,10 @@ const UserForm: React.FC<UserFormProps> = ({
   const [open, setOpen] = useState(false);
 
   const saveable = name && email && (password || editId);
+
+
+  const divRef = React.useRef<HTMLDivElement>(null);
+  const contentWidth = useElementWidth(divRef);
 
 
   const reset = React.useMemo(() => () => {
@@ -119,48 +126,37 @@ const UserForm: React.FC<UserFormProps> = ({
     }
   };
 
-
+  const isDisabled = !editId && name === "" && email === "" && password === "" && !userIsAdmin;
   return (
-    <>
-      {/* Form fields */}
-      <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
-        <TextField
-          id="name"
-          style={{ width: "100%" }}
-          label="Name"
-          value={name}
-          onChange={(e) => settingName(e.target.value)}
-          variant={!name ? "outlined" : undefined}
-          helperText={nameError ?? undefined}
-        />
-      </div>
-      <div>
-        {!name && (
-          <span
-            className="pi pi-exclamation-circle"
-            style={{ color: "#D13438", fontSize: "1.5rem" }}
-          />
-        )}
-      </div>
-      <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
-        <TextField
-          id="email"
-          label="Email"
-          style={{ width: "100%" }}
-          value={email}
-          onChange={(e) => settingEmail(e.target.value)}
-          helperText={emailError ?? undefined}
-          error={emailError !== ""}
-        />
-      </div>
-      <div>
-        {!email && (
-          <span
-            className="pi pi-exclamation-circle"
-            style={{ color: "#D13438", fontSize: "1.5rem" }}
-          />
-        )}
-      </div>
+    <div ref={divRef}>
+      <TextField
+        id="name"
+        style={{ width: "100%", marginTop: -2 }}
+        label="Name"
+        value={name}
+        onChange={(e) => settingName(e.target.value)}
+        variant={!name ? "outlined" : undefined}
+        helperText={nameError ?? undefined}
+        required
+        error={nameError !== ""}
+        margin="dense"
+        autoComplete="off"
+      />
+
+
+      <TextField
+        id="email"
+        label="Email"
+        style={{ width: "100%" }}
+        value={email}
+        onChange={(e) => settingEmail(e.target.value)}
+        helperText={emailError ?? undefined}
+        error={emailError !== ""}
+        margin="dense"
+        autoComplete="off"
+        required
+      />
+
       {!editId && (
         <>
           <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
@@ -172,51 +168,43 @@ const UserForm: React.FC<UserFormProps> = ({
               style={{ width: "100%" }}
               type={showPassword ? "text" : "password"}
               variant={!password ? "outlined" : undefined}
+              margin="dense"
+              autoComplete="off"
+              required
             />
           </div>
           <div>
-            {!password && (
-              <span
-                className="pi pi-exclamation-circle"
-                style={{ color: "#D13438", fontSize: "1.5rem" }}
-              />
-            )}
-          </div>
-          <div style={{ gridColumnStart: 1, gridColumnEnd: 4 }}>
             <FormControlLabel
-              control={
-                <Switch
-                  checked={showPassword}
-                  onChange={(e) => setShowPassword(!showPassword)}
-                />
-              }
-              label={
-                showPassword ? "Passwort ausblenden" : "Passwort einblenden"
-              }
+              control={<Switch checked={showPassword} onChange={(e) => setShowPassword(!showPassword)} />}
+              label={showPassword ? "Passwort ausblenden" : "Passwort einblenden"}
+              sx={{ mt: 1 }}
             />
           </div>
         </>
       )}
-      <div style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={userIsAdmin}
-              onChange={() => setUserIsAdmin(!userIsAdmin)}
-            />
-          }
-          label={userIsAdmin ? "User ist Admin" : "User ist kein Admin"}
-        />
+      <div style={{ width: "100%", height: 40 }}>
+        <div style={{ float: "left" }}>
+          <FormControlLabel
+            control={<Switch checked={userIsAdmin} onChange={() => setUserIsAdmin(!userIsAdmin)} />}
+            label={userIsAdmin ? "User ist Admin" : "User ist kein Admin"}
+          />
+        </div>
+        {editId && (
+          <div style={{ float: contentWidth < 390 ? "left" : "right" }}>
+            <Button
+              startIcon={<PasswordIcon />}
+              variant="text"
+              onClick={() => setOpen(true)}
+            >
+              Change Password
+            </Button>
+          </div>
+        )}
       </div>
-      <div
-        style={{
-          gridColumnStart: 1,
-          gridColumnEnd: 4,
-          background: "#323130",
-          height: 1,
-        }}
-      />
-      <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+
+      <div style={{ background: colors.greyMiddleLight, height: 1, marginTop: contentWidth < 390 ? 40 : 10, marginBottom: 10, width: "100%" }} />
+      <div style={{ paddingBottom: 20, marginTop: 20 }}>
+
         <Button
           onClick={handleSubmit}
           color={saveable ? "success" : "error"}
@@ -225,30 +213,26 @@ const UserForm: React.FC<UserFormProps> = ({
           variant={saveable ? "contained" : "outlined"}
           startIcon={saveable ? <CheckIcon /> : <ExclamationIcon />}
         >
-          {saveable ? "Submit" : "MISSING DATA"}
+          {saveable ? (editId ? "User ändern" : "User anlegen") : "Fehlende Daten"}
         </Button>
-        <Button
-          startIcon={<ClearIcon />}
-          style={{ float: "right", marginRight: "20px" }}
-          variant="contained"
-          onClick={resetForm}
-        >
-          Reset
-        </Button>
-
-        {editId && (
+        {contentWidth < 330 ?
+          <IconButton onClick={resetForm} style={{ float: "left" }}>
+            {editId ? <BackIcon /> : <ClearIcon />}
+          </IconButton>
+          :
           <Button
-            startIcon={<PasswordIcon />}
-            variant="contained"
-            onClick={() => setOpen(true)}
-            style={{ float: "left", marginRight: "20px" }}
+            startIcon={editId ? <BackIcon /> : <ClearIcon />}
+            style={{ float: "left" }}
+            // variant="contained"
+            onClick={resetForm}
+            disabled={isDisabled}
+            variant={!isDisabled ? "contained" : "outlined"}
           >
-            Change Password
+            {editId ? "Abbrechen" : "Reset"}
           </Button>
-        )}
+        }
       </div>
 
-      {/* Password Change Dialog */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md">
         <DialogTitle ><PasswordIcon style={{ float: "left", marginTop: 5, marginRight: 10 }} />Passwort ändern</DialogTitle>
         <DialogContent sx={{ p: 3 }} dividers>
@@ -300,7 +284,7 @@ const UserForm: React.FC<UserFormProps> = ({
           </div>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   );
 };
 

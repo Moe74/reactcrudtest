@@ -1,7 +1,5 @@
-import React from "react";
-import { User } from "../UserManagement";
+import EditIcon from "@mui/icons-material/Edit";
 import {
-  Button,
   IconButton,
   Paper,
   Table,
@@ -9,11 +7,12 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
+  TableRow
 } from "@mui/material";
 import _ from "lodash";
+import React from "react";
 import ConfirmButton from "../ConfirmButton";
-import EditIcon from "@mui/icons-material/Edit";
+import { User } from "../UserManagement";
 
 interface UserListProps {
   users: User[];
@@ -30,13 +29,13 @@ const UserList: React.FC<UserListProps> = ({
 }) => {
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Name</TableCell>
+            <TableCell >Name</TableCell>
             <TableCell align="left">Email</TableCell>
             <TableCell align="left">Admin</TableCell>
-            {isAdmin && <TableCell width={160}>Actions</TableCell>}
+            {isAdmin && <TableCell style={{ width: 125 }} sx={{ padding: "5px 0" }} />}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -52,7 +51,7 @@ const UserList: React.FC<UserListProps> = ({
                   {user.userIsAdmin ? "Yes" : "No"}
                 </TableCell>
                 {isAdmin && (
-                  <TableCell align="right">
+                  <TableCell sx={{ padding: "5px 0" }}>
                     <IconButton
                       onClick={() => handleEdit(user)}
                       sx={{ float: "right" }}
@@ -62,7 +61,7 @@ const UserList: React.FC<UserListProps> = ({
                     <ConfirmButton
                       text="Delete"
                       action={() => confirmDelete(uId)}
-                      sx={{ float: "left" }}
+                      sx={{ float: "right" }}
                       asIconButton
                     />
                   </TableCell>

@@ -15,7 +15,7 @@ import app from "../firebaseConfig";
 import { useGlobalState } from "./GlobalStates";
 import UserForm from "./userManagement/UserForm";
 import UserList from "./userManagement/UserList";
-import { isValidEmail } from "./Helpers";
+import { breakpoints, isValidEmail, useElementWidth } from "./Helpers";
 import { Card, CardContent, Grid, Paper, Typography } from "@mui/material";
 
 export type User = {
@@ -43,6 +43,10 @@ function UserManagement() {
   const [emailError, setEmailError] = React.useState<string>("");
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+
+  const divRef = React.useRef<HTMLDivElement>(null);
+  const contentWidth = useElementWidth(divRef);
 
   const handleSubmit = async () => {
     setNameError("");
@@ -231,71 +235,76 @@ function UserManagement() {
       </>
     );
 
+  const mobileView = contentWidth <= breakpoints.smallDesktop;
+
+
   return (
     <div
       ref={scrollContainerRef}
       style={{ overflow: "auto", height: "100%", padding: 40 }}
     >
-      <Card variant="outlined" sx={{ mt: 5 }} style={{ padding: 40 }}>
-        <CardContent>
-          <Grid container spacing={2}>
-            <Grid item xs={isAdmin ? 8 : 12}>
-              <Typography
-                style={{ fontWeight: "bold", marginBottom: 5 }}
-                color="text.primary"
-              >
-                User List
-              </Typography>
-              <Paper elevation={1} sx={{ p: 5 }}>
-                <UserList
-                  users={users}
-                  isAdmin={isAdmin}
-                  handleEdit={handleEdit}
-                  confirmDelete={settingDelete}
-                />
-              </Paper>
-            </Grid>
-            {isAdmin && (
-              <Grid item xs={4}>
+      <div ref={divRef}>
+        <Card variant="outlined" sx={{ mt: 5 }} style={{ padding: 40 }}>
+          <CardContent>
+            <Grid container spacing={2}>
+              {isAdmin && (
+                <Grid item xs={mobileView ? 12 : 4}>
+                  <Typography
+                    style={{ fontWeight: "bold", marginBottom: 5 }}
+                    color="text.primary"
+                  >
+                    User Edit
+                  </Typography>
+
+                  <Paper
+                    elevation={1}
+                    sx={{ p: 5, background: "rgba(0,0,0,0.03)" }}
+                  >
+                    <UserForm
+                      name={name}
+                      setName={setName}
+                      setNameError={setNameError}
+                      email={email}
+                      setEmail={setEmail}
+                      setEmailError={setEmailError}
+                      password={password}
+                      setPassword={setPassword}
+                      userIsAdmin={userIsAdmin}
+                      setUserIsAdmin={setUserIsAdmin}
+                      showPassword={showPassword}
+                      setShowPassword={setShowPassword}
+                      handleSubmit={handleSubmit}
+                      resetForm={resetForm}
+                      editId={editId}
+                      isLoading={isLoading}
+                      nameError={nameError}
+                      emailError={emailError}
+                    />
+                  </Paper>
+                </Grid>
+              )}
+              <Grid item xs={mobileView ? 12 : 8}>
                 <Typography
                   style={{ fontWeight: "bold", marginBottom: 5 }}
                   color="text.primary"
                 >
-                  User Edit
+                  User List
                 </Typography>
-
-                <Paper
-                  elevation={1}
-                  sx={{ p: 5, background: "rgba(0,0,0,0.03)" }}
-                >
-                  <UserForm
-                    name={name}
-                    setName={setName}
-                    setNameError={setNameError}
-                    email={email}
-                    setEmail={setEmail}
-                    setEmailError={setEmailError}
-                    password={password}
-                    setPassword={setPassword}
-                    userIsAdmin={userIsAdmin}
-                    setUserIsAdmin={setUserIsAdmin}
-                    showPassword={showPassword}
-                    setShowPassword={setShowPassword}
-                    handleSubmit={handleSubmit}
-                    resetForm={resetForm}
-                    editId={editId}
-                    isLoading={isLoading}
-                    nameError={nameError}
-                    emailError={emailError}
+                <Paper elevation={1} sx={{ p: 5 }}>
+                  <UserList
+                    users={users}
+                    isAdmin={isAdmin}
+                    handleEdit={handleEdit}
+                    confirmDelete={settingDelete}
                   />
                 </Paper>
               </Grid>
-            )}
-          </Grid>
-        </CardContent>
-      </Card>
+            </Grid>
+          </CardContent>
+        </Card>
 
-      <Toast ref={toastCenter} position="top-center" />
+        <Toast ref={toastCenter} position="top-center" />
+      </div>
     </div>
   );
 }

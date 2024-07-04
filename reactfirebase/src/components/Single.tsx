@@ -73,7 +73,7 @@ function Single() {
   const imagePath = `${process.env.PUBLIC_URL}/images/rezepte/${rImage}`;
 
   return (
-    <div ref={divRef}>
+    <div ref={divRef} style={{ padding: 40 }}>
       {/* <Header /> */}
       {recipe && (
         <Card variant="outlined">
