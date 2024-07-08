@@ -123,49 +123,104 @@ function Read() {
     </div>
   );
 
-  const columns: GridColDef<(typeof rows)[number]>[] = [
-    { field: "id", headerName: "ID", width: 90 },
+
+  const columns: GridColDef[] = [
     {
-      field: "firstName",
-      headerName: "First name",
-      width: 150,
-      editable: true,
+      field: 'image',
+      headerName: 'Image',
+      width: 50,
+      renderCell: (params) => (
+        <img src={`${process.env.PUBLIC_URL}/images/rezepte/${params.value}`} alt={params.row.title} style={{ width: '50px', height: '50px' }} />
+      ),
     },
     {
-      field: "lastName",
-      headerName: "Last name",
-      width: 150,
-      editable: true,
+      field: 'title',
+      headerName: 'Titel',
+      width: 300
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      width: 110,
-      editable: true,
+      field: 'description',
+      headerName: 'Beschreibung',
+      minWidth: 350,
     },
     {
-      field: "fullName",
-      headerName: "Full name",
-      description: "This column has a value getter and is not sortable.",
+      field: 'duration',
+      headerName: 'Dauer',
+      type: 'number',
+      width: 130,
+      renderCell: (params) => (
+        formatMinuteToHours(params.row.duration)
+      ),
+    },
+
+    {
+      field: 'difficulty',
+      headerName: 'Schwierigkeit',
+      type: 'number',
+      width: 130,
+      renderCell: (params) => (
+        <Rating
+          defaultValue={params.row.difficulty}
+          icon={chefHatActive}
+          emptyIcon={chefHatInactive}
+          max={3}
+          readOnly
+        />
+      ),
+    },
+
+    {
+      field: 'rating',
+      headerName: 'Rating',
+      type: 'number',
+      width: 140,
+      renderCell: (params) => (
+        <AverageRating firebaseId={params.row.id ?? ""} />
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
       sortable: false,
-      width: 160,
-      valueGetter: (value, row) =>
-        `${row.firstName || ""} ${row.lastName || ""}`,
+      renderCell: (params) => (
+        <>
+          {mayEdit && (
+            <>
+              <Button
+                icon="pi pi-pen-to-square"
+                severity="warning"
+                aria-label="Edit"
+                onClick={() => navigate("/edit/" + params.row.id)}
+                style={{ float: "left", marginRight: 5 }}
+              />
+            </>
+          )}
+          <Button
+            label="open"
+            severity="success"
+            onClick={() => navigate("/single/" + params.row.id)}
+            style={{
+              float: "left",
+              width: mayEdit ? "calc(100% - 50px)" : "100%",
+            }}
+          />
+        </>
+      ),
+      width: 150,
     },
   ];
 
-  const rows = [
-    { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
-    { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
-    { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
-    { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
-    { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-    { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-    { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-    { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-    { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-  ];
+  const rows = rezepte.map((rezept) => ({
+    id: rezept.rezeptId,
+    image: rezept.image,
+    title: rezept.title,
+    description: rezept.description,
+    duration: rezept.duration,
+    difficulty: rezept.difficulty,
+    rating: rezept.rating,
+  }));
+
+
 
   return (
     <div style={{ padding: 40 }}>
@@ -176,17 +231,34 @@ function Read() {
         <DataGrid
           rows={rows}
           columns={columns}
+          sx={{ width: "100%" }}
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 10
               },
             },
           }}
-          pageSizeOptions={[5]}
+          pageSizeOptions={[10]}
           disableRowSelectionOnClick
         />
+
       </Box>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       <DataTable
         ref={dt}
         value={rezepte}
