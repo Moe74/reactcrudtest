@@ -1,11 +1,5 @@
-import { Box, Rating } from "@mui/material";
+import { Box, Button, Icon, Rating, TextField } from "@mui/material";
 import { get, getDatabase, ref } from "firebase/database";
-import { Button } from "primereact/button";
-import { Column } from "primereact/column";
-import { DataTable } from "primereact/datatable";
-import { IconField } from "primereact/iconfield";
-import { InputIcon } from "primereact/inputicon";
-import { InputText } from "primereact/inputtext";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import app from "../firebaseConfig";
@@ -18,6 +12,8 @@ import {
   formatMinuteToHours,
 } from "./Helpers";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import EditIcon from "@mui/icons-material/Edit";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 function Read() {
   const navigate = useNavigate();
@@ -49,114 +45,61 @@ function Read() {
 
   const mayEdit = isLoggedIn && isAdmin;
 
-  const imageBodyTemplate = (rezept: Rezept) => {
-    const imagePath = `${process.env.PUBLIC_URL}/images/rezepte/${rezept.image}`;
-    return (
-      <img
-        src={imagePath}
-        alt={rezept.image}
-        style={{ width: 40, height: 40 }}
-      />
-    );
-  };
-
-  const actionsBodyTemplate = (rezept: Rezept) => {
-    return (
-      <>
-        {mayEdit && (
-          <>
-            <Button
-              icon="pi pi-pen-to-square"
-              severity="warning"
-              aria-label="Edit"
-              onClick={() => navigate("/edit/" + rezept.rezeptId)}
-              style={{ float: "left", marginRight: 5 }}
-            />
-          </>
-        )}
-        <Button
-          label="open"
-          severity="success"
-          onClick={() => navigate("/single/" + rezept.rezeptId)}
-          style={{
-            float: "left",
-            width: mayEdit ? "calc(100% - 50px)" : "100%",
-          }}
-        />
-      </>
-    );
-  };
-
-  const ratingBodyTemplate = (rezept: Rezept) => {
-    return <AverageRating firebaseId={rezept.rezeptId ?? ""} />;
-  };
-  const durationBodyTemplate = (rezept: Rezept) => {
-    return formatMinuteToHours(rezept.duration);
-  };
-  const difficultyBodyTemplate = (rezept: Rezept) => {
-    return (
-      <Rating
-        defaultValue={rezept.difficulty}
-        icon={chefHatActive}
-        emptyIcon={chefHatInactive}
-        max={3}
-        readOnly
-      />
-    );
-  };
-  const [selectedProducts, setSelectedProducts] = React.useState<Rezept[]>([]);
-  const dt = React.useRef<DataTable<Rezept[]>>(null);
-  const [globalFilter, setGlobalFilter] = React.useState<string>("");
+  /* const [selectedProducts, setSelectedProducts] = React.useState<Rezept[]>([]);
+  /* const dt = React.useRef<DataGrid<Rezept[]>>(null);  */
+  /* const [globalFilter, setGlobalFilter] = React.useState<string>("");
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <IconField iconPosition="left">
-        <InputIcon className="pi pi-search" />
-        <InputText
+      <Button variant="outlined" startIcon={<SearchOutlinedIcon />}>
+        <TextField
           type="search"
-          placeholder="Search..."
+          id="filled-basic"
+          label="Search..."
+          variant="filled"
           onInput={(e) => {
             const target = e.target as HTMLInputElement;
             setGlobalFilter(target.value);
           }}
-        />
-      </IconField>
+        ></TextField>
+      </Button>
     </div>
-  );
-
+  );  */
 
   const columns: GridColDef[] = [
     {
-      field: 'image',
-      headerName: 'Image',
+      field: "image",
+      headerName: "Image",
       width: 50,
       renderCell: (params) => (
-        <img src={`${process.env.PUBLIC_URL}/images/rezepte/${params.value}`} alt={params.row.title} style={{ width: '50px', height: '50px' }} />
+        <img
+          src={`${process.env.PUBLIC_URL}/images/rezepte/${params.value}`}
+          alt={params.row.title}
+          style={{ width: "50px", height: "50px" }}
+        />
       ),
     },
     {
-      field: 'title',
-      headerName: 'Titel',
-      width: 300
+      field: "title",
+      headerName: "Titel",
+      width: 300,
     },
     {
-      field: 'description',
-      headerName: 'Beschreibung',
+      field: "description",
+      headerName: "Beschreibung",
       minWidth: 350,
     },
     {
-      field: 'duration',
-      headerName: 'Dauer',
-      type: 'number',
+      field: "duration",
+      headerName: "Dauer",
+      type: "number",
       width: 130,
-      renderCell: (params) => (
-        formatMinuteToHours(params.row.duration)
-      ),
+      renderCell: (params) => formatMinuteToHours(params.row.duration),
     },
 
     {
-      field: 'difficulty',
-      headerName: 'Schwierigkeit',
-      type: 'number',
+      field: "difficulty",
+      headerName: "Schwierigkeit",
+      type: "number",
       width: 130,
       renderCell: (params) => (
         <Rating
@@ -170,41 +113,52 @@ function Read() {
     },
 
     {
-      field: 'rating',
-      headerName: 'Rating',
-      type: 'number',
+      field: "rating",
+      headerName: "Rating",
+      type: "number",
       width: 140,
       renderCell: (params) => (
         <AverageRating firebaseId={params.row.id ?? ""} />
       ),
     },
     {
-      field: 'actions',
-      headerName: 'Actions',
+      field: "actions",
+      headerName: "Actions",
       sortable: false,
       renderCell: (params) => (
-        <>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 7,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           {mayEdit && (
             <>
               <Button
-                icon="pi pi-pen-to-square"
-                severity="warning"
-                aria-label="Edit"
+                variant="contained"
+                color="warning"
                 onClick={() => navigate("/edit/" + params.row.id)}
                 style={{ float: "left", marginRight: 5 }}
-              />
+                startIcon={<EditIcon />}
+              >
+                Edit
+              </Button>
             </>
           )}
           <Button
-            label="open"
-            severity="success"
+            variant="contained"
+            color="success"
             onClick={() => navigate("/single/" + params.row.id)}
             style={{
               float: "left",
               width: mayEdit ? "calc(100% - 50px)" : "100%",
             }}
-          />
-        </>
+          >
+            Open
+          </Button>
+        </div>
       ),
       width: 150,
     },
@@ -220,8 +174,6 @@ function Read() {
     rating: rezept.rating,
   }));
 
-
-
   return (
     <div style={{ padding: 40 }}>
       {/* <Header /> */}
@@ -235,78 +187,14 @@ function Read() {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 10
+                pageSize: 10,
               },
             },
           }}
           pageSizeOptions={[10]}
           disableRowSelectionOnClick
         />
-
       </Box>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      <DataTable
-        ref={dt}
-        value={rezepte}
-        selection={selectedProducts}
-        onSelectionChange={(e) => {
-          if (Array.isArray(e.value)) {
-            setSelectedProducts(e.value);
-          }
-        }}
-        stripedRows
-        dataKey="id"
-        paginator
-        rows={10}
-        rowsPerPageOptions={[5, 10, 25]}
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-        globalFilter={globalFilter}
-        header={header}
-        selectionMode="multiple"
-      >
-        <Column header="Image" body={imageBodyTemplate}></Column>
-        <Column field="title" header="Titel" sortable></Column>
-        <Column field="description" header="Beschreibung"></Column>
-        <Column
-          field="duration"
-          header="Dauer"
-          body={durationBodyTemplate}
-          sortable
-        ></Column>
-        <Column
-          field="difficulty"
-          header="Schwierigkeit"
-          body={difficultyBodyTemplate}
-          sortable
-        ></Column>
-        <Column
-          field="rating"
-          header="Ratings"
-          body={ratingBodyTemplate}
-          sortable
-          style={{ width: 120 }}
-        ></Column>
-        <Column
-          header="Actions"
-          body={actionsBodyTemplate}
-          style={{ width: mayEdit ? 150 : 50 }}
-        ></Column>
-      </DataTable>
     </div>
   );
 }
