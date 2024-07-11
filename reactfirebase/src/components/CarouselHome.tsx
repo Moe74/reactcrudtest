@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Carousel } from "primereact/carousel";
 import { get, getDatabase, ref } from "firebase/database";
 import app from "../firebaseConfig";
 import {
@@ -11,12 +10,14 @@ import {
 import AverageRating from "./AverageRating";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
 const RatingContainer = styled.div`
   padding: 10px;
   position: absolute;
-  top: 0; // Positionierung oben
-  right: 0; // Positionierung rechts
+  top: 0;
+  right: 0;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
@@ -29,10 +30,9 @@ const RatingContainer = styled.div`
 
 const CarouselHome: React.FC = () => {
   const [rezepte, setRezepte] = useState<Rezept[]>([]);
-  const navigate = useNavigate(); // Navigation hinzugefuegt
+  const navigate = useNavigate();
 
   const fetchData = async () => {
-    // die Daten aus der Datenbank holen
     const db = getDatabase(app);
     const dbRef = ref(db, "recipes");
     const snapshot = await get(dbRef);
@@ -55,9 +55,9 @@ const CarouselHome: React.FC = () => {
   const recipeTemplate = (recipe: Rezept) => {
     return (
       <div
-        style={{ cursor: "pointer", margin: "10px", position: "relative" }} // cursor fuer bessere Sichtbarkeit und Position relativ für RatingContainer
+        style={{ cursor: "pointer", margin: "10px", position: "relative" }}
         className="border-1 surface-border border-round m-2 text-center py-5 px-3"
-        onClick={() => navigate("/single/" + recipe.rezeptId)} // OnClick auf Rezept Single wechseln
+        onClick={() => navigate("/single/" + recipe.rezeptId)}
       >
         <div className="mb-3" style={{ position: "relative" }}>
           <img
@@ -94,38 +94,32 @@ const CarouselHome: React.FC = () => {
     );
   };
 
-  const responsiveOptions = [
-    {
-      breakpoint: "1400px",
-      numVisible: 2,
-      numScroll: 1,
+  const responsive = {
+    superLargeDesktop: {
+      breakpoint: { max: 4000, min: 3000 },
+      items: 5,
     },
-    {
-      breakpoint: "1199px",
-      numVisible: 3,
-      numScroll: 1,
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 3,
     },
-    {
-      breakpoint: "767px",
-      numVisible: 2,
-      numScroll: 1,
+    tablet: {
+      breakpoint: { max: 1024, min: 464 },
+      items: 2,
     },
-    {
-      breakpoint: "575px",
-      numVisible: 1,
-      numScroll: 1,
+    mobile: {
+      breakpoint: { max: 464, min: 0 },
+      items: 1,
     },
-  ];
+  };
 
   return (
     <div className="card">
-      <Carousel
-        value={rezepte}
-        numVisible={3}
-        numScroll={3}
-        responsiveOptions={responsiveOptions}
-        itemTemplate={recipeTemplate}
-      />
+      <Carousel responsive={responsive}>
+        {rezepte.map((recipe) => (
+          <div key={recipe.rezeptId}>{recipeTemplate(recipe)}</div>
+        ))}
+      </Carousel>
     </div>
   );
 };
