@@ -1,25 +1,35 @@
-import { equalTo, get, getDatabase, orderByChild, push, query, ref, remove, set, update, } from "firebase/database";
+import {
+  equalTo,
+  get,
+  getDatabase,
+  orderByChild,
+  push,
+  query,
+  ref,
+  remove,
+  set,
+  update,
+} from "firebase/database";
 import { Button } from "primereact/button";
 import { Checkbox } from "primereact/checkbox";
 import { Dropdown } from "primereact/dropdown";
 import { InputNumber, InputNumberChangeEvent } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { Rating } from "primereact/rating";
-import * as React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Rating as RatingPR } from "primereact/rating";
+import * as React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import app from "../firebaseConfig";
 import { useGlobalState } from "./GlobalStates";
 import { Zutat, replaceUndefinedWithNull } from "./Helpers";
 import { Toast } from "primereact/toast";
 import ConfirmButton from "./ConfirmButton";
-import { TextField } from "@mui/material";
-
+import { InputLabel, MenuItem, Rating, TextField } from "@mui/material";
 
 // interface ShowMessageParams {
 //   ref: React.RefObject<Toast>;
 // }
-type Severity = 'success' | 'info' | 'warn' | 'error';
+type Severity = "success" | "info" | "warn" | "error";
 interface ShowMessageParams {
   detail: string;
   ref: React.RefObject<Toast>;
@@ -31,7 +41,9 @@ function Write() {
   const { firebaseId } = useParams();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [title, setTitle] = React.useState<string | undefined>(undefined);
-  const [description, setDescription] = React.useState<string | undefined>(undefined);
+  const [description, setDescription] = React.useState<string | undefined>(
+    undefined
+  );
   const [duration, setDuration] = React.useState(15);
   const [rating, setRating] = React.useState<number | undefined>(0);
   const [difficulty, setDifficulty] = React.useState<number>(1);
@@ -39,24 +51,29 @@ function Write() {
   const [image, setImage] = React.useState<string | undefined>("noImage.webp");
   const [isVegi, setIsVegi] = React.useState<boolean>(false);
   const [manual, setManual] = React.useState<string[]>([]);
-  const [currentStep, setCurrentStep] = React.useState<string>('');
+  const [currentStep, setCurrentStep] = React.useState<string>("");
   const [ingredients, setIngredients] = React.useState<Zutat[]>([]);
-  const [currentIngredient, setCurrentIngredient] = React.useState<Zutat>({ text: '', amount: undefined, unit: undefined });
+  const [currentIngredient, setCurrentIngredient] = React.useState<Zutat>({
+    text: "",
+    amount: undefined,
+    unit: undefined,
+  });
   const [editStepIndex, setEditStepIndex] = React.useState<number | null>(null);
-  const [editIngredientIndex, setEditIngredientIndex] = React.useState<number | null>(null);
+  const [editIngredientIndex, setEditIngredientIndex] = React.useState<
+    number | null
+  >(null);
   const [isLoggedIn] = useGlobalState("userIsLoggedIn");
   const [isAdmin] = useGlobalState("userIsAdmin");
   const mayEdit = isLoggedIn && isAdmin;
 
   const toastCenter = React.useRef(null);
 
-
   const showMessage = ({ ref, severity, detail }: ShowMessageParams) => {
     ref.current?.show({
       severity: severity,
-      summary: severity === 'error' ? 'Fehler' : 'Info',
+      summary: severity === "error" ? "Fehler" : "Info",
       detail: detail,
-      life: 3000
+      life: 3000,
     });
   };
 
@@ -79,31 +96,32 @@ function Write() {
     if (firebaseId) {
       const db = getDatabase(app);
       const recipeRef = ref(db, `recipes/${firebaseId}`);
-      get(recipeRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          setTitle(data.title);
-          setDescription(data.description);
-          setDuration(data.duration);
-          setRating(data.rating);
-          setDifficulty(data.difficulty);
-          setPersons(data.persons);
-          setImage(data.image);
-          setIsVegi(data.isVegi);
-          setManual(data.manual);
-          setIngredients(data.ingredients);
-        } else {
-          alert("Data not found");
+      get(recipeRef)
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            setTitle(data.title);
+            setDescription(data.description);
+            setDuration(data.duration);
+            setRating(data.rating);
+            setDifficulty(data.difficulty);
+            setPersons(data.persons);
+            setImage(data.image);
+            setIsVegi(data.isVegi);
+            setManual(data.manual);
+            setIngredients(data.ingredients);
+          } else {
+            alert("Data not found");
+            navigate("/");
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("Error loading data");
           navigate("/");
-        }
-      }).catch((error) => {
-        console.error(error);
-        alert("Error loading data");
-        navigate("/");
-      });
+        });
     }
   }, [firebaseId, navigate]);
-
 
   const saveData = async () => {
     const db = getDatabase(app);
@@ -117,18 +135,22 @@ function Write() {
       difficulty,
       persons,
       image,
-      isVegi
+      isVegi,
     });
 
-    const recipeRef = firebaseId ? ref(db, `recipes/${firebaseId}`) : push(ref(db, "recipes"));
+    const recipeRef = firebaseId
+      ? ref(db, `recipes/${firebaseId}`)
+      : push(ref(db, "recipes"));
     const saveMethod = firebaseId ? update : set;
 
     saveMethod(recipeRef, cleanedData)
       .then(() => {
         showMessage({
           ref: toastCenter,
-          severity: 'success',
-          detail: firebaseId ? 'Rezept erfolgreich geändert' : 'Rezept erfolgreich angelegt'
+          severity: "success",
+          detail: firebaseId
+            ? "Rezept erfolgreich geändert"
+            : "Rezept erfolgreich angelegt",
         });
 
         setTimeout(() => {
@@ -138,8 +160,8 @@ function Write() {
       .catch((error) => {
         showMessage({
           ref: toastCenter,
-          severity: 'error',
-          detail: `Fehler beim Speichern des Rezepts: ${error.message}`
+          severity: "error",
+          detail: `Fehler beim Speichern des Rezepts: ${error.message}`,
         });
       });
   };
@@ -148,11 +170,11 @@ function Write() {
     const newManual = [...manual];
     if (editStepIndex !== null) {
       newManual[editStepIndex] = currentStep;
-    } else if (currentStep.trim() !== '') {
+    } else if (currentStep.trim() !== "") {
       newManual.push(currentStep);
     }
     setManual(newManual);
-    setCurrentStep('');
+    setCurrentStep("");
     setEditStepIndex(null);
   };
 
@@ -160,11 +182,11 @@ function Write() {
     const newIngredients = [...ingredients];
     if (editIngredientIndex !== null) {
       newIngredients[editIngredientIndex] = currentIngredient;
-    } else if (currentIngredient.text.trim() !== '') {
+    } else if (currentIngredient.text.trim() !== "") {
       newIngredients.push(currentIngredient);
     }
     setIngredients(newIngredients);
-    setCurrentIngredient({ text: '', amount: undefined, unit: undefined });
+    setCurrentIngredient({ text: "", amount: undefined, unit: undefined });
     setEditIngredientIndex(null);
   };
 
@@ -173,7 +195,7 @@ function Write() {
     setIngredients(newIngredients);
     if (index === editIngredientIndex) {
       setEditIngredientIndex(null);
-      setCurrentIngredient({ text: '', amount: undefined, unit: undefined });
+      setCurrentIngredient({ text: "", amount: undefined, unit: undefined });
     }
   };
 
@@ -184,7 +206,7 @@ function Write() {
 
   const cancelEditIngredient = () => {
     setEditIngredientIndex(null);
-    setCurrentIngredient({ text: '', amount: undefined, unit: undefined });
+    setCurrentIngredient({ text: "", amount: undefined, unit: undefined });
   };
 
   const deleteStep = (index: number) => {
@@ -192,7 +214,7 @@ function Write() {
     setManual(newManual);
     if (index === editStepIndex) {
       setEditStepIndex(null);
-      setCurrentStep('');
+      setCurrentStep("");
     }
   };
 
@@ -206,30 +228,39 @@ function Write() {
 
   const cancelEdit = () => {
     setEditStepIndex(null);
-    setCurrentStep('');
+    setCurrentStep("");
   };
 
   const addIngredient = () => {
-    if (currentIngredient.text.trim() !== '') {
+    if (currentIngredient.text.trim() !== "") {
       const newIngredient: Zutat = {
         text: currentIngredient.text,
         amount: currentIngredient.amount || null,
-        unit: currentIngredient.unit || null
+        unit: currentIngredient.unit || null,
       };
       setIngredients([...ingredients, newIngredient]);
-      setCurrentIngredient({ text: '', amount: undefined, unit: undefined });
+      setCurrentIngredient({ text: "", amount: undefined, unit: undefined });
     }
   };
 
-  const handleIngredientChange = (field: keyof Zutat, value: string | number | null) => {
-    setCurrentIngredient({ ...currentIngredient, [field]: value === '' ? null : value });
+  const handleIngredientChange = (
+    field: keyof Zutat,
+    value: string | number | null
+  ) => {
+    setCurrentIngredient({
+      ...currentIngredient,
+      [field]: value === "" ? null : value,
+    });
   };
-
 
   const deleteRezept = async (rezParam: string) => {
     const db = getDatabase();
     const rezeptRef = ref(db, "recipes/" + rezParam);
-    const commentsRef = query(ref(db, "comments"), orderByChild('rezeptId'), equalTo(rezParam));
+    const commentsRef = query(
+      ref(db, "comments"),
+      orderByChild("rezeptId"),
+      equalTo(rezParam)
+    );
 
     try {
       const commentsSnapshot = await get(commentsRef);
@@ -244,9 +275,12 @@ function Write() {
       await remove(rezeptRef);
       navigate("/read");
     } catch (error) {
-      console.error("Fehler beim Löschen des Rezepts und seiner Kommentare: ", error);
+      console.error(
+        "Fehler beim Löschen des Rezepts und seiner Kommentare: ",
+        error
+      );
     }
-  }
+  };
 
   const onDifficultyChange = (e: { value: number }) => {
     setDifficulty(e.value);
@@ -255,21 +289,22 @@ function Write() {
     setImage(e.value);
   };
 
-
   const selectedRezeptOptionTemplate = (option: any) => {
     if (option) {
       return (
         <div style={{ display: "flex", alignItems: "center" }}>
-          <div style={{
-            height: 35,
-            width: 35,
-            padding: 0,
-            margin: -7,
-            marginRight: 10,
-            backgroundImage: `url("${process.env.PUBLIC_URL}/images/rezepte/${option.value}")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center center"
-          }} />
+          <div
+            style={{
+              height: 35,
+              width: 35,
+              padding: 0,
+              margin: -7,
+              marginRight: 10,
+              backgroundImage: `url("${process.env.PUBLIC_URL}/images/rezepte/${option.value}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center center",
+            }}
+          />
           <div>{option.value}</div>
         </div>
       );
@@ -279,29 +314,106 @@ function Write() {
     if (option) {
       return (
         <div style={{ display: "flex", alignItems: "center", height: 21 }}>
-          <div style={{
-            height: 35,
-            width: 35,
-            padding: 0,
-            marginLeft: -7,
-            marginRight: 10,
-            backgroundImage: `url("${process.env.PUBLIC_URL}/images/rezepte/${option.value}")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center center"
-          }} />
+          <div
+            style={{
+              height: 35,
+              width: 35,
+              padding: 0,
+              marginLeft: -7,
+              marginRight: 10,
+              backgroundImage: `url("${process.env.PUBLIC_URL}/images/rezepte/${option.value}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center center",
+            }}
+          />
           <div>{option.value}</div>
         </div>
       );
     }
   };
 
-  const saveable = title && description && duration !== undefined && difficulty > 0 && persons > 0 && manual.length > 0 && ingredients.length > 0;
+  const saveable =
+    title &&
+    description &&
+    duration !== undefined &&
+    difficulty > 0 &&
+    persons > 0 &&
+    manual.length > 0 &&
+    ingredients.length > 0;
+
+  const Schwierigkeitsgrade = [
+    {
+      value: "leicht",
+      label: "leicht",
+    },
+    {
+      value: "mittel",
+      label: "mittel",
+    },
+    {
+      value: "schwierig",
+      label: "schwierig",
+    },
+  ];
+
+  const Bilder = [
+    {
+      value: "noImage.webp",
+      label: "noImage.webp",
+    },
+    {
+      value: "ApfelZimtPorridge.webp",
+      label: "ApfelZimtPorridge.webp",
+    },
+    {
+      value: "BurgerMitHausgemachtenPommes.webp",
+      label: "BurgerMitHausgemachtenPommes.webp",
+    },
+    {
+      value: "CaesarSalad.webp",
+      label: "CaesarSalad.webp",
+    },
+    {
+      value: "EnteAlaOrange.webp",
+      label: "EnteAlaOrange.webp",
+    },
+    {
+      value: "GriechischerSalat.webp",
+      label: "GriechischerSalat.webp",
+    },
+    {
+      value: "HaehnchenbrustMitKraeuterkruste.webp",
+      label: "HaehnchenbrustMitKraeuterkruste.webp",
+    },
+    {
+      value: "Kuerbissuppe.webp",
+      label: "Kuerbissuppe.webp",
+    },
+    {
+      value: "PastaCarbonara.webp",
+      label: "PastaCarbonara.webp",
+    },
+    {
+      value: "QuicheLorraine.webp",
+      label: "QuicheLorraine.webp",
+    },
+    {
+      value: "Ratatouille.webp",
+      label: "Ratatouille.webp",
+    },
+    {
+      value: "SpaghettiBolognese.webp",
+      label: "SpaghettiBolognese.webp",
+    },
+  ];
 
   if (!mayEdit)
     return (
       <>
         {/* <Header /> */}
-        <h3 className="missing">Du musst als Admin eingelogged sein um neue Rezepte anzulegen</h3>
+        <h3 className="missing">
+          Du musst als Admin eingelogged sein um neue Rezepte anzulegen
+        </h3>
       </>
     );
   return (
@@ -310,15 +422,17 @@ function Write() {
       {/* <Header /> */}
       <h2>{firebaseId ? "Edit Rezept" : "Add Rezept"}</h2>
 
-
-
-
-
-
-
       {/* NEW START */}
       <h1>NEW</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr max-content", gap: "10px 20px", alignItems: "center", width: "100%" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "max-content 1fr max-content",
+          gap: "10px 20px",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
         <div>Gericht</div>
         <div>
           <TextField
@@ -333,134 +447,315 @@ function Write() {
           />
         </div>
         <div>
-          {!title && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+          {!title && (
+            <span
+              className="pi pi-exclamation-circle"
+              style={{ color: "#D13438", fontSize: "1.5rem" }}
+            />
+          )}
         </div>
 
         <div>Beschreibung</div>
         <div>
-          <InputTextarea value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%" }} invalid={!description} variant={!description ? "filled" : undefined} />
+          {/* <InputTextarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            style={{ width: "100%" }}
+            invalid={!description}
+            variant={!description ? "filled" : undefined}
+          /> */}
+          <TextField
+            label="Beschreibung"
+            variant={!description ? "filled" : "outlined"}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            color={!description ? "error" : undefined}
+            style={{ width: "100%" }}
+            error={!description}
+            required
+          />
         </div>
         <div>
-          {!description && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+          {!description && (
+            <span
+              className="pi pi-exclamation-circle"
+              style={{ color: "#D13438", fontSize: "1.5rem" }}
+            />
+          )}
         </div>
 
         <div>Arbeitsschritte</div>
-        {manual.map((m, i) => (
+        {manual.map((m, i) =>
           editStepIndex === i ? (
             <React.Fragment key={i}>
               <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-                <InputText style={{ width: "100%" }} value={currentStep} onChange={(e) => setCurrentStep(e.target.value)} ref={inputRef} invalid={!currentStep} variant={!currentStep ? "filled" : undefined} />
+                {/* <InputText
+                  style={{ width: "100%" }}
+                  value={currentStep}
+                  onChange={(e) => setCurrentStep(e.target.value)}
+                  ref={inputRef}
+                  invalid={!currentStep}
+                  variant={!currentStep ? "filled" : undefined}
+                /> */}
+                <TextField
+                  label="Arbeitsschritte"
+                  variant={!currentStep ? "filled" : "outlined"}
+                  value={currentStep}
+                  onChange={(e) => setCurrentStep(e.target.value)}
+                  ref={inputRef}
+                  style={{ width: "100%" }}
+                  error={!currentStep}
+                  required
+                />
               </div>
               <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-                <Button onClick={addOrUpdateStep} label="update" severity="success" icon="pi pi-check" disabled={!currentStep} style={{ marginRight: 5 }} />
-                <Button onClick={cancelEdit} icon="pi pi-times" severity="secondary" />
+                <Button
+                  onClick={addOrUpdateStep}
+                  label="update"
+                  severity="success"
+                  icon="pi pi-check"
+                  disabled={!currentStep}
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={cancelEdit}
+                  icon="pi pi-times"
+                  severity="secondary"
+                />
               </div>
             </React.Fragment>
           ) : (
             <React.Fragment key={i}>
               <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-                <InputText style={{ width: "100%", color: "#323130" }} value={`Step ${i + 1}: ${m}`} disabled variant="filled" />
+                {/* <InputText
+                  style={{ width: "100%", color: "#323130" }}
+                  value={`Step ${i + 1}: ${m}`}
+                  disabled
+                  variant="filled"
+                /> */}
+                <TextField
+                  label="Arbeitsschritte neu"
+                  variant={"filled"}
+                  value={`Step ${i + 1}: ${m}`}
+                  style={{ width: "100%" }}
+                  disabled
+                />
               </div>
               <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-                <Button onClick={() => editStep(i)} label="edit" severity="warning" icon="pi pi-pen-to-square" style={{ marginRight: 5 }} />
-                <Button onClick={() => deleteStep(i)} icon="pi pi-trash" severity="danger" />
+                <Button
+                  onClick={() => editStep(i)}
+                  label="edit"
+                  severity="warning"
+                  icon="pi pi-pen-to-square"
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={() => deleteStep(i)}
+                  icon="pi pi-trash"
+                  severity="danger"
+                />
               </div>
             </React.Fragment>
           )
-        ))}
+        )}
         {editStepIndex === null && (
           <>
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-              <InputText
+              {/* <InputText
                 style={{ width: "100%" }}
-                invalid={manual.length === 0} variant={manual.length === 0 ? "filled" : undefined}
+                invalid={manual.length === 0}
+                variant={manual.length === 0 ? "filled" : undefined}
                 value={currentStep}
-                placeholder={manual.length === 0 ? undefined : `Step ${manual.length + 1} (optional)`}
+                placeholder={
+                  manual.length === 0
+                    ? undefined
+                    : `Step ${manual.length + 1} (optional)`
+                }
                 onChange={(e) => setCurrentStep(e.target.value)}
+              /> */}
+              <TextField
+                label="Arbeitsschritte"
+                variant={manual.length === 0 ? "filled" : undefined}
+                value={currentStep}
+                placeholder={
+                  manual.length === 0
+                    ? undefined
+                    : `Step ${manual.length + 1} (optional)`
+                }
+                onChange={(e) => setCurrentStep(e.target.value)}
+                style={{ width: "100%" }}
+                error={manual.length === 0}
+                required
               />
             </div>
 
             <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-
-              {currentStep !== "" ?
-                <Button onClick={addOrUpdateStep} label="apply" severity="success" icon="pi pi-check" />
-                :
-
+              {currentStep !== "" ? (
+                <Button
+                  onClick={addOrUpdateStep}
+                  label="apply"
+                  severity="success"
+                  icon="pi pi-check"
+                />
+              ) : (
                 <div>
-                  {!description && manual.length === 0 && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+                  {!description && manual.length === 0 && (
+                    <span
+                      className="pi pi-exclamation-circle"
+                      style={{ color: "#D13438", fontSize: "1.5rem" }}
+                    />
+                  )}
                 </div>
-              }
+              )}
             </div>
           </>
         )}
 
-
-
-
-
-
-
-
-        <div>Zutaten</div>
+        <div>Zutatenn</div>
         {ingredients.map((ingredient, index) => {
           const amount = ingredient.amount ?? "";
           const unit = ingredient.unit ?? "";
           const text = ingredient.text;
-          const label = (amount ? amount + " " : "") + (unit ? unit + " " : "") + text;
-          return (
-            editIngredientIndex === index ? (
-              <React.Fragment key={index}>
-                <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} >
-                  <div className="p-inputgroup">
-                    <InputText
-                      style={{ width: "50%" }}
-                      invalid={!currentStep || currentStep === ""}
-                      variant={!currentStep ? "filled" : undefined}
-                      value={currentIngredient.text}
-                      placeholder={manual.length === 0 ? undefined : `Step ${manual.length + 1} (optional)`}
-                      onChange={(e) => handleIngredientChange('text', e.target.value)}
-                      autoFocus={true}
-                    />
-                    <InputText
-                      style={{ width: "50px", margin: "0 5px" }}
-                      value={currentIngredient.unit || ''}
-                      placeholder="Einheit"
-                      onChange={(e) => handleIngredientChange('unit', e.target.value)}
-                      min={0}
-                    />
-                    <InputNumber
-                      showButtons
-                      value={currentIngredient.amount}
-                      onChange={(e: InputNumberChangeEvent) => handleIngredientChange('amount', e.value !== null ? e.value : null)}
-                      placeholder="Menge"
-                      style={{ width: "100px" }}
-                      step={0.25}
-                      minFractionDigits={2}
-                      locale="de-DE"
-                      suffix={" " + currentIngredient.unit ?? undefined}
-                    />
-                  </div>
-                </div>
-                <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }} >
-                  <Button onClick={addOrUpdateIngredient} label="update" severity="success" icon="pi pi-check" disabled={currentIngredient.text === null} style={{ marginRight: 5 }} />
-                  <Button onClick={cancelEditIngredient} severity="secondary" icon="pi pi-times" />
-                </div>
-              </React.Fragment>
-            ) : (
-              <React.Fragment key={index}>
-                <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          const label =
+            (amount ? amount + " " : "") + (unit ? unit + " " : "") + text;
+          return editIngredientIndex === index ? (
+            <React.Fragment key={index}>
+              <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                <div className="p-inputgroup">
+                  xxx
                   <InputText
-                    style={{ width: "100%", color: "#323130" }}
-                    value={label}
-                    disabled
+                    style={{ width: "50%" }}
+                    invalid={!currentStep || currentStep === ""}
+                    variant={!currentStep ? "filled" : undefined}
+                    value={currentIngredient.text}
+                    placeholder={
+                      manual.length === 0
+                        ? undefined
+                        : `Step ${manual.length + 1} (optional)`
+                    }
+                    onChange={(e) =>
+                      handleIngredientChange("text", e.target.value)
+                    }
+                    autoFocus={true}
                   />
+                  <TextField
+                    label="Zutaten"
+                    variant={!currentStep ? "filled" : "outlined"}
+                    value={currentIngredient.text}
+                    onChange={(e) =>
+                      handleIngredientChange("text", e.target.value)
+                    }
+                    autoFocus={true}
+                    placeholder={
+                      manual.length === 0
+                        ? undefined
+                        : `Step ${manual.length + 1} (optional)`
+                    }
+                    style={{ width: "50%" }}
+                    error={!currentStep || currentStep === ""}
+                    required
+                  />
+                  {/* <InputText
+                    style={{ width: "50px", margin: "0 5px" }}
+                    value={currentIngredient.unit || ""}
+                    placeholder="Einheit"
+                    onChange={(e) =>
+                      handleIngredientChange("unit", e.target.value)
+                    }
+                    min={0}
+                  /> */}
+                  <TextField
+                    label="Einheit"
+                    variant="outlined"
+                    value={currentIngredient.unit || ""}
+                    onChange={(e) =>
+                      handleIngredientChange("unit", e.target.value)
+                    }
+                    /* min={0} */
+                    autoFocus={true}
+                    placeholder="Einheit"
+                    style={{ width: "50px", margin: "0 5px" }}
+                    required
+                  />
+                  {/*  <InputNumber
+                    showButtons
+                    value={currentIngredient.amount}
+                    onChange={(e: InputNumberChangeEvent) =>
+                      handleIngredientChange(
+                        "amount",
+                        e.value !== null ? e.value : null
+                      )
+                    }
+                    placeholder="Menge"
+                    style={{ width: "100px" }}
+                    step={0.25}
+                    minFractionDigits={2}
+                    locale="de-DE"
+                    suffix={" " + currentIngredient.unit ?? undefined}
+                  /> */}
+                  {/* <InputLabel
+                  label="Menge"
+                  variant="outlined"
+                    value={currentIngredient.amount}
+                    onChange={(e: InputNumberChangeEvent) =>
+                      handleIngredientChange(
+                        "amount",
+                        e.value !== null ? e.value : null
+                      )
+                    }
+                    placeholder="Menge"
+                    style={{ width: "100px" }}
+                    step={0.25}
+                    minFractionDigits={2}
+                    locale="de-DE"
+                    suffix={" " + currentIngredient.unit ?? undefined}
+                    shrink 
+                  
+                  /> */}
                 </div>
-                <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }} >
-                  <Button onClick={() => editIngredient(index)} label="edit" severity="warning" icon="pi pi-pen-to-square" style={{ marginRight: 5 }} />
-                  <Button onClick={() => deleteIngredient(index)} icon="pi pi-trash" severity="danger" />
-                </div>
-              </React.Fragment>
-            )
+              </div>
+              <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+                <Button
+                  onClick={addOrUpdateIngredient}
+                  label="update"
+                  severity="success"
+                  icon="pi pi-check"
+                  disabled={currentIngredient.text === null}
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={cancelEditIngredient}
+                  severity="secondary"
+                  icon="pi pi-times"
+                />
+              </div>
+            </React.Fragment>
+          ) : (
+            <React.Fragment key={index}>
+              <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                <TextField
+                  label={`Zutat ${index + 1}`}
+                  variant="filled"
+                  value={label}
+                  style={{ width: "100%" }}
+                  disabled
+                />
+              </div>
+              <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+                <Button
+                  onClick={() => editIngredient(index)}
+                  label="edit"
+                  severity="warning"
+                  icon="pi pi-pen-to-square"
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={() => deleteIngredient(index)}
+                  icon="pi pi-trash"
+                  severity="danger"
+                />
+              </div>
+            </React.Fragment>
           );
         })}
 
@@ -468,33 +763,84 @@ function Write() {
           <>
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
               <div className="p-inputgroup">
-                <InputText
+                {/* <InputText
                   style={{ width: "50%" }}
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""}`}
-                  onChange={(e) => handleIngredientChange('text', e.target.value)}
+                  placeholder={`Zutat ${
+                    ingredients.length > 0 ? "(optional)" : ""
+                  }`}
+                  onChange={(e) =>
+                    handleIngredientChange("text", e.target.value)
+                  }
                   invalid={ingredients.length === 0}
                   variant={ingredients.length === 0 ? "filled" : undefined}
+                /> */}
+                <TextField
+                  label="Zutat"
+                  variant={ingredients.length === 0 ? "filled" : undefined}
+                  value={currentIngredient.text}
+                  placeholder={`Zutat ${
+                    ingredients.length > 0 ? "(optional)" : ""
+                  }`}
+                  onChange={(e) =>
+                    handleIngredientChange("text", e.target.value)
+                  }
+                  style={{ width: "50%" }}
+                  error={ingredients.length === 0}
+                  required
+                />
 
-                />
-                <InputText
+                {/* <InputText
                   style={{ width: "50px", margin: "0 5px" }}
-                  value={currentIngredient.unit || ''}
-                  placeholder="Einheit"
-                  onChange={(e) => handleIngredientChange('unit', e.target.value ? e.target.value : null)}
+                  value={currentIngredient.unit || ""}
+                  placeholder="Einheitt"
+                  onChange={(e) =>
+                    handleIngredientChange(
+                      "unit",
+                      e.target.value ? e.target.value : null
+                    )
+                  }
+                /> */}
+                <TextField
+                  label="Einheit"
+                  variant="filled"
+                  value={currentIngredient.unit || ""}
+                  placeholder="Einheittt"
+                  onChange={(e) =>
+                    handleIngredientChange(
+                      "unit",
+                      e.target.value ? e.target.value : null
+                    )
+                  }
+                  style={{ width: "50px", margin: "0 5px" }}
+                  required
                 />
+
                 <InputNumber
                   showButtons
-                  placeholder="Menge"
+                  placeholder="Mengee"
                   value={currentIngredient.amount}
-                  onChange={(e: InputNumberChangeEvent) => handleIngredientChange('amount', e.value !== null ? e.value : null)}
+                  onChange={(e: InputNumberChangeEvent) =>
+                    handleIngredientChange(
+                      "amount",
+                      e.value !== null ? e.value : null
+                    )
+                  }
                   minFractionDigits={2}
                   locale="de-DE"
                   style={{
                     float: "left",
                     width: "70px",
-                    borderColor: (currentIngredient.text !== undefined && ingredients.length === 0) ? "red" : undefined,
-                    background: (currentIngredient.text !== undefined && ingredients.length === 0) ? "rgba(255,0,0,0.05)" : undefined
+                    borderColor:
+                      currentIngredient.text !== undefined &&
+                      ingredients.length === 0
+                        ? "red"
+                        : undefined,
+                    background:
+                      currentIngredient.text !== undefined &&
+                      ingredients.length === 0
+                        ? "rgba(255,0,0,0.05)"
+                        : undefined,
                   }}
                   suffix={" " + currentIngredient.unit ?? undefined}
                 />
@@ -502,36 +848,34 @@ function Write() {
             </div>
             <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
               {currentIngredient.text !== "" ? (
-                <Button onClick={addIngredient} label="apply" severity="success" icon="pi pi-check" />
-              )
-                :
+                <Button
+                  onClick={addIngredient}
+                  label="apply"
+                  severity="success"
+                  icon="pi pi-check"
+                />
+              ) : (
                 <div>
-                  {!description && ingredients.length === 0 && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+                  {!description && ingredients.length === 0 && (
+                    <span
+                      className="pi pi-exclamation-circle"
+                      style={{ color: "#D13438", fontSize: "1.5rem" }}
+                    />
+                  )}
                 </div>
-              }
+              )}
             </div>
           </>
         )}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Benötigte Zeit</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Benötigte Zeit
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
           <InputNumber
             showButtons
-            min={15} step={15}
+            min={15}
+            step={15}
             locale="de-DE"
             value={duration}
             onChange={handleDurationChange}
@@ -545,33 +889,64 @@ function Write() {
           />
         </div>
 
-
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Aktuelles Rating</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Aktuelles Rating
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <Rating value={rating} readOnly cancel={false} disabled />
+          {/* <RatingPR value={rating} readOnly cancel={false} disabled /> */}
+          <Rating value={rating} readOnly disabled />
+          <TextField
+            label="Aktuelles Rating"
+            variant="outlined"
+            fullWidth
+            disabled
+            value=""
+            inputProps={{
+              startAdornment: <Rating value={rating} readOnly disabled />,
+            }}
+          />
         </div>
 
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Schwierigkeit</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Schwierigkeit
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <Dropdown
+          {/* <Dropdown
             value={difficulty}
             options={[
-              { label: 'leicht', value: 1 },
-              { label: 'mittel', value: 2 },
-              { label: 'schwer', value: 3 }
+              { label: "leicht", value: 1 },
+              { label: "mittel", value: 2 },
+              { label: "schwer", value: 3 },
             ]}
             onChange={onDifficultyChange}
             optionLabel="label"
             highlightOnSelect={true}
             style={{ width: "100%" }}
-          />
+          /> */}
+          <TextField
+            id=""
+            select
+            label="Schwierigkeitsgrad"
+            defaultValue="leicht"
+            helperText="Bitte wählen Sie einen Schwierigkeitsgrad."
+            style={{ width: "100%" }}
+          >
+            {Schwierigkeitsgrade.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
         </div>
 
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Personenanzahl</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Personenanzahl
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
           <InputNumber
             showButtons
-            min={1} max={99}
+            min={1}
+            max={99}
             locale="de-DE"
             value={persons}
             onChange={handlePersonsChange}
@@ -583,22 +958,37 @@ function Write() {
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Bild</div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <Dropdown
+          {/* <Dropdown
             value={image}
             options={[
-              { label: 'noImage.webp', value: 'noImage.webp' },
-              { label: 'ApfelZimtPorridge.webp', value: 'ApfelZimtPorridge.webp' },
-              { label: 'BurgerMitHausgemachtenPommes.webp', value: 'BurgerMitHausgemachtenPommes.webp' },
-              { label: 'CaesarSalad.webp', value: 'CaesarSalad.webp' },
-              { label: 'EnteAlaOrange.webp', value: 'EnteAlaOrange.webp' },
-              { label: 'EnteAlaOrange.webp', value: 'EnteAlaOrange.webp' },
-              { label: 'GriechischerSalat.webp', value: 'GriechischerSalat.webp' },
-              { label: 'HaehnchenbrustMitKraeuterkruste.webp', value: 'HaehnchenbrustMitKraeuterkruste.webp' },
-              { label: 'Kuerbissuppe.webp', value: 'Kuerbissuppe.webp' },
-              { label: 'PastaCarbonara.webp', value: 'PastaCarbonara.webp' },
-              { label: 'QuicheLorraine.webp', value: 'QuicheLorraine.webp' },
-              { label: 'Ratatouille.webp', value: 'Ratatouille.webp' },
-              { label: 'SpaghettiBolognese.webp', value: 'SpaghettiBolognese.webp' },
+              { label: "noImage.webp", value: "noImage.webp" },
+              {
+                label: "ApfelZimtPorridge.webp",
+                value: "ApfelZimtPorridge.webp",
+              },
+              {
+                label: "BurgerMitHausgemachtenPommes.webp",
+                value: "BurgerMitHausgemachtenPommes.webp",
+              },
+              { label: "CaesarSalad.webp", value: "CaesarSalad.webp" },
+              { label: "EnteAlaOrange.webp", value: "EnteAlaOrange.webp" },
+              { label: "EnteAlaOrange.webp", value: "EnteAlaOrange.webp" },
+              {
+                label: "GriechischerSalat.webp",
+                value: "GriechischerSalat.webp",
+              },
+              {
+                label: "HaehnchenbrustMitKraeuterkruste.webp",
+                value: "HaehnchenbrustMitKraeuterkruste.webp",
+              },
+              { label: "Kuerbissuppe.webp", value: "Kuerbissuppe.webp" },
+              { label: "PastaCarbonara.webp", value: "PastaCarbonara.webp" },
+              { label: "QuicheLorraine.webp", value: "QuicheLorraine.webp" },
+              { label: "Ratatouille.webp", value: "Ratatouille.webp" },
+              {
+                label: "SpaghettiBolognese.webp",
+                value: "SpaghettiBolognese.webp",
+              },
             ]}
             onChange={onImageChange}
             optionLabel="label"
@@ -606,9 +996,41 @@ function Write() {
             style={{ width: "100%" }}
             valueTemplate={selectedRezeptOptionTemplate}
             itemTemplate={selectedRezeptOptionTemplateX}
-          />
-
-
+          /> */}
+          <TextField
+            value={image}
+            /* onChange={onImageChange} */
+            /* highlightOnSelect={true} */
+            /* optionLabel="label" */
+            /* valueTemplate={selectedRezeptOptionTemplate}
+            itemTemplate={selectedRezeptOptionTemplateX} */
+            select
+            label="Bild"
+            defaultValue="noImage.webp"
+            style={{ width: "100%" }}
+          >
+            {Bilder.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <div
+                  style={{ display: "flex", alignItems: "center", height: 40 }}
+                >
+                  <div
+                    style={{
+                      height: 35,
+                      width: 35,
+                      padding: 0,
+                      marginLeft: -7,
+                      marginRight: 10,
+                      backgroundImage: `url("${process.env.PUBLIC_URL}/images/rezepte/${option.value}")`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center center",
+                    }}
+                  />
+                  <div>{option.value}</div>
+                </div>
+              </MenuItem>
+            ))}
+          </TextField>
         </div>
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Vegetarisch?</div>
@@ -617,187 +1039,296 @@ function Write() {
             <span className="p-inputgroup-addon">
               <Checkbox onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
             </span>
-            <InputText value={isVegi ? "ja" : "nein"} style={{ width: "100%", color: "#323130", pointerEvents: "none" }} variant="filled" />
+            {/* <InputText
+              value={isVegi ? "ja" : "nein"}
+              style={{ width: "100%", color: "#323130", pointerEvents: "none" }}
+              variant="filled"
+            /> */}
+            <TextField
+              value={isVegi ? "ja" : "nein"}
+              style={{ width: "100%", color: "#323130", pointerEvents: "none" }}
+              variant="filled"
+            />
           </div>
         </div>
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 4, background: "#323130", height: 1 }} />
+        <div
+          style={{
+            gridColumnStart: 1,
+            gridColumnEnd: 4,
+            background: "#323130",
+            height: 1,
+          }}
+        />
         <div>
-          {firebaseId &&
+          {firebaseId && (
             <div className="p-inputgroup" style={{ width: "100%" }}>
-              <ConfirmButton action={() => deleteRezept(firebaseId)} style={{ float: "left" }} text="Rezept löschen" />
+              <ConfirmButton
+                action={() => deleteRezept(firebaseId)}
+                style={{ float: "left" }}
+                text="Rezept löschen"
+              />
             </div>
-          }
+          )}
         </div>
-        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} >
-          <Button onClick={() => navigate("/read")} style={{ float: "right" }} label="Abbrechen" severity="secondary" />
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <Button
+            onClick={() => navigate("/read")}
+            style={{ float: "right" }}
+            label="Abbrechen"
+            severity="secondary"
+          />
         </div>
         <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-          <Button onClick={saveData} disabled={!saveable} style={{ width: "100%" }} label={saveable ? "SAVE DATA" : "MISSING DATA"} severity={saveable ? "success" : "danger"} outlined={!saveable} />
+          <Button
+            onClick={saveData}
+            disabled={!saveable}
+            style={{ width: "100%" }}
+            label={saveable ? "SAVE DATA" : "MISSING DATA"}
+            severity={saveable ? "success" : "danger"}
+            outlined={!saveable}
+          />
         </div>
-
       </div>
       {/* NEW ENDE */}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       <h1>OLD</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr max-content", gap: "10px 20px", alignItems: "center", width: "100%" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "max-content 1fr max-content",
+          gap: "10px 20px",
+          alignItems: "center",
+          width: "100%",
+          background: "red",
+        }}
+      >
         <div>Gericht</div>
         <div>
-          <InputText style={{ width: "100%" }} value={title} onChange={(e) => setTitle(e.target.value)} invalid={!title} variant={!title ? "filled" : undefined} />
+          <InputText
+            style={{ width: "100%" }}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            invalid={!title}
+            variant={!title ? "filled" : undefined}
+          />
         </div>
         <div>
-          {!title && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+          {!title && (
+            <span
+              className="pi pi-exclamation-circle"
+              style={{ color: "#D13438", fontSize: "1.5rem" }}
+            />
+          )}
         </div>
 
         <div>Beschreibung</div>
         <div>
-          <InputTextarea value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%" }} invalid={!description} variant={!description ? "filled" : undefined} />
+          <InputTextarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            style={{ width: "100%" }}
+            invalid={!description}
+            variant={!description ? "filled" : undefined}
+          />
         </div>
         <div>
-          {!description && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+          {!description && (
+            <span
+              className="pi pi-exclamation-circle"
+              style={{ color: "#D13438", fontSize: "1.5rem" }}
+            />
+          )}
         </div>
 
         <div>Arbeitsschritte</div>
-        {manual.map((m, i) => (
+        {manual.map((m, i) =>
           editStepIndex === i ? (
             <React.Fragment key={i}>
               <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-                <InputText style={{ width: "100%" }} value={currentStep} onChange={(e) => setCurrentStep(e.target.value)} ref={inputRef} invalid={!currentStep} variant={!currentStep ? "filled" : undefined} />
+                <InputText
+                  style={{ width: "100%" }}
+                  value={currentStep}
+                  onChange={(e) => setCurrentStep(e.target.value)}
+                  ref={inputRef}
+                  invalid={!currentStep}
+                  variant={!currentStep ? "filled" : undefined}
+                />
               </div>
               <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-                <Button onClick={addOrUpdateStep} label="update" severity="success" icon="pi pi-check" disabled={!currentStep} style={{ marginRight: 5 }} />
-                <Button onClick={cancelEdit} icon="pi pi-times" severity="secondary" />
+                <Button
+                  onClick={addOrUpdateStep}
+                  label="update"
+                  severity="success"
+                  icon="pi pi-check"
+                  disabled={!currentStep}
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={cancelEdit}
+                  icon="pi pi-times"
+                  severity="secondary"
+                />
               </div>
             </React.Fragment>
           ) : (
             <React.Fragment key={i}>
               <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-                <InputText style={{ width: "100%", color: "#323130" }} value={`Step ${i + 1}: ${m}`} disabled variant="filled" />
+                <InputText
+                  style={{ width: "100%", color: "#323130" }}
+                  value={`Step ${i + 1}: ${m}`}
+                  disabled
+                  variant="filled"
+                />
               </div>
               <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-                <Button onClick={() => editStep(i)} label="edit" severity="warning" icon="pi pi-pen-to-square" style={{ marginRight: 5 }} />
-                <Button onClick={() => deleteStep(i)} icon="pi pi-trash" severity="danger" />
+                <Button
+                  onClick={() => editStep(i)}
+                  label="edit"
+                  severity="warning"
+                  icon="pi pi-pen-to-square"
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={() => deleteStep(i)}
+                  icon="pi pi-trash"
+                  severity="danger"
+                />
               </div>
             </React.Fragment>
           )
-        ))}
+        )}
         {editStepIndex === null && (
           <>
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
               <InputText
                 style={{ width: "100%" }}
-                invalid={manual.length === 0} variant={manual.length === 0 ? "filled" : undefined}
+                invalid={manual.length === 0}
+                variant={manual.length === 0 ? "filled" : undefined}
                 value={currentStep}
-                placeholder={manual.length === 0 ? undefined : `Step ${manual.length + 1} (optional)`}
+                placeholder={
+                  manual.length === 0
+                    ? undefined
+                    : `Step ${manual.length + 1} (optional)`
+                }
                 onChange={(e) => setCurrentStep(e.target.value)}
               />
             </div>
 
             <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-
-              {currentStep !== "" ?
-                <Button onClick={addOrUpdateStep} label="apply" severity="success" icon="pi pi-check" />
-                :
-
+              {currentStep !== "" ? (
+                <Button
+                  onClick={addOrUpdateStep}
+                  label="apply"
+                  severity="success"
+                  icon="pi pi-check"
+                />
+              ) : (
                 <div>
-                  {!description && manual.length === 0 && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+                  {!description && manual.length === 0 && (
+                    <span
+                      className="pi pi-exclamation-circle"
+                      style={{ color: "#D13438", fontSize: "1.5rem" }}
+                    />
+                  )}
                 </div>
-              }
+              )}
             </div>
           </>
         )}
-
-
-
-
-
-
-
 
         <div>Zutaten</div>
         {ingredients.map((ingredient, index) => {
           const amount = ingredient.amount ?? "";
           const unit = ingredient.unit ?? "";
           const text = ingredient.text;
-          const label = (amount ? amount + " " : "") + (unit ? unit + " " : "") + text;
-          return (
-            editIngredientIndex === index ? (
-              <React.Fragment key={index}>
-                <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} >
-                  <div className="p-inputgroup">
-                    <InputText
-                      style={{ width: "50%" }}
-                      invalid={!currentStep || currentStep === ""}
-                      variant={!currentStep ? "filled" : undefined}
-                      value={currentIngredient.text}
-                      placeholder={manual.length === 0 ? undefined : `Step ${manual.length + 1} (optional)`}
-                      onChange={(e) => handleIngredientChange('text', e.target.value)}
-                      autoFocus={true}
-                    />
-                    <InputText
-                      style={{ width: "50px", margin: "0 5px" }}
-                      value={currentIngredient.unit || ''}
-                      placeholder="Einheit"
-                      onChange={(e) => handleIngredientChange('unit', e.target.value)}
-                      min={0}
-                    />
-                    <InputNumber
-                      showButtons
-                      value={currentIngredient.amount}
-                      onChange={(e: InputNumberChangeEvent) => handleIngredientChange('amount', e.value !== null ? e.value : null)}
-                      placeholder="Menge"
-                      style={{ width: "100px" }}
-                      step={0.25}
-                      minFractionDigits={2}
-                      locale="de-DE"
-                      suffix={" " + currentIngredient.unit ?? undefined}
-                    />
-                  </div>
-                </div>
-                <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }} >
-                  <Button onClick={addOrUpdateIngredient} label="update" severity="success" icon="pi pi-check" disabled={currentIngredient.text === null} style={{ marginRight: 5 }} />
-                  <Button onClick={cancelEditIngredient} severity="secondary" icon="pi pi-times" />
-                </div>
-              </React.Fragment>
-            ) : (
-              <React.Fragment key={index}>
-                <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          const label =
+            (amount ? amount + " " : "") + (unit ? unit + " " : "") + text;
+          return editIngredientIndex === index ? (
+            <React.Fragment key={index}>
+              <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                <div className="p-inputgroup">
                   <InputText
-                    style={{ width: "100%", color: "#323130" }}
-                    value={label}
-                    disabled
+                    style={{ width: "50%" }}
+                    invalid={!currentStep || currentStep === ""}
+                    variant={!currentStep ? "filled" : undefined}
+                    value={currentIngredient.text}
+                    placeholder={
+                      manual.length === 0
+                        ? undefined
+                        : `Step ${manual.length + 1} (optional)`
+                    }
+                    onChange={(e) =>
+                      handleIngredientChange("text", e.target.value)
+                    }
+                    autoFocus={true}
+                  />
+                  <InputText
+                    style={{ width: "50px", margin: "0 5px" }}
+                    value={currentIngredient.unit || ""}
+                    placeholder="Einheit"
+                    onChange={(e) =>
+                      handleIngredientChange("unit", e.target.value)
+                    }
+                    min={0}
+                  />
+                  <InputNumber
+                    showButtons
+                    value={currentIngredient.amount}
+                    onChange={(e: InputNumberChangeEvent) =>
+                      handleIngredientChange(
+                        "amount",
+                        e.value !== null ? e.value : null
+                      )
+                    }
+                    placeholder="Menge"
+                    style={{ width: "100px" }}
+                    step={0.25}
+                    minFractionDigits={2}
+                    locale="de-DE"
+                    suffix={" " + currentIngredient.unit ?? undefined}
                   />
                 </div>
-                <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }} >
-                  <Button onClick={() => editIngredient(index)} label="edit" severity="warning" icon="pi pi-pen-to-square" style={{ marginRight: 5 }} />
-                  <Button onClick={() => deleteIngredient(index)} icon="pi pi-trash" severity="danger" />
-                </div>
-              </React.Fragment>
-            )
+              </div>
+              <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+                <Button
+                  onClick={addOrUpdateIngredient}
+                  label="update"
+                  severity="success"
+                  icon="pi pi-check"
+                  disabled={currentIngredient.text === null}
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={cancelEditIngredient}
+                  severity="secondary"
+                  icon="pi pi-times"
+                />
+              </div>
+            </React.Fragment>
+          ) : (
+            <React.Fragment key={index}>
+              <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                <InputText
+                  style={{ width: "100%", color: "#323130" }}
+                  value={label}
+                  disabled
+                />
+              </div>
+              <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+                <Button
+                  onClick={() => editIngredient(index)}
+                  label="edit"
+                  severity="warning"
+                  icon="pi pi-pen-to-square"
+                  style={{ marginRight: 5 }}
+                />
+                <Button
+                  onClick={() => deleteIngredient(index)}
+                  icon="pi pi-trash"
+                  severity="danger"
+                />
+              </div>
+            </React.Fragment>
           );
         })}
 
@@ -808,30 +1339,51 @@ function Write() {
                 <InputText
                   style={{ width: "50%" }}
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""}`}
-                  onChange={(e) => handleIngredientChange('text', e.target.value)}
+                  placeholder={`Zutat ${
+                    ingredients.length > 0 ? "(optional)" : ""
+                  }`}
+                  onChange={(e) =>
+                    handleIngredientChange("text", e.target.value)
+                  }
                   invalid={ingredients.length === 0}
                   variant={ingredients.length === 0 ? "filled" : undefined}
-
                 />
                 <InputText
                   style={{ width: "50px", margin: "0 5px" }}
-                  value={currentIngredient.unit || ''}
+                  value={currentIngredient.unit || ""}
                   placeholder="Einheit"
-                  onChange={(e) => handleIngredientChange('unit', e.target.value ? e.target.value : null)}
+                  onChange={(e) =>
+                    handleIngredientChange(
+                      "unit",
+                      e.target.value ? e.target.value : null
+                    )
+                  }
                 />
                 <InputNumber
                   showButtons
                   placeholder="Menge"
                   value={currentIngredient.amount}
-                  onChange={(e: InputNumberChangeEvent) => handleIngredientChange('amount', e.value !== null ? e.value : null)}
+                  onChange={(e: InputNumberChangeEvent) =>
+                    handleIngredientChange(
+                      "amount",
+                      e.value !== null ? e.value : null
+                    )
+                  }
                   minFractionDigits={2}
                   locale="de-DE"
                   style={{
                     float: "left",
                     width: "70px",
-                    borderColor: (currentIngredient.text !== undefined && ingredients.length === 0) ? "red" : undefined,
-                    background: (currentIngredient.text !== undefined && ingredients.length === 0) ? "rgba(255,0,0,0.05)" : undefined
+                    borderColor:
+                      currentIngredient.text !== undefined &&
+                      ingredients.length === 0
+                        ? "red"
+                        : undefined,
+                    background:
+                      currentIngredient.text !== undefined &&
+                      ingredients.length === 0
+                        ? "rgba(255,0,0,0.05)"
+                        : undefined,
                   }}
                   suffix={" " + currentIngredient.unit ?? undefined}
                 />
@@ -839,36 +1391,34 @@ function Write() {
             </div>
             <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
               {currentIngredient.text !== "" ? (
-                <Button onClick={addIngredient} label="apply" severity="success" icon="pi pi-check" />
-              )
-                :
+                <Button
+                  onClick={addIngredient}
+                  label="apply"
+                  severity="success"
+                  icon="pi pi-check"
+                />
+              ) : (
                 <div>
-                  {!description && ingredients.length === 0 && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+                  {!description && ingredients.length === 0 && (
+                    <span
+                      className="pi pi-exclamation-circle"
+                      style={{ color: "#D13438", fontSize: "1.5rem" }}
+                    />
+                  )}
                 </div>
-              }
+              )}
             </div>
           </>
         )}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Benötigte Zeit</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Benötigte Zeit
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
           <InputNumber
             showButtons
-            min={15} step={15}
+            min={15}
+            step={15}
             locale="de-DE"
             value={duration}
             onChange={handleDurationChange}
@@ -882,20 +1432,23 @@ function Write() {
           />
         </div>
 
-
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Aktuelles Rating</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Aktuelles Rating
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <Rating value={rating} readOnly cancel={false} disabled />
+          <RatingPR value={rating} readOnly cancel={false} disabled />
         </div>
 
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Schwierigkeit</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Schwierigkeit
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
           <Dropdown
             value={difficulty}
             options={[
-              { label: 'leicht', value: 1 },
-              { label: 'mittel', value: 2 },
-              { label: 'schwer', value: 3 }
+              { label: "leicht", value: 1 },
+              { label: "mittel", value: 2 },
+              { label: "schwer", value: 3 },
             ]}
             onChange={onDifficultyChange}
             optionLabel="label"
@@ -904,11 +1457,14 @@ function Write() {
           />
         </div>
 
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Personenanzahl</div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
+          Personenanzahl
+        </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
           <InputNumber
             showButtons
-            min={1} max={99}
+            min={1}
+            max={99}
             locale="de-DE"
             value={persons}
             onChange={handlePersonsChange}
@@ -923,19 +1479,34 @@ function Write() {
           <Dropdown
             value={image}
             options={[
-              { label: 'noImage.webp', value: 'noImage.webp' },
-              { label: 'ApfelZimtPorridge.webp', value: 'ApfelZimtPorridge.webp' },
-              { label: 'BurgerMitHausgemachtenPommes.webp', value: 'BurgerMitHausgemachtenPommes.webp' },
-              { label: 'CaesarSalad.webp', value: 'CaesarSalad.webp' },
-              { label: 'EnteAlaOrange.webp', value: 'EnteAlaOrange.webp' },
-              { label: 'EnteAlaOrange.webp', value: 'EnteAlaOrange.webp' },
-              { label: 'GriechischerSalat.webp', value: 'GriechischerSalat.webp' },
-              { label: 'HaehnchenbrustMitKraeuterkruste.webp', value: 'HaehnchenbrustMitKraeuterkruste.webp' },
-              { label: 'Kuerbissuppe.webp', value: 'Kuerbissuppe.webp' },
-              { label: 'PastaCarbonara.webp', value: 'PastaCarbonara.webp' },
-              { label: 'QuicheLorraine.webp', value: 'QuicheLorraine.webp' },
-              { label: 'Ratatouille.webp', value: 'Ratatouille.webp' },
-              { label: 'SpaghettiBolognese.webp', value: 'SpaghettiBolognese.webp' },
+              { label: "noImage.webp", value: "noImage.webp" },
+              {
+                label: "ApfelZimtPorridge.webp",
+                value: "ApfelZimtPorridge.webp",
+              },
+              {
+                label: "BurgerMitHausgemachtenPommes.webp",
+                value: "BurgerMitHausgemachtenPommes.webp",
+              },
+              { label: "CaesarSalad.webp", value: "CaesarSalad.webp" },
+              { label: "EnteAlaOrange.webp", value: "EnteAlaOrange.webp" },
+              { label: "EnteAlaOrange.webp", value: "EnteAlaOrange.webp" },
+              {
+                label: "GriechischerSalat.webp",
+                value: "GriechischerSalat.webp",
+              },
+              {
+                label: "HaehnchenbrustMitKraeuterkruste.webp",
+                value: "HaehnchenbrustMitKraeuterkruste.webp",
+              },
+              { label: "Kuerbissuppe.webp", value: "Kuerbissuppe.webp" },
+              { label: "PastaCarbonara.webp", value: "PastaCarbonara.webp" },
+              { label: "QuicheLorraine.webp", value: "QuicheLorraine.webp" },
+              { label: "Ratatouille.webp", value: "Ratatouille.webp" },
+              {
+                label: "SpaghettiBolognese.webp",
+                value: "SpaghettiBolognese.webp",
+              },
             ]}
             onChange={onImageChange}
             optionLabel="label"
@@ -944,8 +1515,6 @@ function Write() {
             valueTemplate={selectedRezeptOptionTemplate}
             itemTemplate={selectedRezeptOptionTemplateX}
           />
-
-
         </div>
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Vegetarisch?</div>
@@ -954,24 +1523,50 @@ function Write() {
             <span className="p-inputgroup-addon">
               <Checkbox onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
             </span>
-            <InputText value={isVegi ? "ja" : "nein"} style={{ width: "100%", color: "#323130", pointerEvents: "none" }} variant="filled" />
+            <InputText
+              value={isVegi ? "ja" : "nein"}
+              style={{ width: "100%", color: "#323130", pointerEvents: "none" }}
+              variant="filled"
+            />
           </div>
         </div>
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 4, background: "#323130", height: 1 }} />
+        <div
+          style={{
+            gridColumnStart: 1,
+            gridColumnEnd: 4,
+            background: "#323130",
+            height: 1,
+          }}
+        />
         <div>
-          {firebaseId &&
+          {firebaseId && (
             <div className="p-inputgroup" style={{ width: "100%" }}>
-              <ConfirmButton action={() => deleteRezept(firebaseId)} style={{ float: "left" }} text="Rezept löschen" />
+              <ConfirmButton
+                action={() => deleteRezept(firebaseId)}
+                style={{ float: "left" }}
+                text="Rezept löschen"
+              />
             </div>
-          }
+          )}
         </div>
-        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} >
-          <Button onClick={() => navigate("/read")} style={{ float: "right" }} label="Abbrechen" severity="secondary" />
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <Button
+            onClick={() => navigate("/read")}
+            style={{ float: "right" }}
+            label="Abbrechen"
+            severity="secondary"
+          />
         </div>
         <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
-          <Button onClick={saveData} disabled={!saveable} style={{ width: "100%" }} label={saveable ? "SAVE DATA" : "MISSING DATA"} severity={saveable ? "success" : "danger"} outlined={!saveable} />
+          <Button
+            onClick={saveData}
+            disabled={!saveable}
+            style={{ width: "100%" }}
+            label={saveable ? "SAVE DATA" : "MISSING DATA"}
+            severity={saveable ? "success" : "danger"}
+            outlined={!saveable}
+          />
         </div>
-
       </div>
     </div>
   );
