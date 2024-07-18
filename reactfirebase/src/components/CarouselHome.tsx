@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import _ from "lodash";
 
 const RatingContainer = styled.div`
   padding: 10px;
@@ -22,9 +23,30 @@ const RatingContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+       /* cursor: pointer;
+       margin: 10px;
+       position: relative; */
+
   svg {
     color: #fff;
     opacity: 0.8;
+  }
+`;
+
+const PaneText = styled.div`
+  line-height: 40px;
+  padding: 0 10px;
+`;
+const Pane = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 40px;
+  box-shadow: 0 6px 8px -6px #000;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  &:hover {
+    transform: scale(1.03);
   }
 `;
 
@@ -52,11 +74,16 @@ const CarouselHome: React.FC = () => {
     fetchData();
   }, []);
 
+  const rezepteWithRating = _.filter(rezepte, (r) => r.rating > 0);
+  const sorted = _.orderBy(
+    rezepteWithRating,
+    ["rating", "title"],
+    ["desc", "asc"]
+  );
+
   const recipeTemplate = (recipe: Rezept) => {
     return (
-      <div
-        style={{ cursor: "pointer", margin: "10px", position: "relative" }}
-        className="border-1 surface-border border-round m-2 text-center py-5 px-3"
+      <Pane
         onClick={() => navigate("/single/" + recipe.rezeptId)}
       >
         <div className="mb-3" style={{ position: "relative" }}>
@@ -87,10 +114,10 @@ const CarouselHome: React.FC = () => {
             />
           </RatingContainer>
         </div>
-        <div>
-          <h4 className="mb-1">{recipe.title}</h4>
-        </div>
-      </div>
+        <PaneText>
+          {recipe.title}
+        </PaneText>
+      </Pane>
     );
   };
 
@@ -115,8 +142,8 @@ const CarouselHome: React.FC = () => {
 
   return (
     <div className="card">
-      <Carousel responsive={responsive}>
-        {rezepte.map((recipe) => (
+      <Carousel responsive={responsive} swipeable>
+        {sorted.map((recipe) => (
           <div key={recipe.rezeptId}>{recipeTemplate(recipe)}</div>
         ))}
       </Carousel>

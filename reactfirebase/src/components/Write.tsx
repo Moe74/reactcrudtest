@@ -13,6 +13,7 @@ import { useGlobalState } from "./GlobalStates";
 import { Zutat, replaceUndefinedWithNull } from "./Helpers";
 import { Toast } from "primereact/toast";
 import ConfirmButton from "./ConfirmButton";
+import { TextField } from "@mui/material";
 
 
 // interface ShowMessageParams {
@@ -306,11 +307,363 @@ function Write() {
   return (
     <div style={{ padding: 40 }}>
       <Toast ref={toastCenter} position="center" />
-      {/* <Button label="Center" onClick={(e) => showMessage({ ref: toastCenter })} /> */}
-
-
       {/* <Header /> */}
-      <h2>Write.tsx {firebaseId ? "(Edit)" : "(Neu)"}</h2>
+      <h2>{firebaseId ? "Edit Rezept" : "Add Rezept"}</h2>
+
+
+
+
+
+
+
+      {/* NEW START */}
+      <h1>NEW</h1>
+      <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr max-content", gap: "10px 20px", alignItems: "center", width: "100%" }}>
+        <div>Gericht</div>
+        <div>
+          <TextField
+            label="Gericht"
+            variant="outlined"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            color={title ? "success" : undefined}
+            style={{ width: "100%" }}
+            error={!title}
+            required
+          />
+        </div>
+        <div>
+          {!title && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+        </div>
+
+        <div>Beschreibung</div>
+        <div>
+          <InputTextarea value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%" }} invalid={!description} variant={!description ? "filled" : undefined} />
+        </div>
+        <div>
+          {!description && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+        </div>
+
+        <div>Arbeitsschritte</div>
+        {manual.map((m, i) => (
+          editStepIndex === i ? (
+            <React.Fragment key={i}>
+              <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                <InputText style={{ width: "100%" }} value={currentStep} onChange={(e) => setCurrentStep(e.target.value)} ref={inputRef} invalid={!currentStep} variant={!currentStep ? "filled" : undefined} />
+              </div>
+              <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+                <Button onClick={addOrUpdateStep} label="update" severity="success" icon="pi pi-check" disabled={!currentStep} style={{ marginRight: 5 }} />
+                <Button onClick={cancelEdit} icon="pi pi-times" severity="secondary" />
+              </div>
+            </React.Fragment>
+          ) : (
+            <React.Fragment key={i}>
+              <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                <InputText style={{ width: "100%", color: "#323130" }} value={`Step ${i + 1}: ${m}`} disabled variant="filled" />
+              </div>
+              <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+                <Button onClick={() => editStep(i)} label="edit" severity="warning" icon="pi pi-pen-to-square" style={{ marginRight: 5 }} />
+                <Button onClick={() => deleteStep(i)} icon="pi pi-trash" severity="danger" />
+              </div>
+            </React.Fragment>
+          )
+        ))}
+        {editStepIndex === null && (
+          <>
+            <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+              <InputText
+                style={{ width: "100%" }}
+                invalid={manual.length === 0} variant={manual.length === 0 ? "filled" : undefined}
+                value={currentStep}
+                placeholder={manual.length === 0 ? undefined : `Step ${manual.length + 1} (optional)`}
+                onChange={(e) => setCurrentStep(e.target.value)}
+              />
+            </div>
+
+            <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+
+              {currentStep !== "" ?
+                <Button onClick={addOrUpdateStep} label="apply" severity="success" icon="pi pi-check" />
+                :
+
+                <div>
+                  {!description && manual.length === 0 && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+                </div>
+              }
+            </div>
+          </>
+        )}
+
+
+
+
+
+
+
+
+        <div>Zutaten</div>
+        {ingredients.map((ingredient, index) => {
+          const amount = ingredient.amount ?? "";
+          const unit = ingredient.unit ?? "";
+          const text = ingredient.text;
+          const label = (amount ? amount + " " : "") + (unit ? unit + " " : "") + text;
+          return (
+            editIngredientIndex === index ? (
+              <React.Fragment key={index}>
+                <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} >
+                  <div className="p-inputgroup">
+                    <InputText
+                      style={{ width: "50%" }}
+                      invalid={!currentStep || currentStep === ""}
+                      variant={!currentStep ? "filled" : undefined}
+                      value={currentIngredient.text}
+                      placeholder={manual.length === 0 ? undefined : `Step ${manual.length + 1} (optional)`}
+                      onChange={(e) => handleIngredientChange('text', e.target.value)}
+                      autoFocus={true}
+                    />
+                    <InputText
+                      style={{ width: "50px", margin: "0 5px" }}
+                      value={currentIngredient.unit || ''}
+                      placeholder="Einheit"
+                      onChange={(e) => handleIngredientChange('unit', e.target.value)}
+                      min={0}
+                    />
+                    <InputNumber
+                      showButtons
+                      value={currentIngredient.amount}
+                      onChange={(e: InputNumberChangeEvent) => handleIngredientChange('amount', e.value !== null ? e.value : null)}
+                      placeholder="Menge"
+                      style={{ width: "100px" }}
+                      step={0.25}
+                      minFractionDigits={2}
+                      locale="de-DE"
+                      suffix={" " + currentIngredient.unit ?? undefined}
+                    />
+                  </div>
+                </div>
+                <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }} >
+                  <Button onClick={addOrUpdateIngredient} label="update" severity="success" icon="pi pi-check" disabled={currentIngredient.text === null} style={{ marginRight: 5 }} />
+                  <Button onClick={cancelEditIngredient} severity="secondary" icon="pi pi-times" />
+                </div>
+              </React.Fragment>
+            ) : (
+              <React.Fragment key={index}>
+                <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+                  <InputText
+                    style={{ width: "100%", color: "#323130" }}
+                    value={label}
+                    disabled
+                  />
+                </div>
+                <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }} >
+                  <Button onClick={() => editIngredient(index)} label="edit" severity="warning" icon="pi pi-pen-to-square" style={{ marginRight: 5 }} />
+                  <Button onClick={() => deleteIngredient(index)} icon="pi pi-trash" severity="danger" />
+                </div>
+              </React.Fragment>
+            )
+          );
+        })}
+
+        {editIngredientIndex === null && (
+          <>
+            <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+              <div className="p-inputgroup">
+                <InputText
+                  style={{ width: "50%" }}
+                  value={currentIngredient.text}
+                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""}`}
+                  onChange={(e) => handleIngredientChange('text', e.target.value)}
+                  invalid={ingredients.length === 0}
+                  variant={ingredients.length === 0 ? "filled" : undefined}
+
+                />
+                <InputText
+                  style={{ width: "50px", margin: "0 5px" }}
+                  value={currentIngredient.unit || ''}
+                  placeholder="Einheit"
+                  onChange={(e) => handleIngredientChange('unit', e.target.value ? e.target.value : null)}
+                />
+                <InputNumber
+                  showButtons
+                  placeholder="Menge"
+                  value={currentIngredient.amount}
+                  onChange={(e: InputNumberChangeEvent) => handleIngredientChange('amount', e.value !== null ? e.value : null)}
+                  minFractionDigits={2}
+                  locale="de-DE"
+                  style={{
+                    float: "left",
+                    width: "70px",
+                    borderColor: (currentIngredient.text !== undefined && ingredients.length === 0) ? "red" : undefined,
+                    background: (currentIngredient.text !== undefined && ingredients.length === 0) ? "rgba(255,0,0,0.05)" : undefined
+                  }}
+                  suffix={" " + currentIngredient.unit ?? undefined}
+                />
+              </div>
+            </div>
+            <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+              {currentIngredient.text !== "" ? (
+                <Button onClick={addIngredient} label="apply" severity="success" icon="pi pi-check" />
+              )
+                :
+                <div>
+                  {!description && ingredients.length === 0 && <span className="pi pi-exclamation-circle" style={{ color: '#D13438', fontSize: '1.5rem' }} />}
+                </div>
+              }
+            </div>
+          </>
+        )}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Benötigte Zeit</div>
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <InputNumber
+            showButtons
+            min={15} step={15}
+            locale="de-DE"
+            value={duration}
+            onChange={handleDurationChange}
+            suffix=" min"
+            style={{
+              width: "100%",
+              borderColor: duration > 0 ? "green" : "red",
+              background: duration > 0 ? "green" : "red",
+            }}
+            invalid={duration === 0}
+          />
+        </div>
+
+
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Aktuelles Rating</div>
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <Rating value={rating} readOnly cancel={false} disabled />
+        </div>
+
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Schwierigkeit</div>
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <Dropdown
+            value={difficulty}
+            options={[
+              { label: 'leicht', value: 1 },
+              { label: 'mittel', value: 2 },
+              { label: 'schwer', value: 3 }
+            ]}
+            onChange={onDifficultyChange}
+            optionLabel="label"
+            highlightOnSelect={true}
+            style={{ width: "100%" }}
+          />
+        </div>
+
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Personenanzahl</div>
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <InputNumber
+            showButtons
+            min={1} max={99}
+            locale="de-DE"
+            value={persons}
+            onChange={handlePersonsChange}
+            suffix={persons === 1 ? " Person" : " Personen"}
+            style={{ width: "100%" }}
+            invalid={persons === 0}
+          />
+        </div>
+
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Bild</div>
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <Dropdown
+            value={image}
+            options={[
+              { label: 'noImage.webp', value: 'noImage.webp' },
+              { label: 'ApfelZimtPorridge.webp', value: 'ApfelZimtPorridge.webp' },
+              { label: 'BurgerMitHausgemachtenPommes.webp', value: 'BurgerMitHausgemachtenPommes.webp' },
+              { label: 'CaesarSalad.webp', value: 'CaesarSalad.webp' },
+              { label: 'EnteAlaOrange.webp', value: 'EnteAlaOrange.webp' },
+              { label: 'EnteAlaOrange.webp', value: 'EnteAlaOrange.webp' },
+              { label: 'GriechischerSalat.webp', value: 'GriechischerSalat.webp' },
+              { label: 'HaehnchenbrustMitKraeuterkruste.webp', value: 'HaehnchenbrustMitKraeuterkruste.webp' },
+              { label: 'Kuerbissuppe.webp', value: 'Kuerbissuppe.webp' },
+              { label: 'PastaCarbonara.webp', value: 'PastaCarbonara.webp' },
+              { label: 'QuicheLorraine.webp', value: 'QuicheLorraine.webp' },
+              { label: 'Ratatouille.webp', value: 'Ratatouille.webp' },
+              { label: 'SpaghettiBolognese.webp', value: 'SpaghettiBolognese.webp' },
+            ]}
+            onChange={onImageChange}
+            optionLabel="label"
+            highlightOnSelect={true}
+            style={{ width: "100%" }}
+            valueTemplate={selectedRezeptOptionTemplate}
+            itemTemplate={selectedRezeptOptionTemplateX}
+          />
+
+
+        </div>
+
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Vegetarisch?</div>
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
+          <div className="p-inputgroup">
+            <span className="p-inputgroup-addon">
+              <Checkbox onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
+            </span>
+            <InputText value={isVegi ? "ja" : "nein"} style={{ width: "100%", color: "#323130", pointerEvents: "none" }} variant="filled" />
+          </div>
+        </div>
+        <div style={{ gridColumnStart: 1, gridColumnEnd: 4, background: "#323130", height: 1 }} />
+        <div>
+          {firebaseId &&
+            <div className="p-inputgroup" style={{ width: "100%" }}>
+              <ConfirmButton action={() => deleteRezept(firebaseId)} style={{ float: "left" }} text="Rezept löschen" />
+            </div>
+          }
+        </div>
+        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }} >
+          <Button onClick={() => navigate("/read")} style={{ float: "right" }} label="Abbrechen" severity="secondary" />
+        </div>
+        <div style={{ gridColumnStart: 3, gridColumnEnd: 4 }}>
+          <Button onClick={saveData} disabled={!saveable} style={{ width: "100%" }} label={saveable ? "SAVE DATA" : "MISSING DATA"} severity={saveable ? "success" : "danger"} outlined={!saveable} />
+        </div>
+
+      </div>
+      {/* NEW ENDE */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <h1>OLD</h1>
       <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr max-content", gap: "10px 20px", alignItems: "center", width: "100%" }}>
         <div>Gericht</div>
         <div>

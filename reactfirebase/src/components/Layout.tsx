@@ -7,7 +7,6 @@ import {
     ContentContainer,
     FooterContainer,
     HeaderContainer,
-    HeaderContainerText,
     LeftSidebarContainer,
     MainContainer,
     MainGrid,
@@ -60,7 +59,7 @@ const Layout: React.FunctionComponent<LayoutProps> = (p) => {
                 <MainGrid>
                     <MenuContainer><Header /></MenuContainer>
                     <HeaderContainer image={"image"}>
-                        <HeaderContainerText>{"Headline"}</HeaderContainerText>
+                        {/* <HeaderContainerText>{"Headline"}</HeaderContainerText> */}
                     </HeaderContainer>
                     <LeftSidebarContainer className={showLeftSideBar ? undefined : 'hidden'} sidebarWidth={sidebarWidth}>
                         <SidebarLeft site={visitedSite} />

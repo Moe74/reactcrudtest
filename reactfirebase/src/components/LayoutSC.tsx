@@ -37,7 +37,7 @@ export const MainContainer = styled.div<{ contentWidth: number }>`
 export const MainGrid = styled.div`
     display: grid;
     grid-template-columns: max-content 1fr max-content;
-    grid-template-rows: max-content 100px 1fr 60px;
+    grid-template-rows: max-content max-content 1fr 60px;
     width: 100%;
     height: 100%;
 `;

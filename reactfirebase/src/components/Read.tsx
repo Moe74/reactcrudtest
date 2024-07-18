@@ -1,4 +1,6 @@
-import { Box, Button, Icon, Rating, TextField } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import { Box, Button, Rating } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import { get, getDatabase, ref } from "firebase/database";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
@@ -11,9 +13,8 @@ import {
   chefHatInactive,
   formatMinuteToHours,
 } from "./Helpers";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import EditIcon from "@mui/icons-material/Edit";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+
+
 
 function Read() {
   const navigate = useNavigate();
@@ -45,48 +46,32 @@ function Read() {
 
   const mayEdit = isLoggedIn && isAdmin;
 
-  /* const [selectedProducts, setSelectedProducts] = React.useState<Rezept[]>([]);
-  /* const dt = React.useRef<DataGrid<Rezept[]>>(null);  */
-  /* const [globalFilter, setGlobalFilter] = React.useState<string>("");
-  const header = (
-    <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <Button variant="outlined" startIcon={<SearchOutlinedIcon />}>
-        <TextField
-          type="search"
-          id="filled-basic"
-          label="Search..."
-          variant="filled"
-          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            setGlobalFilter(target.value);
-          }}
-        ></TextField>
-      </Button>
-    </div>
-  );  */
-
   const columns: GridColDef[] = [
     {
       field: "image",
+      sortable: false,
+      filterable: false,
       headerName: "Image",
-      width: 50,
+      width: 70,
       renderCell: (params) => (
         <img
           src={`${process.env.PUBLIC_URL}/images/rezepte/${params.value}`}
           alt={params.row.title}
-          style={{ width: "50px", height: "50px" }}
+          style={{ width: "40px", height: "40px", marginTop: 5 }}
         />
       ),
     },
     {
       field: "title",
       headerName: "Titel",
-      width: 300,
+      minWidth: 300,
+      flex: 0.5,
     },
     {
       field: "description",
       headerName: "Beschreibung",
       minWidth: 350,
+      flex: 1,
     },
     {
       field: "duration",
@@ -125,6 +110,7 @@ function Read() {
       field: "actions",
       headerName: "Actions",
       sortable: false,
+      filterable: false,
       renderCell: (params) => (
         <div
           style={{
@@ -176,14 +162,13 @@ function Read() {
 
   return (
     <div style={{ padding: 40 }}>
-      {/* <Header /> */}
-      <h2>Read.tsx</h2>
-
-      <Box sx={{ height: 400, width: "100%" }}>
+      <Box sx={{ width: "100%" }}>
         <DataGrid
           rows={rows}
           columns={columns}
+          autoHeight
           sx={{ width: "100%" }}
+          disableRowSelectionOnClick
           initialState={{
             pagination: {
               paginationModel: {
@@ -192,7 +177,13 @@ function Read() {
             },
           }}
           pageSizeOptions={[10]}
-          disableRowSelectionOnClick
+
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+            },
+          }}
         />
       </Box>
     </div>
