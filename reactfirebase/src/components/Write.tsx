@@ -1,3 +1,4 @@
+import { MenuItem, Rating, TextField } from "@mui/material";
 import {
   equalTo,
   get,
@@ -17,14 +18,13 @@ import { InputNumber, InputNumberChangeEvent } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Rating as RatingPR } from "primereact/rating";
+import { Toast } from "primereact/toast";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import app from "../firebaseConfig";
+import ConfirmButton from "./ConfirmButton";
 import { useGlobalState } from "./GlobalStates";
 import { Zutat, replaceUndefinedWithNull } from "./Helpers";
-import { Toast } from "primereact/toast";
-import ConfirmButton from "./ConfirmButton";
-import { InputLabel, MenuItem, Rating, TextField } from "@mui/material";
 
 // interface ShowMessageParams {
 //   ref: React.RefObject<Toast>;
@@ -779,9 +779,8 @@ function Write() {
                   label="Zutat"
                   variant={ingredients.length === 0 ? "filled" : undefined}
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${
-                    ingredients.length > 0 ? "(optional)" : ""
-                  }`}
+                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
+                    }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }
@@ -833,12 +832,12 @@ function Write() {
                     width: "70px",
                     borderColor:
                       currentIngredient.text !== undefined &&
-                      ingredients.length === 0
+                        ingredients.length === 0
                         ? "red"
                         : undefined,
                     background:
                       currentIngredient.text !== undefined &&
-                      ingredients.length === 0
+                        ingredients.length === 0
                         ? "rgba(255,0,0,0.05)"
                         : undefined,
                   }}
@@ -1339,9 +1338,8 @@ function Write() {
                 <InputText
                   style={{ width: "50%" }}
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${
-                    ingredients.length > 0 ? "(optional)" : ""
-                  }`}
+                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
+                    }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }
@@ -1376,12 +1374,12 @@ function Write() {
                     width: "70px",
                     borderColor:
                       currentIngredient.text !== undefined &&
-                      ingredients.length === 0
+                        ingredients.length === 0
                         ? "red"
                         : undefined,
                     background:
                       currentIngredient.text !== undefined &&
-                      ingredients.length === 0
+                        ingredients.length === 0
                         ? "rgba(255,0,0,0.05)"
                         : undefined,
                   }}

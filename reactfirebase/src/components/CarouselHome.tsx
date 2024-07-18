@@ -1,57 +1,36 @@
-import React, { useEffect, useState } from "react";
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { get, getDatabase, ref } from "firebase/database";
-import app from "../firebaseConfig";
-import {
-  imageRezeptUrlPrefix,
-  colors,
-  Rezept,
-  formatMinuteToHours,
-} from "./Helpers";
-import AverageRating from "./AverageRating";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
 import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import Carousel, { ResponsiveType } from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+import { useNavigate } from "react-router-dom";
+import app from "../firebaseConfig";
+import AverageRating from "./AverageRating";
+import {
+  colors,
+  formatMinuteToHours,
+  imageRezeptUrlPrefix,
+  responsiveCarousel,
+  Rezept,
+} from "./Helpers";
+import { OpenField, Pane, PaneImage, PaneText, RatingContainer } from "./LayoutSC";
 
-const RatingContainer = styled.div`
-  padding: 10px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-       /* cursor: pointer;
-       margin: 10px;
-       position: relative; */
 
-  svg {
-    color: #fff;
-    opacity: 0.8;
-  }
-`;
 
-const PaneText = styled.div`
-  line-height: 40px;
-  padding: 0 10px;
-`;
-const Pane = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 40px;
-  box-shadow: 0 6px 8px -6px #000;
-  cursor: pointer;
-  transition: all 0.2s ease-out;
-  &:hover {
-    transform: scale(1.03);
-  }
-`;
 
-const CarouselHome: React.FC = () => {
+interface CarouselHomeProps {
+  cWidth: number;
+}
+
+const CarouselHome = (p: CarouselHomeProps) => {
   const [rezepte, setRezepte] = useState<Rezept[]>([]);
+  const [visCols, setvisCols] = React.useState<ResponsiveType>(responsiveCarousel);
+
+  React.useEffect(() => {
+    setvisCols(responsiveCarousel);
+  }, [p.cWidth]);
+
   const navigate = useNavigate();
 
   const fetchData = async () => {
@@ -83,20 +62,12 @@ const CarouselHome: React.FC = () => {
 
   const recipeTemplate = (recipe: Rezept) => {
     return (
-      <Pane
-        onClick={() => navigate("/single/" + recipe.rezeptId)}
-      >
-        <div className="mb-3" style={{ position: "relative" }}>
-          <img
-            src={imageRezeptUrlPrefix + (recipe.image ?? "noImage.webp")}
-            alt={recipe.title}
-            className="w-6 shadow-2"
-            style={{ width: "100%", aspectRatio: "16 / 9", objectFit: "cover" }}
-          />
+      <Pane>
+        <PaneImage image={imageRezeptUrlPrefix + (recipe.image ?? "noImage.webp")} >
           <div
             style={{
               position: "absolute",
-              bottom: 4,
+              bottom: 0,
               left: 0,
               right: 0,
               lineHeight: "30px",
@@ -113,36 +84,31 @@ const CarouselHome: React.FC = () => {
               firebaseId={recipe.rezeptId ?? ""}
             />
           </RatingContainer>
-        </div>
-        <PaneText>
+        </PaneImage>
+
+        <PaneText onClick={() => navigate("/single/" + recipe.rezeptId)}>
           {recipe.title}
+          <OpenField>open <ChevronRightIcon sx={{ float: "right", mt: 1.1, ml: 1 }} /></OpenField>
         </PaneText>
       </Pane>
     );
   };
 
-  const responsive = {
-    superLargeDesktop: {
-      breakpoint: { max: 4000, min: 3000 },
-      items: 5,
-    },
-    desktop: {
-      breakpoint: { max: 3000, min: 1024 },
-      items: 3,
-    },
-    tablet: {
-      breakpoint: { max: 1024, min: 464 },
-      items: 2,
-    },
-    mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 1,
-    },
-  };
+
 
   return (
     <div className="card">
-      <Carousel responsive={responsive} swipeable>
+      <Carousel
+        responsive={visCols}
+        ssr={true}
+        autoPlaySpeed={3000}
+        centerMode={false}
+        draggable
+        infinite
+        minimumTouchDrag={80}
+        slidesToSlide={1}
+        swipeable
+      >
         {sorted.map((recipe) => (
           <div key={recipe.rezeptId}>{recipeTemplate(recipe)}</div>
         ))}

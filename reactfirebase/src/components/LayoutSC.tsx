@@ -280,3 +280,59 @@ export const ChangeButton = styled.div`
     border-radius: 20px;
     margin-top: 40px;
 `;
+export const Ueberschrift = styled.div`
+    font-size: 25px;
+    color: darkred;
+    font-weight: bold;
+`;
+
+export const RatingContainer = styled.div`
+  line-height: 30px;
+  height: 30px;
+  padding: 0 10px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  svg {
+    color: #fff;
+    opacity: 0.8;
+  }
+`;
+export const OpenField = styled.div`
+  float: right;
+  font-weight: 600;
+`;
+export const PaneText = styled.div`
+  line-height: 40px;
+  padding: 0 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  &:hover{
+    color: ${colors.blueDark};
+    background: ${colors.greyVeryLight};
+  }
+`;
+export const PaneImage = styled.div<{ image: string }>`
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: green;
+  background-image: url("${(p) => p.image}");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  position: relative;
+`;
+export const Pane = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 40px;
+  box-shadow: 0 6px 8px -6px #000;
+  margin: 20px;
+  transition: all 0.2s ease-out;
+`;

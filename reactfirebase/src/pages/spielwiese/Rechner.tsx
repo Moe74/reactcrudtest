@@ -1,7 +1,7 @@
+import { FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { InputNumberChangeEvent } from 'primereact/inputnumber';
 import * as React from 'react';
 import Figure from './Figure';
-import { RadioButton } from 'primereact/radiobutton';
 
 export type Operators = "add" | "minus" | "times" | "divide";
 
@@ -13,6 +13,10 @@ const Rechner = (p: RechnerProps) => {
     const [number1, setNumber1] = React.useState<number>(0);
     const [number2, setNumber2] = React.useState<number>(0);
     const [operator, setOperator] = React.useState<Operators>("add");
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setOperator((event.target as HTMLInputElement).value as Operators);
+    };
 
     const handleNr1Change = (e: InputNumberChangeEvent) => {
         if (e.value !== null) {
@@ -59,30 +63,16 @@ const Rechner = (p: RechnerProps) => {
                 />
             </div>
 
-            <div style={{ width: "100%", height: 40, marginTop: 20 }}>
-                <div style={{ float: "left", marginRight: 20 }}>
-                    <RadioButton inputId="ingredient1" name="operator" value="add" onChange={(e) => setOperator(e.value)} checked={operator === 'add'} />
-                    <label htmlFor="ingredient1" style={{ marginLeft: 10 }}>add</label>
-                </div>
-                <div style={{ float: "left", marginRight: 20 }}>
-                    <RadioButton inputId="ingredient2" name="operator" value="minus" onChange={(e) => setOperator(e.value)} checked={operator === 'minus'} />
-                    <label htmlFor="ingredient2" style={{ marginLeft: 10 }}>minus</label>
-                </div>
-                <div style={{ float: "left", marginRight: 20 }}>
-                    <RadioButton inputId="ingredient3" name="operator" value="times" onChange={(e) => setOperator(e.value)} checked={operator === 'times'} />
-                    <label htmlFor="ingredient3" style={{ marginLeft: 10 }}>times</label>
-                </div>
-                <div style={{ float: "left", marginRight: 20 }}>
-                    <RadioButton inputId="ingredient4" name="operator" value="divide" onChange={(e) => setOperator(e.value)} checked={operator === 'divide'} />
-                    <label htmlFor="ingredient4" style={{ marginLeft: 10 }}>divide</label>
-                </div>
-            </div>
+            <FormControl component="fieldset">
+                <RadioGroup aria-label="operator" name="operator" value={operator} onChange={handleChange} row>
+                    <FormControlLabel value="add" control={<Radio />} label="Add" />
+                    <FormControlLabel value="minus" control={<Radio />} label="Subtract" />
+                    <FormControlLabel value="times" control={<Radio />} label="Multiply" />
+                    <FormControlLabel value="divide" control={<Radio />} label="Divide" />
+                </RadioGroup>
+            </FormControl>
             <hr />
-            Number 1: {number1}<br />
-            Number 2: {number2}<br />
-            Operator: {operator}<br />
-            <hr />
-            <b>{calc(operator)}</b>
+            <b>ERGEBNiS: {calc(operator)}</b>
         </div>
     );
 }

@@ -238,6 +238,25 @@ export const breakpoints = {
   mobile: 440,
 };
 
+export const responsiveCarousel = {
+  superLargeDesktop: {
+    breakpoint: { max: 8000, min: breakpoints.largeDesktop },
+    items: 4,
+  },
+  desktop: {
+    breakpoint: { max: breakpoints.largeDesktop, min: breakpoints.desktop },
+    items: 3,
+  },
+  tablet: {
+    breakpoint: { max: breakpoints.desktop, min: breakpoints.tablet },
+    items: 2,
+  },
+  mobile: {
+    breakpoint: { max: breakpoints.mobile, min: 0 },
+    items: 1,
+  },
+};
+
 export const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
