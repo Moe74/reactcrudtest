@@ -38,33 +38,6 @@ function Header() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  //   useEffect(() => {
-  //     const db = getDatabase(app);
-  //     const usersRef = ref(db, "users");
-  //     onValue(usersRef, (snapshot) => {
-  //       const usersList: User[] = [];
-  //       snapshot.forEach((childSnapshot) => {
-  //         usersList.push({ id: childSnapshot.key, ...childSnapshot.val() });
-  //       });
-  //       setUsers(usersList);
-  //     });
-  //   }, []);
-
-  //   const handleLogin = async () => {
-  //     const user = users.find((user) => user.name === username);
-  //     if (user && (await bcrypt.compare(password, user.password))) {
-  //       setUserIsLoggedIn(true);
-  //       setUserName(user.name);
-  //       setUserEmail(user.email);
-  //       setUserIsAdmin(user.userIsAdmin);
-  //       setShowLoginForm(false);
-  //       setUsername("");
-  //       setPassword("");
-  //     } else {
-  //       alert("Invalid credentials");
-  //     }
-  //   };
-
   useEffect(() => {
     const db = getDatabase(app);
     const usersRef = ref(db, "users");
@@ -78,12 +51,12 @@ function Header() {
   }, []);
 
   const handleLogin = async () => {
-    console.log("Trying to login with username:", username); // Debugging-Ausgabe
+    console.log("Trying to login with username:", username);
     const user = users.find((user) => user.name === username);
     if (user) {
-      console.log("Found user:", user); // Debugging-Ausgabe
+      console.log("Found user:", user);
     } else {
-      console.log("User not found"); // Debugging-Ausgabe
+      console.log("User not found");
     }
     if (user && (await bcrypt.compare(password, user.password))) {
       setUserIsLoggedIn(true);

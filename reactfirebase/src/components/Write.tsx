@@ -1,7 +1,14 @@
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckIcon from "@mui/icons-material/Check";
+import TrashIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
+  Alert,
+  Button as ButtonM,
   FormControlLabel,
   InputAdornment,
   MenuItem,
+  Snackbar,
   Switch,
   TextField,
 } from "@mui/material";
@@ -17,24 +24,17 @@ import {
   set,
   update,
 } from "firebase/database";
-import { Toast } from "primereact/toast";
-import { Button as ButtonM } from "@mui/material";
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import app from "../firebaseConfig";
+import AverageRating from "./AverageRating";
 import ConfirmButton from "./ConfirmButton";
 import { useGlobalState } from "./GlobalStates";
 import { Zutat, replaceUndefinedWithNull } from "./Helpers";
-import AverageRating from "./AverageRating";
-import CheckIcon from "@mui/icons-material/Check";
-import CancelIcon from "@mui/icons-material/Cancel";
-import EditIcon from "@mui/icons-material/Edit";
-import TrashIcon from "@mui/icons-material/Delete";
 
-type Severity = "success" | "info" | "warn" | "error";
+type Severity = 'success' | 'error' | 'warning' | 'info';
 interface ShowMessageParams {
   detail: string;
-  ref: React.RefObject<Toast>;
   severity: Severity;
 }
 
@@ -68,15 +68,14 @@ function Write() {
   const [isAdmin] = useGlobalState("userIsAdmin");
   const mayEdit = isLoggedIn && isAdmin;
 
-  const toastCenter = React.useRef(null);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState<Severity>('success');
 
-  const showMessage = ({ ref, severity, detail }: ShowMessageParams) => {
-    ref.current?.show({
-      severity: severity,
-      summary: severity === "error" ? "Fehler" : "Info",
-      detail: detail,
-      life: 3000,
-    });
+  const showMessage = ({ detail, severity }: ShowMessageParams) => {
+    setSnackbarMessage(detail);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
   };
 
   const handleDuration = (
@@ -158,8 +157,7 @@ function Write() {
     saveMethod(recipeRef, cleanedData)
       .then(() => {
         showMessage({
-          ref: toastCenter,
-          severity: "success",
+          severity: 'success',
           detail: firebaseId
             ? "Rezept erfolgreich geändert"
             : "Rezept erfolgreich angelegt",
@@ -171,12 +169,12 @@ function Write() {
       })
       .catch((error) => {
         showMessage({
-          ref: toastCenter,
-          severity: "error",
+          severity: 'error',
           detail: `Fehler beim Speichern des Rezepts: ${error.message}`,
         });
       });
   };
+
 
   const addOrUpdateStep = () => {
     const newManual = [...manual];
@@ -397,7 +395,16 @@ function Write() {
     );
   return (
     <div style={{ padding: 40 }}>
-      <Toast ref={toastCenter} position="center" />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <h2>{firebaseId ? "Edit Rezept" : "Add Rezept"}</h2>
 
       <h1>NEW</h1>
@@ -667,9 +674,8 @@ function Write() {
                   label="Zutat"
                   variant="outlined"
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${
-                    ingredients.length > 0 ? "(optional)" : ""
-                  }`}
+                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
+                    }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }

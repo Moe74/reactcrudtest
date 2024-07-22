@@ -1,4 +1,3 @@
-import EditIcon from "@mui/icons-material/Edit";
 import { Box, Button, Rating } from "@mui/material";
 import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import { get, getDatabase, ref } from "firebase/database";
@@ -74,23 +73,22 @@ function Read() {
     {
       field: "duration",
       headerName: "Dauer",
-      type: "number",
       width: 130,
       renderCell: (params) => formatMinuteToHours(params.row.duration),
     },
     {
       field: "vegi",
-      headerName: "vegetarisch",
+      headerName: "vegi",
       type: "boolean",
-      width: 130,
+      width: 40,
+      align: "center",
     },
 
     {
       field: "difficulty",
       headerName: "Schwierigkeit",
-      type: "number",
-      width: 130,
-      renderCell: (params) => (
+      width: 140,
+      renderCell: (params) => (<div style={{ marginTop: 4 }}>
         <Rating
           defaultValue={params.row.difficulty}
           icon={chefHatActive}
@@ -98,17 +96,16 @@ function Read() {
           max={3}
           readOnly
         />
-      ),
+      </div>),
     },
 
     {
       field: "rating",
       headerName: "Rating",
-      type: "number",
       width: 140,
-      renderCell: (params) => (
+      renderCell: (params) => (<div style={{ marginTop: 7 }}>
         <AverageRating firebaseId={params.row.id ?? ""} />
-      ),
+      </div>),
     },
     {
       field: "actions",
@@ -119,23 +116,21 @@ function Read() {
         <div
           style={{
             display: "flex",
-            marginTop: 7,
-            justifyContent: "center",
-            alignItems: "center",
+            marginTop: 8
           }}
         >
           {mayEdit && (
-            <>
-              <Button
-                variant="contained"
-                color="warning"
-                onClick={() => navigate("/edit/" + params.row.id)}
-                style={{ float: "left", marginRight: 5 }}
-                startIcon={<EditIcon />}
-              >
-                Edit
-              </Button>
-            </>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={() => navigate("/edit/" + params.row.id)}
+              style={{
+                float: "left",
+                marginRight: 5
+              }}
+            >
+              Edit
+            </Button>
           )}
           <Button
             variant="contained"

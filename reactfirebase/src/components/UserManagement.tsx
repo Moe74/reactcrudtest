@@ -9,14 +9,13 @@ import {
   set,
   update,
 } from "firebase/database";
-import { Toast, ToastMessage } from "primereact/toast";
 import React from "react";
 import app from "../firebaseConfig";
 import { useGlobalState } from "./GlobalStates";
 import UserForm from "./userManagement/UserForm";
 import UserList from "./userManagement/UserList";
 import { breakpoints, isValidEmail, useElementWidth } from "./Helpers";
-import { Card, CardContent, Grid, Paper, Typography } from "@mui/material";
+import { Card, CardContent, Grid, Paper, Typography, Snackbar, Alert } from "@mui/material";
 
 export type User = {
   id?: string;
@@ -42,8 +41,11 @@ function UserManagement() {
   const [nameError, setNameError] = React.useState<string>("");
   const [emailError, setEmailError] = React.useState<string>("");
 
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const [snackbarOpen, setSnackbarOpen] = React.useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState<"success" | "error">("success");
 
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   const divRef = React.useRef<HTMLDivElement>(null);
   const contentWidth = useElementWidth(divRef);
@@ -114,7 +116,7 @@ function UserManagement() {
       if (editId) {
         const snapshot = await get(userRef);
         if (!snapshot.exists()) {
-          showMessage(toastCenter, "error", "Error", "Benutzer nicht gefunden");
+          showMessage("error", "Benutzer nicht gefunden");
           setIsLoading(false);
           return;
         }
@@ -126,12 +128,7 @@ function UserManagement() {
         };
 
         await update(userRef, newUser);
-        showMessage(
-          toastCenter,
-          "success",
-          "Info",
-          "Benutzer erfolgreich aktualisiert"
-        );
+        showMessage("success", "Benutzer erfolgreich aktualisiert");
       } else {
         const hashedPassword = await bcrypt.hash(password, 10);
         newUser = {
@@ -140,17 +137,12 @@ function UserManagement() {
         };
 
         await set(userRef, newUser);
-        showMessage(
-          toastCenter,
-          "success",
-          "Info",
-          "User erfolgreich angelegt"
-        );
+        showMessage("success", "User erfolgreich angelegt");
       }
       resetForm();
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Benutzers: ", error);
-      alert("Ein Fehler ist beim Aktualisieren des Benutzers aufgetreten.");
+      showMessage("error", "Ein Fehler ist beim Aktualisieren des Benutzers aufgetreten.");
     } finally {
       setIsLoading(false);
     }
@@ -210,20 +202,17 @@ function UserManagement() {
     setShowPassword(false);
   };
 
-  const toastCenter = React.useRef(null);
+  const showMessage = (severity: "success" | "error", message: string) => {
+    setSnackbarSeverity(severity);
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
 
-  const showMessage = (
-    ref: React.RefObject<Toast>,
-    severity: ToastMessage["severity"],
-    label: string,
-    summary: string
-  ) => {
-    ref.current?.show({
-      severity: severity,
-      summary: label,
-      detail: summary,
-      life: 3000,
-    });
+  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   if (!isLoggedIn)
@@ -236,7 +225,6 @@ function UserManagement() {
     );
 
   const mobileView = contentWidth <= breakpoints.smallDesktop;
-
 
   return (
     <div
@@ -303,7 +291,16 @@ function UserManagement() {
           </CardContent>
         </Card>
 
-        <Toast ref={toastCenter} position="top-center" />
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </div>
     </div>
   );

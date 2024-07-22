@@ -1,7 +1,5 @@
-import { FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
-import { InputNumberChangeEvent } from 'primereact/inputnumber';
+import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
 import * as React from 'react';
-import Figure from './Figure';
 
 export type Operators = "add" | "minus" | "times" | "divide";
 
@@ -18,19 +16,13 @@ const Rechner = (p: RechnerProps) => {
         setOperator((event.target as HTMLInputElement).value as Operators);
     };
 
-    const handleNr1Change = (e: InputNumberChangeEvent) => {
-        if (e.value !== null) {
-            setNumber1(e.value);
-        } else {
-            setNumber1(0);
-        }
+    const handleZahl1 = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value = e.target.value;
+        setNumber1(value !== null ? parseFloat(value) : 0);
     };
-    const handleNr2Change = (e: InputNumberChangeEvent) => {
-        if (e.value !== null) {
-            setNumber2(e.value);
-        } else {
-            setNumber2(0);
-        }
+    const handleZahl2 = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value = e.target.value;
+        setNumber2(value !== null ? parseFloat(value) : 0);
     };
 
     const calc = (operator: Operators) => {
@@ -49,20 +41,31 @@ const Rechner = (p: RechnerProps) => {
     };
     return (
         <div>
-            <div style={{ width: "100%", height: 40, marginTop: 20 }}>
-                <Figure
+            <div style={{ width: 300, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 10, marginTop: 20 }}>
+
+                <TextField
                     value={number1}
-                    onChange={handleNr1Change}
-                    label='Zahl 1'
+                    variant="outlined"
+                    onChange={handleZahl1}
+                    required
+                    label="Zahl 1"
+                    type="number"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
                 />
-                <span> </span>
-                <Figure
+                <TextField
                     value={number2}
-                    onChange={handleNr2Change}
-                    label='Zahl 2'
+                    variant="outlined"
+                    onChange={handleZahl2}
+                    required
+                    label="Zahl 2"
+                    type="number"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
                 />
             </div>
-
             <FormControl component="fieldset">
                 <RadioGroup aria-label="operator" name="operator" value={operator} onChange={handleChange} row>
                     <FormControlLabel value="add" control={<Radio />} label="Add" />
@@ -71,8 +74,18 @@ const Rechner = (p: RechnerProps) => {
                     <FormControlLabel value="divide" control={<Radio />} label="Divide" />
                 </RadioGroup>
             </FormControl>
-            <hr />
-            <b>ERGEBNiS: {calc(operator)}</b>
+            <p>
+                <TextField
+                    value={calc(operator)}
+                    variant="filled"
+                    color='success'
+                    label="Ergebnis"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+
+                />
+            </p>
         </div>
     );
 }

@@ -1,7 +1,7 @@
-import { InputText } from "primereact/inputtext";
+import { TextField } from "@mui/material";
 import * as React from "react";
-import Progress from "../../components/Progress";
 import { colors } from "../../components/Helpers";
+import Progress from "../../components/Progress";
 
 const getPasswordStrength = (
   password: string
@@ -24,7 +24,7 @@ const getPasswordStrength = (
   return { percentage, isStrong };
 };
 
-interface CheckPasswordProps {}
+interface CheckPasswordProps { }
 
 const CheckPassword = (p: CheckPasswordProps) => {
   const [password, setPassword] = React.useState<string>("");
@@ -32,10 +32,15 @@ const CheckPassword = (p: CheckPasswordProps) => {
 
   return (
     <div>
-      <InputText
-        style={{ width: "100%" }}
+      <TextField
         value={password}
+        variant="outlined"
         onChange={(e) => setPassword(e.target.value)}
+        label="Password"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        fullWidth
       />
       <div style={{ height: 40 }} />
 

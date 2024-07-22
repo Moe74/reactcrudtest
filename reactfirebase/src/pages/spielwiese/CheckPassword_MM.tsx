@@ -1,14 +1,7 @@
-import "primeicons/primeicons.css"; // Icons
-import { Column as ColumnPR } from "primereact/column";
-import { DataTable as DataTablePR } from "primereact/datatable";
-import { InputText as InputTextPR } from "primereact/inputtext";
-import "primereact/resources/primereact.min.css"; // Core CSS
-import "primereact/resources/themes/saga-blue/theme.css"; // Theme
+import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import React, { useState } from "react";
 import { colors } from "../../components/Helpers";
 import ProgressMM from "../../components/Progress_MM";
-import { Box, TextField } from "@mui/material";
-import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 
 interface PasswordStrength {
   percentage: number;
@@ -79,8 +72,8 @@ const CheckPasswordMM: React.FC = () => {
     { label: "Mindestens ein Sonderzeichen", key: "hasSpecialChar" },
   ];
 
-  const iconTemplate = (rowData: PasswordCriteria) => {
-    return strength && strength[rowData.key] ? (
+  const iconTemplate = (key: keyof PasswordStrength) => {
+    return strength && strength[key] ? (
       <span className="pi pi-check" style={{ color: "green" }} />
     ) : (
       <span className="pi pi-times" style={{ color: "red" }} />
@@ -92,64 +85,18 @@ const CheckPasswordMM: React.FC = () => {
     (strength.isStrong === true
       ? "Sehr gutes Passwort"
       : strength.isStrong === false
-      ? "Das Passwort ist schwach"
-      : undefined);
-
-  /*  const rows = rezepte.map((rezept) => ({
-      id: rezept.rezeptId,
-      image: rezept.image,
-      title: rezept.title,
-      description: rezept.description,
-      duration: rezept.duration,
-      vegi: rezept.isVegi,
-      difficulty: rezept.difficulty,
-      rating: rezept.rating,
-    })); */
-
-  const columns: GridColDef[] = [
-    {
-      field: "label",
-      sortable: false,
-      filterable: false,
-      headerName: "Kriterium",
-      width: 300,
-    },
-    {
-      field: "image",
-      sortable: false,
-      filterable: false,
-      headerName: "Status",
-      width: 70,
-      renderCell: (params) => (
-        <img
-          src={`${process.env.PUBLIC_URL}/images/rezepte/${params.value}`}
-          alt={params.row.title}
-          style={{ width: "40px", height: "40px", marginTop: 5 }}
-        />
-      ),
-    },
-  ];
+        ? "Das Passwort ist schwach"
+        : undefined);
 
   return (
     <div>
-      <div className="p-float-label" style={{ marginBottom: 10 }}>
-        {/* <InputText
-            id="password"
-            value={password}
-            onChange={handlePasswordChange}
-            style={{ width: "100%" }}
-            invalid={!strength?.isStrong}
-          />
-          <label htmlFor="password">
-            {resultText ?? "Passwort eingeben zum Checken"}
-          </label> */}
+      <div style={{ marginBottom: 10 }}>
         <TextField
           label={resultText ?? "Passwort eingeben zum Checken"}
           variant="outlined"
           id="password"
           value={password}
           onChange={handlePasswordChange}
-          /* color={title ? "success" : undefined} */
           style={{ width: "100%" }}
           error={!strength?.isStrong}
           required
@@ -167,43 +114,31 @@ const CheckPasswordMM: React.FC = () => {
               strength.percentage < 50
                 ? colors.redLight
                 : strength.percentage >= 50 && strength.percentage < 100
-                ? colors.yellowLight
-                : colors.greenLight
+                  ? colors.yellowLight
+                  : colors.greenLight
             }
             textColor={colors.white}
             showValue
             unit="%"
           />
-          <DataTablePR value={passwordCriteria} size="small" stripedRows>
-            <ColumnPR field="label" header="Kriterium" />
-            <ColumnPR body={iconTemplate} header="Status" />
-          </DataTablePR>
-
-          {/* <div style={{ padding: 40 }}>
-              <Box sx={{ width: "100%" }}>
-                <DataGrid
-                  rows={rows}
-                  columns={columns}
-                  autoHeight
-                  sx={{ width: "100%" }}
-                  disableRowSelectionOnClick
-                  initialState={{
-                    pagination: {
-                      paginationModel: {
-                        pageSize: 10,
-                      },
-                    },
-                  }}
-                  pageSizeOptions={[10]}
-                  slots={{ toolbar: GridToolbar }}
-                  slotProps={{
-                    toolbar: {
-                      showQuickFilter: true,
-                    },
-                  }}
-                />
-              </Box>
-            </div> */}
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Kriterium</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {passwordCriteria.map((criteria) => (
+                  <TableRow key={criteria.key}>
+                    <TableCell>{criteria.label}</TableCell>
+                    <TableCell>{iconTemplate(criteria.key)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
       )}
     </div>
