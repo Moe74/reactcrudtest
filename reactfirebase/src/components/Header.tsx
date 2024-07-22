@@ -1,12 +1,9 @@
 import LogoutIcon from "@mui/icons-material/Logout";
-import Button from "@mui/material/Button";
+import { AppBar, Button, TextField, Toolbar, Typography } from "@mui/material";
 import bcrypt from "bcryptjs";
 import { getDatabase, onValue, ref } from "firebase/database";
-import { InputText } from "primereact/inputtext";
-import { Menubar } from "primereact/menubar";
-import { MenuItem } from "primereact/menuitem";
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import app from "../firebaseConfig";
 import ConfirmButton from "./ConfirmButton";
 import {
@@ -36,7 +33,7 @@ function Header() {
   const [users, setUsers] = useState<User[]>([]);
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const location = useLocation();
 
   useEffect(() => {
     const db = getDatabase(app);
@@ -92,140 +89,92 @@ function Header() {
     setUserIsAdmin(false);
   };
 
-  const items: MenuItem[] = [
-    {
-      label: "Home",
-      icon: "pi pi-home",
-      template: (item, options) => (
-        <Link
-          to="/"
-          className={options.className}
-          style={{ textDecoration: "none" }}
-        >
-          {item.label}
-        </Link>
-      ),
-    },
-    {
-      label: "Übersicht",
-      icon: "pi pi-table",
-      template: (item, options) => (
-        <Link
-          to="/read"
-          className={options.className}
-          style={{ textDecoration: "none" }}
-        >
-          {item.label}
-        </Link>
-      ),
-    },
-    {
-      label: "Neues Rezept",
-      icon: "pi pi-star",
-      visible: isLoggedIn && isAdmin,
-      template: (item, options) => (
-        <Link
-          to="/write"
-          className={options.className}
-          style={{ textDecoration: "none" }}
-        >
-          {item.label}
-        </Link>
-      ),
-    },
-    {
-      label: "Userverwaltung",
-      icon: "pi pi-users",
-      visible: isLoggedIn,
-      template: (item, options) => (
-        <Link
-          to="/user"
-          className={options.className}
-          style={{ textDecoration: "none" }}
-        >
-          {item.label}
-        </Link>
-      ),
-    },
-    {
-      label: "Spielwiese",
-      icon: "pi pi-game",
-      visible: isLoggedIn,
-      template: (item, options) => (
-        <Link
-          to="/spielwiese"
-          className={options.className}
-          style={{ textDecoration: "none" }}
-        >
-          {item.label}
-        </Link>
-      ),
-    },
+  const menuItems = [
+    { label: "Home", link: "/" },
+    { label: "Übersicht", link: "/read" },
+    { label: "Neues Rezept", link: "/write", visible: isLoggedIn && isAdmin },
+    { label: "Userverwaltung", link: "/user", visible: isLoggedIn },
+    { label: "Spielwiese", link: "/spielwiese", visible: isLoggedIn },
   ];
 
-  const end = isLoggedIn ? (
-    <ConfirmButton
-      action={handleLogout}
-      /* text={"Logout " + name}  */
-      text={`Logout ${name}`}
-      icon={<LogoutIcon sx={{ mr: 1 }} />}
-    />
-  ) : (
-    <Button variant="contained" onClick={showLogin}>
-      {showLoginForm ? "Cancel" : "Login"}
-    </Button>
-  );
   return (
     <>
-      <Menubar model={items} end={end} />
-      <div>
-        {showLoginForm && !isLoggedIn && (
-          <div style={{ marginTop: 2 }}>
-            <Button
-              className="btn"
-              style={{ float: "right" }}
-              onClick={handleLogin}
-              /* ref={buttonRef} */
-              onKeyDown={handleKeyDown}
-            >
-              OK
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Mayas Rezepte Blog
+          </Typography>
+          {menuItems.map(
+            (item) =>
+              (item.visible === undefined || item.visible) && (
+                <Button
+                  key={item.label}
+                  color={"inherit"}
+                  style={{ marginRight: 10, borderRadius: 0, borderBottom: `3px solid ${location.pathname === item.link ? "#fff" : "transparent"}` }}
+                  component={Link}
+                  to={item.link}
+                >
+                  {item.label}
+                </Button>
+              )
+          )}
+          {isLoggedIn ? (
+            <ConfirmButton
+              action={handleLogout}
+              text={`Logout ${name}`}
+              icon={<LogoutIcon sx={{ mr: 1 }} />}
+            />
+          ) : (
+            <Button color="inherit" onClick={showLogin}>
+              {showLoginForm ? "Cancel" : "Login"}
             </Button>
-            <InputText
-              type="password"
-              placeholder="Dein Vorname klein"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              ref={passwordRef}
-              style={{ float: "right", marginRight: 2 }}
-              onKeyDown={(e) => {
-                if (e.key === "Tab" && e.shiftKey === false) {
-                  e.preventDefault();
-                  buttonRef.current?.focus();
-                } else {
-                  handleKeyDown(e);
-                }
-              }}
-            />
-            <InputText
-              type="text"
-              placeholder="Dein Vorname"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              ref={usernameRef}
-              autoFocus
-              style={{ float: "right", marginRight: 2 }}
-              onKeyDown={(e) => {
-                if (e.key === "Tab" && e.shiftKey === false) {
-                  e.preventDefault();
-                  passwordRef.current?.focus();
-                } else {
-                  handleKeyDown(e);
-                }
-              }}
-            />
-          </div>
-        )}
-      </div>
+          )}
+        </Toolbar>
+      </AppBar>
+      {showLoginForm && !isLoggedIn && (
+        <div style={{ marginTop: 2, marginRight: 8, float: "right" }}>
+          <TextField
+            label="Username"
+            type="text"
+            variant="outlined"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            inputRef={usernameRef}
+            style={{ marginRight: 2 }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Tab" && !e.shiftKey) {
+                e.preventDefault();
+                passwordRef.current?.focus();
+              } else {
+                handleKeyDown(e);
+              }
+            }}
+          />
+          <TextField
+            label="Passwort"
+            type="password"
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ marginRight: 2 }}
+            inputRef={passwordRef}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                handleLogin();
+              }
+            }}
+          />
+          <Button
+            style={{ float: "right", height: 55 }}
+            onClick={handleLogin}
+            variant="contained"
+            color="success"
+            disabled={password === "" || username === ""}
+          >
+            OK
+          </Button>
+        </div>
+      )}
     </>
   );
 }
