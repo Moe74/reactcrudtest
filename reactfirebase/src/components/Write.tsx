@@ -1,9 +1,9 @@
 import {
   FormControlLabel,
+  InputAdornment,
   MenuItem,
-  Rating,
   Switch,
-  TextField,
+  TextField
 } from "@mui/material";
 import {
   equalTo,
@@ -98,6 +98,16 @@ function Write() {
     }
   };
 
+  const handleDuration = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setDuration(value !== null ? parseFloat(value) : 0);
+  };
+
+  const handlePersons = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setPersons(value !== null ? parseFloat(value) : 0);
+  };
+
   React.useEffect(() => {
     if (firebaseId) {
       const db = getDatabase(app);
@@ -126,6 +136,18 @@ function Write() {
           alert("Error loading data");
           navigate("/");
         });
+    }
+    else {
+      setTitle("");
+      setDescription("");
+      setDuration(15);
+      setRating(0);
+      setDifficulty(1);
+      setPersons(4);
+      setImage(undefined);
+      setIsVegi(false);
+      setManual([]);
+      setIngredients([]);
     }
   }, [firebaseId, navigate]);
 
@@ -258,6 +280,29 @@ function Write() {
       [field]: value === "" ? null : value,
     });
   };
+
+  const handleIngredientChangeX = (
+    field: keyof Zutat,
+    value: string | number | null
+  ) => {
+    setCurrentIngredient({
+      ...currentIngredient,
+      [field]: value === "" ? null : value,
+    });
+  };
+
+  const handleChangeMenge = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const value = e.target.value;
+    handleIngredientChangeX(
+      "amount",
+      value !== null ? parseFloat(value) : null
+    );
+  };
+
+
+
 
   const deleteRezept = async (rezParam: string) => {
     const db = getDatabase();
@@ -449,7 +494,11 @@ function Write() {
             color={title ? "success" : undefined}
             style={{ width: "100%" }}
             error={!title}
+            autoFocus
             required
+            InputLabelProps={{
+              shrink: true,
+            }}
           />
         </div>
         <div>
@@ -768,87 +817,53 @@ function Write() {
         {editIngredientIndex === null && (
           <>
             <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-              <div className="p-inputgroup">
-                {/* <InputText
-                  style={{ width: "50%" }}
-                  value={currentIngredient.text}
-                  placeholder={`Zutat ${
-                    ingredients.length > 0 ? "(optional)" : ""
-                  }`}
-                  onChange={(e) =>
-                    handleIngredientChange("text", e.target.value)
-                  }
-                  invalid={ingredients.length === 0}
-                  variant={ingredients.length === 0 ? "filled" : undefined}
-                /> */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 200px", columnGap: 10 }}>
                 <TextField
                   label="Zutat"
-                  variant={ingredients.length === 0 ? "filled" : undefined}
+                  variant="outlined"
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${
-                    ingredients.length > 0 ? "(optional)" : ""
-                  }`}
+                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
+                    }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }
-                  style={{ width: "50%" }}
-                  error={ingredients.length === 0}
+                  error={currentIngredient.text === ""}
+                  fullWidth
                   required
                 />
-
-                {/* <InputText
-                  style={{ width: "50px", margin: "0 5px" }}
-                  value={currentIngredient.unit || ""}
-                  placeholder="Einheitt"
-                  onChange={(e) =>
-                    handleIngredientChange(
-                      "unit",
-                      e.target.value ? e.target.value : null
-                    )
-                  }
-                /> */}
                 <TextField
                   label="Einheit"
-                  variant="filled"
+                  variant="outlined"
                   value={currentIngredient.unit || ""}
-                  placeholder="Einheittt"
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   onChange={(e) =>
                     handleIngredientChange(
                       "unit",
                       e.target.value ? e.target.value : null
                     )
                   }
-                  style={{ width: "50px", margin: "0 5px" }}
-                  required
                 />
 
-                <InputNumber
-                  showButtons
-                  placeholder="Menge"
+
+                <TextField
                   value={currentIngredient.amount}
-                  onChange={(e: InputNumberChangeEvent) =>
-                    handleIngredientChange(
-                      "amount",
-                      e.value !== null ? e.value : null
-                    )
-                  }
-                  minFractionDigits={2}
-                  locale="de-DE"
-                  style={{
-                    float: "left",
-                    width: "70px",
-                    borderColor:
-                      currentIngredient.text !== undefined &&
-                      ingredients.length === 0
-                        ? "red"
-                        : undefined,
-                    background:
-                      currentIngredient.text !== undefined &&
-                      ingredients.length === 0
-                        ? "rgba(255,0,0,0.05)"
-                        : undefined,
+                  variant="outlined"
+                  onChange={handleChangeMenge}
+                  fullWidth
+                  required
+                  label="Menge"
+                  type="number"
+                  InputLabelProps={{
+                    shrink: true,
                   }}
-                  suffix={" " + currentIngredient.unit ?? undefined}
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">{currentIngredient.unit}</InputAdornment>,
+                  }}
+                  error={currentIngredient.amount === undefined}
+
                 />
               </div>
             </div>
@@ -875,23 +890,27 @@ function Write() {
         )}
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
-          Benötigte Zeit
+          Benötigte Zeit xxx
         </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <InputNumber
-            showButtons
-            min={15}
-            step={15}
-            locale="de-DE"
+          <TextField
             value={duration}
-            onChange={handleDurationChange}
-            suffix=" min"
-            style={{
-              width: "100%",
-              borderColor: duration > 0 ? "green" : "red",
-              background: duration > 0 ? "green" : "red",
+            variant="outlined"
+            onChange={handleDuration}
+            fullWidth
+            required
+            label="Benötigte Zeit"
+            type="number"
+            InputLabelProps={{
+              shrink: true,
             }}
-            invalid={duration === 0}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">Min</InputAdornment>,
+              inputProps: {
+                min: 15,
+                step: 15,
+              }
+            }}
           />
         </div>
 
@@ -899,16 +918,18 @@ function Write() {
           Aktuelles Rating
         </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          {/* <RatingPR value={rating} readOnly cancel={false} disabled /> */}
-          <Rating value={rating} readOnly disabled />
+
           <TextField
-            label="Aktuelles Rating"
-            variant="outlined"
             fullWidth
+            label="Aktuelles Rating"
             disabled
-            value=""
-            inputProps={{
-              startAdornment: <Rating value={rating} readOnly disabled />,
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              startAdornment: (
+                <RatingPR value={rating} readOnly cancel={false} disabled />
+              )
             }}
           />
         </div>
@@ -934,7 +955,6 @@ function Write() {
             select
             label="Schwierigkeitsgrad"
             defaultValue="leicht"
-            helperText="Bitte wählen Sie einen Schwierigkeitsgrad."
             style={{ width: "100%" }}
           >
             {Schwierigkeitsgrade.map((option) => (
@@ -949,16 +969,24 @@ function Write() {
           Personenanzahl
         </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <InputNumber
-            showButtons
-            min={1}
-            max={99}
-            locale="de-DE"
+          <TextField
             value={persons}
-            onChange={handlePersonsChange}
-            suffix={persons === 1 ? " Person" : " Personen"}
-            style={{ width: "100%" }}
-            invalid={persons === 0}
+            variant="outlined"
+            onChange={handlePersons}
+            fullWidth
+            required
+            label="Personenanzahl"
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">{persons === 1 ? " Person" : " Personen"}</InputAdornment>,
+              inputProps: {
+                min: 1,
+                max: 99,
+              }
+            }}
           />
         </div>
 
@@ -1041,26 +1069,22 @@ function Write() {
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Vegetarisch?</div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          {/* <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <Checkbox onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
-            </span> */}
-          {/* <InputText
-              value={isVegi ? "ja" : "nein"}
-              style={{ width: "100%", color: "#323130", pointerEvents: "none" }}
-              variant="filled"
-            /> */}
-          {/* <TextField
-              value={isVegi ? "ja" : "nein"}
-              style={{ width: "100%", color: "#323130", pointerEvents: "none" }}
-              variant="filled"
-            />
-          </div> */}
-          <FormControlLabel
-            control={
-              <Switch onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
-            }
-            label={isVegi ? "ja" : "nein"}
+          <TextField
+            fullWidth
+            label="Vegetarisch?"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              startAdornment: (
+                <FormControlLabel
+                  control={
+                    <Switch onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
+                  }
+                  label={isVegi ? "ja" : "nein"}
+                />
+              )
+            }}
           />
         </div>
         <div
@@ -1351,9 +1375,8 @@ function Write() {
                 <InputText
                   style={{ width: "50%" }}
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${
-                    ingredients.length > 0 ? "(optional)" : ""
-                  }`}
+                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
+                    }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }
@@ -1388,12 +1411,12 @@ function Write() {
                     width: "70px",
                     borderColor:
                       currentIngredient.text !== undefined &&
-                      ingredients.length === 0
+                        ingredients.length === 0
                         ? "red"
                         : undefined,
                     background:
                       currentIngredient.text !== undefined &&
-                      ingredients.length === 0
+                        ingredients.length === 0
                         ? "rgba(255,0,0,0.05)"
                         : undefined,
                   }}
@@ -1444,12 +1467,7 @@ function Write() {
           />
         </div>
 
-        <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
-          Aktuelles Rating
-        </div>
-        <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <RatingPR value={rating} readOnly cancel={false} disabled />
-        </div>
+
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
           Schwierigkeit
