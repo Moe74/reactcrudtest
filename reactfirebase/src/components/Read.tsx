@@ -14,8 +14,6 @@ import {
   formatMinuteToHours,
 } from "./Helpers";
 
-
-
 function Read() {
   const navigate = useNavigate();
   const [rezepte, setRezepte] = React.useState<Rezept[]>([]);
@@ -79,6 +77,12 @@ function Read() {
       type: "number",
       width: 130,
       renderCell: (params) => formatMinuteToHours(params.row.duration),
+    },
+    {
+      field: "vegi",
+      headerName: "vegetarisch",
+      type: "boolean",
+      width: 130,
     },
 
     {
@@ -156,6 +160,7 @@ function Read() {
     title: rezept.title,
     description: rezept.description,
     duration: rezept.duration,
+    vegi: rezept.isVegi,
     difficulty: rezept.difficulty,
     rating: rezept.rating,
   }));
@@ -177,7 +182,6 @@ function Read() {
             },
           }}
           pageSizeOptions={[10]}
-
           slots={{ toolbar: GridToolbar }}
           slotProps={{
             toolbar: {

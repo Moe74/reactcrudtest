@@ -1,4 +1,10 @@
-import { MenuItem, Rating, TextField } from "@mui/material";
+import {
+  FormControlLabel,
+  MenuItem,
+  Rating,
+  Switch,
+  TextField,
+} from "@mui/material";
 import {
   equalTo,
   get,
@@ -611,7 +617,7 @@ function Write() {
           </>
         )}
 
-        <div>Zutatenn</div>
+        <div>Zutaten</div>
         {ingredients.map((ingredient, index) => {
           const amount = ingredient.amount ?? "";
           const unit = ingredient.unit ?? "";
@@ -779,8 +785,9 @@ function Write() {
                   label="Zutat"
                   variant={ingredients.length === 0 ? "filled" : undefined}
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
-                    }`}
+                  placeholder={`Zutat ${
+                    ingredients.length > 0 ? "(optional)" : ""
+                  }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }
@@ -817,7 +824,7 @@ function Write() {
 
                 <InputNumber
                   showButtons
-                  placeholder="Mengee"
+                  placeholder="Menge"
                   value={currentIngredient.amount}
                   onChange={(e: InputNumberChangeEvent) =>
                     handleIngredientChange(
@@ -832,12 +839,12 @@ function Write() {
                     width: "70px",
                     borderColor:
                       currentIngredient.text !== undefined &&
-                        ingredients.length === 0
+                      ingredients.length === 0
                         ? "red"
                         : undefined,
                     background:
                       currentIngredient.text !== undefined &&
-                        ingredients.length === 0
+                      ingredients.length === 0
                         ? "rgba(255,0,0,0.05)"
                         : undefined,
                   }}
@@ -1034,21 +1041,27 @@ function Write() {
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>Vegetarisch?</div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-          <div className="p-inputgroup">
+          {/* <div className="p-inputgroup">
             <span className="p-inputgroup-addon">
               <Checkbox onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
-            </span>
-            {/* <InputText
+            </span> */}
+          {/* <InputText
               value={isVegi ? "ja" : "nein"}
               style={{ width: "100%", color: "#323130", pointerEvents: "none" }}
               variant="filled"
             /> */}
-            <TextField
+          {/* <TextField
               value={isVegi ? "ja" : "nein"}
               style={{ width: "100%", color: "#323130", pointerEvents: "none" }}
               variant="filled"
             />
-          </div>
+          </div> */}
+          <FormControlLabel
+            control={
+              <Switch onChange={() => setIsVegi(!isVegi)} checked={isVegi} />
+            }
+            label={isVegi ? "ja" : "nein"}
+          />
         </div>
         <div
           style={{
@@ -1338,8 +1351,9 @@ function Write() {
                 <InputText
                   style={{ width: "50%" }}
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
-                    }`}
+                  placeholder={`Zutat ${
+                    ingredients.length > 0 ? "(optional)" : ""
+                  }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }
@@ -1374,12 +1388,12 @@ function Write() {
                     width: "70px",
                     borderColor:
                       currentIngredient.text !== undefined &&
-                        ingredients.length === 0
+                      ingredients.length === 0
                         ? "red"
                         : undefined,
                     background:
                       currentIngredient.text !== undefined &&
-                        ingredients.length === 0
+                      ingredients.length === 0
                         ? "rgba(255,0,0,0.05)"
                         : undefined,
                   }}
