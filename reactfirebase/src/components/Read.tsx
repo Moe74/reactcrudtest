@@ -125,6 +125,7 @@ function Read() {
         >
           {mayEdit && (
             <Button
+              fullWidth
               variant="contained"
               color="warning"
               onClick={() => navigate("/edit/" + params.row.id)}
@@ -135,22 +136,13 @@ function Read() {
               Edit
             </Button>
           )}
-          {/* <Button
-            variant="contained"
-            color="success"
-            onClick={() => navigate("/single/" + params.row.id)}
-            style={{
-              float: "left",
-              width: mayEdit ? "calc(100% - 50px)" : "100%",
-            }}
-          >
-            Open
-          </Button> */}
         </div>
       ),
-      width: 150,
+      width: 100,
     },
   ];
+
+  const filteredColumns = isAdmin ? columns : columns.slice(0, -1);
 
   const rows = rezepte.map((rezept) => ({
     id: rezept.rezeptId,
@@ -169,7 +161,7 @@ function Read() {
         <DataGrid
           rows={rows}
           onRowClick={(params) => navigate("/single/" + params.row.id)}
-          columns={columns}
+          columns={filteredColumns}
           autoHeight
           sx={{
             width: "100%",
