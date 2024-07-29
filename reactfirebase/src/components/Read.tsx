@@ -129,14 +129,13 @@ function Read() {
               color="warning"
               onClick={() => navigate("/edit/" + params.row.id)}
               style={{
-                float: "left",
                 marginRight: 5,
               }}
             >
               Edit
             </Button>
           )}
-          <Button
+          {/* <Button
             variant="contained"
             color="success"
             onClick={() => navigate("/single/" + params.row.id)}
@@ -146,7 +145,7 @@ function Read() {
             }}
           >
             Open
-          </Button>
+          </Button> */}
         </div>
       ),
       width: 150,
@@ -169,9 +168,15 @@ function Read() {
       <Box sx={{ width: "100%" }}>
         <DataGrid
           rows={rows}
+          onRowClick={(params) => navigate("/single/" + params.row.id)}
           columns={columns}
           autoHeight
-          sx={{ width: "100%" }}
+          sx={{
+            width: "100%",
+            "& .MuiDataGrid-row:hover": {
+              cursor: "pointer",
+            },
+          }}
           disableRowSelectionOnClick
           initialState={{
             pagination: {
