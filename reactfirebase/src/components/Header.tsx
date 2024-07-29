@@ -110,7 +110,13 @@ function Header() {
                 <Button
                   key={item.label}
                   color={"inherit"}
-                  style={{ marginRight: 10, borderRadius: 0, borderBottom: `3px solid ${location.pathname === item.link ? "#fff" : "transparent"}` }}
+                  style={{
+                    marginRight: 10,
+                    borderRadius: 0,
+                    borderBottom: `3px solid ${
+                      location.pathname === item.link ? "#fff" : "transparent"
+                    }`,
+                  }}
                   component={Link}
                   to={item.link}
                 >

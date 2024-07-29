@@ -1,4 +1,4 @@
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { get, getDatabase, ref } from "firebase/database";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
@@ -14,10 +14,13 @@ import {
   responsiveCarousel,
   Rezept,
 } from "./Helpers";
-import { OpenField, Pane, PaneImage, PaneText, RatingContainer } from "./LayoutSC";
-
-
-
+import {
+  OpenField,
+  Pane,
+  PaneImage,
+  PaneText,
+  RatingContainer,
+} from "./LayoutSC";
 
 interface CarouselHomeProps {
   cWidth: number;
@@ -25,7 +28,8 @@ interface CarouselHomeProps {
 
 const CarouselHome = (p: CarouselHomeProps) => {
   const [rezepte, setRezepte] = useState<Rezept[]>([]);
-  const [visCols, setvisCols] = React.useState<ResponsiveType>(responsiveCarousel);
+  const [visCols, setvisCols] =
+    React.useState<ResponsiveType>(responsiveCarousel);
 
   React.useEffect(() => {
     setvisCols(responsiveCarousel);
@@ -63,7 +67,9 @@ const CarouselHome = (p: CarouselHomeProps) => {
   const recipeTemplate = (recipe: Rezept) => {
     return (
       <Pane>
-        <PaneImage image={imageRezeptUrlPrefix + (recipe.image ?? "noImage.webp")} >
+        <PaneImage
+          image={imageRezeptUrlPrefix + (recipe.image ?? "noImage.webp")}
+        >
           <div
             style={{
               position: "absolute",
@@ -88,13 +94,13 @@ const CarouselHome = (p: CarouselHomeProps) => {
 
         <PaneText onClick={() => navigate("/single/" + recipe.rezeptId)}>
           {recipe.title}
-          <OpenField>open <ChevronRightIcon sx={{ float: "right", mt: 1.1, ml: 1 }} /></OpenField>
+          <OpenField>
+            open <ChevronRightIcon sx={{ float: "right", mt: 1.1, ml: 1 }} />
+          </OpenField>
         </PaneText>
       </Pane>
     );
   };
-
-
 
   return (
     <div className="card">

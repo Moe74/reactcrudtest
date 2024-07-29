@@ -11,7 +11,7 @@ import {
   CardMedia,
   Rating,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import { get, getDatabase, ref } from "firebase/database";
@@ -31,8 +31,6 @@ import {
   formatMinuteToHours,
   useElementWidth,
 } from "./Helpers";
-
-
 
 function Single() {
   const { firebaseId } = useParams();
@@ -74,15 +72,10 @@ function Single() {
 
   return (
     <div ref={divRef} style={{ padding: 40 }}>
-      {/* <Header /> */}
       {recipe && (
         <Card variant="outlined">
           <CardMedia sx={{ height: 140 }} image={imagePath} />
           <CardContent
-            /* title={recipe.title}
-            subTitle={recipe.description} */
-            /* header={header}
-            footer={footer} */
             style={{ marginBottom: 50, padding: 40 }}
             component="div"
           >
@@ -135,7 +128,7 @@ function Single() {
                 {recipe.isVegi === true && (
                   <>
                     <span
-                      className="pi pi-apple"
+                      className="apple"
                       style={{ marginRight: 5, fontWeight: "bolder" }}
                     />
                     vegi
@@ -159,7 +152,11 @@ function Single() {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
                       handlePersonCount(
-                        value === "" ? 1 : parseInt(value, 10) < 1 ? 1 : parseInt(value, 10)
+                        value === ""
+                          ? 1
+                          : parseInt(value, 10) < 1
+                          ? 1
+                          : parseInt(value, 10)
                       );
                     }}
                     type="number"
@@ -197,8 +194,7 @@ function Single() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns:
-                        "minmax(150px, max-content) 1fr" /*Geandert Ay */,
+                      gridTemplateColumns: "minmax(150px, max-content) 1fr",
                       columnGap: 10,
                     }}
                   >
@@ -229,7 +225,7 @@ function Single() {
                                   float: "left",
                                   marginTop: 6,
                                 }}
-                                className="pi pi-arrow-right"
+                                className="arrow-right"
                               />
                               {roundedValue} {calc.unit}
                             </div>
@@ -249,7 +245,7 @@ function Single() {
                                     float: "left",
                                     marginTop: 6,
                                   }}
-                                  className="pi pi-arrow-right"
+                                  className="arrow-right"
                                 />{" "}
                                 {x.text}
                               </>
@@ -294,19 +290,13 @@ function Single() {
                 </AccordionDetails>
               </Accordion>
             </div>
-            {/* <AccordionPR activeIndex={[0, 1, 2]} multiple={true}> */}
           </CardContent>
           <CardActions>
             <Button onClick={() => navigate(-1)}>go back</Button>
           </CardActions>
         </Card>
       )}
-      {recipe ? (
-
-        <Comments />
-      ) : (
-        <p>Loading...</p>
-      )}
+      {recipe ? <Comments /> : <p>Loading...</p>}
     </div>
   );
 }

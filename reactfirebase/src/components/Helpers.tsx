@@ -57,8 +57,8 @@ export interface Fruit {
 
 export interface Zutat {
   text: string;
-  amount?: number | null; // Erlaube null zusätzlich zu number und undefined
-  unit?: string | null; // Erlaube null zusätzlich zu string und undefined
+  amount?: number | null;
+  unit?: string | null;
 }
 
 export interface Rezept {
@@ -270,7 +270,6 @@ export function formatMinuteToHours(mins: number): string {
     else return `${mins} min`;
   } else {
     const hours = Math.floor(mins / 60);
-    /* const remainMins = mins - hours * 60; */
     const remainMins = mins % 60;
     const showMins = remainMins > 0;
     if (showMins) return `${hours} std ${remainMins} min`;
@@ -292,7 +291,12 @@ export const formatTimestamp = (timestamp: string) => {
   )}, ${date.toLocaleTimeString("de-DE", timeOptions)} Uhr`;
 };
 
-export const calculateAllowRate = (editMode: boolean, hasGivenRating: boolean, userIsAuthor: boolean, userIsAdmin: boolean): boolean => {
+export const calculateAllowRate = (
+  editMode: boolean,
+  hasGivenRating: boolean,
+  userIsAuthor: boolean,
+  userIsAdmin: boolean
+): boolean => {
   if (editMode) {
     if (userIsAuthor || userIsAdmin) {
       return true;
@@ -306,3 +310,68 @@ export const calculateAllowRate = (editMode: boolean, hasGivenRating: boolean, u
   }
 };
 
+export const DataSelectDifficulty = [
+  {
+    value: "leicht",
+    label: "leicht",
+  },
+  {
+    value: "mittel",
+    label: "mittel",
+  },
+  {
+    value: "schwierig",
+    label: "schwierig",
+  },
+];
+
+export const DataSelectImages = [
+  {
+    value: "noImage.webp",
+    label: "noImage.webp",
+  },
+  {
+    value: "ApfelZimtPorridge.webp",
+    label: "ApfelZimtPorridge.webp",
+  },
+  {
+    value: "BurgerMitHausgemachtenPommes.webp",
+    label: "BurgerMitHausgemachtenPommes.webp",
+  },
+  {
+    value: "CaesarSalad.webp",
+    label: "CaesarSalad.webp",
+  },
+  {
+    value: "EnteAlaOrange.webp",
+    label: "EnteAlaOrange.webp",
+  },
+  {
+    value: "GriechischerSalat.webp",
+    label: "GriechischerSalat.webp",
+  },
+  {
+    value: "HaehnchenbrustMitKraeuterkruste.webp",
+    label: "HaehnchenbrustMitKraeuterkruste.webp",
+  },
+  {
+    value: "Kuerbissuppe.webp",
+    label: "Kuerbissuppe.webp",
+  },
+  {
+    value: "PastaCarbonara.webp",
+    label: "PastaCarbonara.webp",
+  },
+  {
+    value: "QuicheLorraine.webp",
+    label: "QuicheLorraine.webp",
+  },
+  {
+    value: "Ratatouille.webp",
+    label: "Ratatouille.webp",
+  },
+  {
+    value: "SpaghettiBolognese.webp",
+    label: "SpaghettiBolognese.webp",
+  },
+];

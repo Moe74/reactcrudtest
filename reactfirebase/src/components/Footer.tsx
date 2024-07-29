@@ -5,7 +5,7 @@ import {
 } from "react-cookie-consent";
 import { FooterButton } from "../components/LayoutSC";
 
-interface FooterProps { }
+interface FooterProps {}
 
 const Footer: React.FunctionComponent<FooterProps> = (p) => {
   const resetCookie = React.useMemo(

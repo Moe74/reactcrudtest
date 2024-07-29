@@ -3,18 +3,12 @@ import * as React from "react";
 import app from "../firebaseConfig";
 import styled from "styled-components";
 import { Rating } from "@mui/material";
-import FavoriteIcon from '@mui/icons-material/Star';
-import FavoriteBorderIcon from '@mui/icons-material/StarBorder';
-
-
+import FavoriteIcon from "@mui/icons-material/Star";
+import FavoriteBorderIcon from "@mui/icons-material/StarBorder";
 
 const StyledRating = styled(Rating)({
-  '& .MuiRating-iconFilled': {
-    // color: '#ff6d75',
-  },
-  '& .MuiRating-iconHover': {
-    // color: '#ff3d47',
-  },
+  "& .MuiRating-iconFilled": {},
+  "& .MuiRating-iconHover": {},
 });
 
 interface AverageRatingProps {
@@ -22,7 +16,7 @@ interface AverageRatingProps {
   color?: string;
 }
 
-const AverageRating: React.FC<AverageRatingProps> = ({ firebaseId, color }) => {
+const AverageRating: React.FC<AverageRatingProps> = ({ firebaseId }) => {
   const [averageRating, setAverageRating] = React.useState<number | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -58,7 +52,6 @@ const AverageRating: React.FC<AverageRatingProps> = ({ firebaseId, color }) => {
   if (averageRating === null) {
     return <div>Loading average rating...</div>;
   }
-
 
   return (
     <StyledRating

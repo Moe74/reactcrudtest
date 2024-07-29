@@ -17,7 +17,14 @@ import app from "../firebaseConfig";
 import CommentForm from "./CommentForm";
 import { useGlobalState } from "./GlobalStates";
 import SingleComment from "./SingleComment";
-import { Alert, Card, CardContent, Grid, Paper, Typography } from "@mui/material";
+import {
+  Alert,
+  Card,
+  CardContent,
+  Grid,
+  Paper,
+  Typography,
+} from "@mui/material";
 
 export type Comment = {
   id?: string;
@@ -45,18 +52,12 @@ function Comments() {
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const [ratingError, setRatingError] = React.useState<string | null>(null);
 
-
-
   React.useEffect(() => {
     if (isLoggedIn) {
       setName(loggedInName || "");
       setEmail(loggedInEmail || "");
     }
   }, [isLoggedIn, loggedInName, loggedInEmail]);
-
-
-
-
 
   React.useEffect(() => {
     if (!firebaseId) {
@@ -78,7 +79,9 @@ function Comments() {
         const commentData = childSnapshot.val() as Comment;
         if (
           commentData.email === email &&
-          (commentData.rating !== null || commentData.rating !== undefined || commentData.rating !== 0) &&
+          (commentData.rating !== null ||
+            commentData.rating !== undefined ||
+            commentData.rating !== 0) &&
           commentData.id !== editId
         ) {
           hasExistingRating = true;
@@ -96,9 +99,6 @@ function Comments() {
       setHasGivenRating(hasExistingRating);
     });
   }, [firebaseId, email, editId, rating]);
-
-
-
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -141,13 +141,10 @@ function Comments() {
       if (editId) {
         const commentRef = ref(db, `comments/${editId}`);
         await update(commentRef, newComment);
-        /* alert("Comment updated successfully"); */
       } else {
         const newCommentRef = push(ref(db, "comments"));
         await set(newCommentRef, newComment);
-        /*   alert("Comment saved successfully"); */
       }
-
 
       if (rating !== null) {
         const currentRatings = comments
@@ -184,25 +181,20 @@ function Comments() {
   const handleEdit = (comment: Comment) => {
     setRating(null);
     handleEdit2(comment);
-
-
   };
   const handleEdit2 = (comment: Comment) => {
-
     setName(comment.name);
     setEmail(comment.email);
     setComment(comment.comment ?? null);
     setRating(comment.rating ?? null);
     setEditId(comment.id || null);
     setHasGivenRating(comment.rating !== null);
-
   };
 
   const handleDelete = async (id: string) => {
     const db = getDatabase(app);
     const commentRef = ref(db, `comments/${id}`);
     await remove(commentRef);
-    /*  alert("Comment deleted successfully"); */
   };
 
   const resetForm = () => {
@@ -236,7 +228,6 @@ function Comments() {
     <Card variant="outlined" sx={{ mt: 5 }} style={{ padding: 40 }}>
       <CardContent>
         <Grid container spacing={2}>
-
           <Grid item xs={8}>
             <Typography
               style={{ fontWeight: "bold", marginBottom: 5 }}
@@ -244,8 +235,7 @@ function Comments() {
             >
               Kommentare
             </Typography>
-            <Paper elevation={1} sx={{ p: 5 }} >
-
+            <Paper elevation={1} sx={{ p: 5 }}>
               {comments.length > 0 ? (
                 <>
                   {comments.map((c, index) => (
@@ -262,12 +252,12 @@ function Comments() {
                   ))}
                 </>
               ) : (
-                <Alert severity="info">Bisher wurden keine Kommentare geschrieben</Alert>
+                <Alert severity="info">
+                  Bisher wurden keine Kommentare geschrieben
+                </Alert>
               )}
             </Paper>
           </Grid>
-
-
 
           <Grid item xs={4}>
             <Typography
@@ -276,8 +266,7 @@ function Comments() {
             >
               Kommentar hinzufügen
             </Typography>
-            <Paper elevation={1} sx={{ p: 5, background: "rgba(0,0,0,0.03)" }} >
-
+            <Paper elevation={1} sx={{ p: 5, background: "rgba(0,0,0,0.03)" }}>
               <CommentForm
                 name={name}
                 email={email}
@@ -300,10 +289,7 @@ function Comments() {
               />
             </Paper>
           </Grid>
-
         </Grid>
-
-
       </CardContent>
     </Card>
   );

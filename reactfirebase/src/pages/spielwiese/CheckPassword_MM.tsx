@@ -1,4 +1,13 @@
-import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import {
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import React, { useState } from "react";
 import { colors } from "../../components/Helpers";
 import ProgressMM from "../../components/Progress_MM";
@@ -74,9 +83,9 @@ const CheckPasswordMM: React.FC = () => {
 
   const iconTemplate = (key: keyof PasswordStrength) => {
     return strength && strength[key] ? (
-      <span className="pi pi-check" style={{ color: "green" }} />
+      <span className="check" style={{ color: "green" }} />
     ) : (
-      <span className="pi pi-times" style={{ color: "red" }} />
+      <span className="times" style={{ color: "red" }} />
     );
   };
 
@@ -85,8 +94,8 @@ const CheckPasswordMM: React.FC = () => {
     (strength.isStrong === true
       ? "Sehr gutes Passwort"
       : strength.isStrong === false
-        ? "Das Passwort ist schwach"
-        : undefined);
+      ? "Das Passwort ist schwach"
+      : undefined);
 
   return (
     <div>
@@ -114,8 +123,8 @@ const CheckPasswordMM: React.FC = () => {
               strength.percentage < 50
                 ? colors.redLight
                 : strength.percentage >= 50 && strength.percentage < 100
-                  ? colors.yellowLight
-                  : colors.greenLight
+                ? colors.yellowLight
+                : colors.greenLight
             }
             textColor={colors.white}
             showValue

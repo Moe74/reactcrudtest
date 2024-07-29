@@ -1,5 +1,13 @@
-import EditIcon from '@mui/icons-material/Edit';
-import { Card, CardActionArea, CardContent, CardHeader, IconButton, Paper, Rating } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  CardHeader,
+  IconButton,
+  Paper,
+  Rating,
+} from "@mui/material";
 import ConfirmButton from "./ConfirmButton";
 import { useGlobalState } from "./GlobalStates";
 import { formatTimestamp } from "./Helpers";
@@ -31,21 +39,27 @@ const SingleComment = (p: SingleCommentProps) => {
     <Card sx={{ mb: 3 }}>
       <CardHeader
         title={name}
-        subheader={`am ${timestamp ? formatTimestamp(timestamp) : "No timestamp"}`}
-        action={isLoggedIn && (userIsAdmin || loggedInEmail === email) ?
-          <CardActionArea sx={{ pt: 1, pb: 1 }}>
-            <IconButton sx={{ float: "right", mr: 1 }} onClick={onHandleEdit} >
-              <EditIcon />
-            </IconButton>
-            <ConfirmButton sx={{ float: "right", ml: 2, mr: 1 }} asIconButton action={onHandleDelete} />
-          </CardActionArea>
-          : undefined
+        subheader={`am ${
+          timestamp ? formatTimestamp(timestamp) : "No timestamp"
+        }`}
+        action={
+          isLoggedIn && (userIsAdmin || loggedInEmail === email) ? (
+            <CardActionArea sx={{ pt: 1, pb: 1 }}>
+              <IconButton sx={{ float: "right", mr: 1 }} onClick={onHandleEdit}>
+                <EditIcon />
+              </IconButton>
+              <ConfirmButton
+                sx={{ float: "right", ml: 2, mr: 1 }}
+                asIconButton
+                action={onHandleDelete}
+              />
+            </CardActionArea>
+          ) : undefined
         }
       />
       <CardContent>
-
         {rating && (
-          <Rating value={rating} size='large' sx={{ mt: -2 }} readOnly />
+          <Rating value={rating} size="large" sx={{ mt: -2 }} readOnly />
         )}
         {comment && (
           <Paper elevation={3} sx={{ p: 3, mt: rating ? 2 : 0 }}>
@@ -53,14 +67,6 @@ const SingleComment = (p: SingleCommentProps) => {
           </Paper>
         )}
       </CardContent>
-      {/* {isLoggedIn && (userIsAdmin || loggedInEmail === email) &&
-        <CardActionArea sx={{ pt: 1, pb: 1 }}>
-          <IconButton sx={{ float: "right", mr: 1 }} onClick={onHandleEdit} >
-            <EditIcon />
-          </IconButton>
-          <ConfirmButton sx={{ float: "left", ml: 1 }} asIconButton action={onHandleDelete} />
-        </CardActionArea>
-      } */}
     </Card>
   );
 };

@@ -15,7 +15,15 @@ import { useGlobalState } from "./GlobalStates";
 import UserForm from "./userManagement/UserForm";
 import UserList from "./userManagement/UserList";
 import { breakpoints, isValidEmail, useElementWidth } from "./Helpers";
-import { Card, CardContent, Grid, Paper, Typography, Snackbar, Alert } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Grid,
+  Paper,
+  Typography,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 
 export type User = {
   id?: string;
@@ -43,7 +51,9 @@ function UserManagement() {
 
   const [snackbarOpen, setSnackbarOpen] = React.useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
-  const [snackbarSeverity, setSnackbarSeverity] = React.useState<"success" | "error">("success");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState<
+    "success" | "error"
+  >("success");
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -142,7 +152,10 @@ function UserManagement() {
       resetForm();
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Benutzers: ", error);
-      showMessage("error", "Ein Fehler ist beim Aktualisieren des Benutzers aufgetreten.");
+      showMessage(
+        "error",
+        "Ein Fehler ist beim Aktualisieren des Benutzers aufgetreten."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -168,7 +181,6 @@ function UserManagement() {
     setEditId(user.id || null);
     setShowPassword(false);
 
-    // Scroll the container to the top
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -208,8 +220,11 @@ function UserManagement() {
     setSnackbarOpen(true);
   };
 
-  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
+  const handleCloseSnackbar = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
@@ -295,9 +310,13 @@ function UserManagement() {
           open={snackbarOpen}
           autoHideDuration={3000}
           onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
-          <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
             {snackbarMessage}
           </Alert>
         </Snackbar>

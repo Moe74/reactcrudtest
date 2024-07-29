@@ -7,7 +7,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
 } from "@mui/material";
 import _ from "lodash";
 import React from "react";
@@ -32,10 +32,12 @@ const UserList: React.FC<UserListProps> = ({
       <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
         <TableHead>
           <TableRow>
-            <TableCell >Name</TableCell>
+            <TableCell>Name</TableCell>
             <TableCell align="left">Email</TableCell>
             <TableCell align="left">Admin</TableCell>
-            {isAdmin && <TableCell style={{ width: 125 }} sx={{ padding: "5px 0" }} />}
+            {isAdmin && (
+              <TableCell style={{ width: 125 }} sx={{ padding: "5px 0" }} />
+            )}
           </TableRow>
         </TableHead>
         <TableBody>

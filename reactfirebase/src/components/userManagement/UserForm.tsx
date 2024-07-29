@@ -70,18 +70,19 @@ const UserForm: React.FC<UserFormProps> = ({
 
   const saveable = name && email && (password || editId);
 
-
   const divRef = React.useRef<HTMLDivElement>(null);
   const contentWidth = useElementWidth(divRef);
 
-
-  const reset = React.useMemo(() => () => {
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmNewPassword("");
-    setPasswordError("");
-    setOpen(false);
-  }, []);
+  const reset = React.useMemo(
+    () => () => {
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setPasswordError("");
+      setOpen(false);
+    },
+    []
+  );
 
   const settingName = (val: string) => {
     setName(val);
@@ -110,7 +111,10 @@ const UserForm: React.FC<UserFormProps> = ({
 
     if (userSnapshot.exists()) {
       const userData = userSnapshot.val();
-      const isPasswordCorrect = await bcrypt.compare(currentPassword, userData.password);
+      const isPasswordCorrect = await bcrypt.compare(
+        currentPassword,
+        userData.password
+      );
 
       if (!isPasswordCorrect) {
         setPasswordError("Das aktuelle Passwort ist falsch");
@@ -119,14 +123,14 @@ const UserForm: React.FC<UserFormProps> = ({
 
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
       await update(userRef, { password: hashedNewPassword });
-      // setOpen(false);
       reset();
     } else {
       setPasswordError("Benutzer nicht gefunden");
     }
   };
 
-  const isDisabled = !editId && name === "" && email === "" && password === "" && !userIsAdmin;
+  const isDisabled =
+    !editId && name === "" && email === "" && password === "" && !userIsAdmin;
   return (
     <div ref={divRef}>
       <TextField
@@ -142,7 +146,6 @@ const UserForm: React.FC<UserFormProps> = ({
         margin="dense"
         autoComplete="off"
       />
-
 
       <TextField
         id="email"
@@ -175,8 +178,15 @@ const UserForm: React.FC<UserFormProps> = ({
           </div>
           <div>
             <FormControlLabel
-              control={<Switch checked={showPassword} onChange={(e) => setShowPassword(!showPassword)} />}
-              label={showPassword ? "Passwort ausblenden" : "Passwort einblenden"}
+              control={
+                <Switch
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(!showPassword)}
+                />
+              }
+              label={
+                showPassword ? "Passwort ausblenden" : "Passwort einblenden"
+              }
               sx={{ mt: 1 }}
             />
           </div>
@@ -185,7 +195,12 @@ const UserForm: React.FC<UserFormProps> = ({
       <div style={{ width: "100%", height: 40 }}>
         <div style={{ float: "left" }}>
           <FormControlLabel
-            control={<Switch checked={userIsAdmin} onChange={() => setUserIsAdmin(!userIsAdmin)} />}
+            control={
+              <Switch
+                checked={userIsAdmin}
+                onChange={() => setUserIsAdmin(!userIsAdmin)}
+              />
+            }
             label={userIsAdmin ? "User ist Admin" : "User ist kein Admin"}
           />
         </div>
@@ -202,9 +217,16 @@ const UserForm: React.FC<UserFormProps> = ({
         )}
       </div>
 
-      <div style={{ background: colors.greyMiddleLight, height: 1, marginTop: contentWidth < 390 ? 40 : 10, marginBottom: 10, width: "100%" }} />
+      <div
+        style={{
+          background: colors.greyMiddleLight,
+          height: 1,
+          marginTop: contentWidth < 390 ? 40 : 10,
+          marginBottom: 10,
+          width: "100%",
+        }}
+      />
       <div style={{ paddingBottom: 20, marginTop: 20 }}>
-
         <Button
           onClick={handleSubmit}
           color={saveable ? "success" : "error"}
@@ -213,28 +235,36 @@ const UserForm: React.FC<UserFormProps> = ({
           variant={saveable ? "contained" : "outlined"}
           startIcon={saveable ? <CheckIcon /> : <ExclamationIcon />}
         >
-          {saveable ? (editId ? "User ändern" : "User anlegen") : "Fehlende Daten"}
+          {saveable
+            ? editId
+              ? "User ändern"
+              : "User anlegen"
+            : "Fehlende Daten"}
         </Button>
-        {contentWidth < 330 ?
+        {contentWidth < 330 ? (
           <IconButton onClick={resetForm} style={{ float: "left" }}>
             {editId ? <BackIcon /> : <ClearIcon />}
           </IconButton>
-          :
+        ) : (
           <Button
             startIcon={editId ? <BackIcon /> : <ClearIcon />}
             style={{ float: "left" }}
-            // variant="contained"
             onClick={resetForm}
             disabled={isDisabled}
             variant={!isDisabled ? "contained" : "outlined"}
           >
             {editId ? "Abbrechen" : "Reset"}
           </Button>
-        }
+        )}
       </div>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md">
-        <DialogTitle ><PasswordIcon style={{ float: "left", marginTop: 5, marginRight: 10 }} />Passwort ändern</DialogTitle>
+        <DialogTitle>
+          <PasswordIcon
+            style={{ float: "left", marginTop: 5, marginRight: 10 }}
+          />
+          Passwort ändern
+        </DialogTitle>
         <DialogContent sx={{ p: 3 }} dividers>
           <TextField
             margin="dense"
@@ -268,14 +298,22 @@ const UserForm: React.FC<UserFormProps> = ({
             autoComplete="off"
           />
         </DialogContent>
-        <DialogActions style={{ display: 'flex', justifyContent: 'space-between' }} sx={{ p: 3 }}>
-          {passwordError ?
-            <Alert icon={<ErrorIcon fontSize="inherit" />} severity="error" sx={{ p: 0, pl: 1, pr: 2 }} variant="outlined">
+        <DialogActions
+          style={{ display: "flex", justifyContent: "space-between" }}
+          sx={{ p: 3 }}
+        >
+          {passwordError ? (
+            <Alert
+              icon={<ErrorIcon fontSize="inherit" />}
+              severity="error"
+              sx={{ p: 0, pl: 1, pr: 2 }}
+              variant="outlined"
+            >
               {passwordError}
             </Alert>
-            :
+          ) : (
             <div style={{ marginRight: "auto" }} />
-          }
+          )}
           <div style={{ paddingRight: 6 }}>
             <Button onClick={reset}>Cancel</Button>
             <Button onClick={handlePasswordChange} color="primary">

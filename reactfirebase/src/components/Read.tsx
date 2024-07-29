@@ -88,24 +88,28 @@ function Read() {
       field: "difficulty",
       headerName: "Schwierigkeit",
       width: 140,
-      renderCell: (params) => (<div style={{ marginTop: 4 }}>
-        <Rating
-          defaultValue={params.row.difficulty}
-          icon={chefHatActive}
-          emptyIcon={chefHatInactive}
-          max={3}
-          readOnly
-        />
-      </div>),
+      renderCell: (params) => (
+        <div style={{ marginTop: 4 }}>
+          <Rating
+            defaultValue={params.row.difficulty}
+            icon={chefHatActive}
+            emptyIcon={chefHatInactive}
+            max={3}
+            readOnly
+          />
+        </div>
+      ),
     },
 
     {
       field: "rating",
       headerName: "Rating",
       width: 140,
-      renderCell: (params) => (<div style={{ marginTop: 7 }}>
-        <AverageRating firebaseId={params.row.id ?? ""} />
-      </div>),
+      renderCell: (params) => (
+        <div style={{ marginTop: 7 }}>
+          <AverageRating firebaseId={params.row.id ?? ""} />
+        </div>
+      ),
     },
     {
       field: "actions",
@@ -116,7 +120,7 @@ function Read() {
         <div
           style={{
             display: "flex",
-            marginTop: 8
+            marginTop: 8,
           }}
         >
           {mayEdit && (
@@ -126,7 +130,7 @@ function Read() {
               onClick={() => navigate("/edit/" + params.row.id)}
               style={{
                 float: "left",
-                marginRight: 5
+                marginRight: 5,
               }}
             >
               Edit

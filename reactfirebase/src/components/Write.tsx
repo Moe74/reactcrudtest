@@ -30,9 +30,15 @@ import app from "../firebaseConfig";
 import AverageRating from "./AverageRating";
 import ConfirmButton from "./ConfirmButton";
 import { useGlobalState } from "./GlobalStates";
-import { Zutat, replaceUndefinedWithNull } from "./Helpers";
+import {
+  DataSelectDifficulty,
+  DataSelectImages,
+  Zutat,
+  replaceUndefinedWithNull,
+} from "./Helpers";
+import _ from "lodash";
 
-type Severity = 'success' | 'error' | 'warning' | 'info';
+type Severity = "success" | "error" | "warning" | "info";
 interface ShowMessageParams {
   detail: string;
   severity: Severity;
@@ -69,8 +75,9 @@ function Write() {
   const mayEdit = isLoggedIn && isAdmin;
 
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  const [snackbarMessage, setSnackbarMessage] = React.useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = React.useState<Severity>('success');
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] =
+    React.useState<Severity>("success");
 
   const showMessage = ({ detail, severity }: ShowMessageParams) => {
     setSnackbarMessage(detail);
@@ -157,7 +164,7 @@ function Write() {
     saveMethod(recipeRef, cleanedData)
       .then(() => {
         showMessage({
-          severity: 'success',
+          severity: "success",
           detail: firebaseId
             ? "Rezept erfolgreich geändert"
             : "Rezept erfolgreich angelegt",
@@ -169,12 +176,11 @@ function Write() {
       })
       .catch((error) => {
         showMessage({
-          severity: 'error',
+          severity: "error",
           detail: `Fehler beim Speichern des Rezepts: ${error.message}`,
         });
       });
   };
-
 
   const addOrUpdateStep = () => {
     const newManual = [...manual];
@@ -263,24 +269,11 @@ function Write() {
     });
   };
 
-  const handleIngredientChangeX = (
-    field: keyof Zutat,
-    value: string | number | null
-  ) => {
-    setCurrentIngredient({
-      ...currentIngredient,
-      [field]: value === "" ? null : value,
-    });
-  };
-
   const handleChangeMenge = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const value = e.target.value;
-    handleIngredientChangeX(
-      "amount",
-      value !== null ? parseFloat(value) : null
-    );
+    handleIngredientChange("amount", value !== null ? parseFloat(value) : null);
   };
 
   const deleteRezept = async (rezParam: string) => {
@@ -321,72 +314,6 @@ function Write() {
     manual.length > 0 &&
     ingredients.length > 0;
 
-  const Schwierigkeitsgrade = [
-    {
-      value: "leicht",
-      label: "leicht",
-    },
-    {
-      value: "mittel",
-      label: "mittel",
-    },
-    {
-      value: "schwierig",
-      label: "schwierig",
-    },
-  ];
-
-  const Bilder = [
-    {
-      value: "noImage.webp",
-      label: "noImage.webp",
-    },
-    {
-      value: "ApfelZimtPorridge.webp",
-      label: "ApfelZimtPorridge.webp",
-    },
-    {
-      value: "BurgerMitHausgemachtenPommes.webp",
-      label: "BurgerMitHausgemachtenPommes.webp",
-    },
-    {
-      value: "CaesarSalad.webp",
-      label: "CaesarSalad.webp",
-    },
-    {
-      value: "EnteAlaOrange.webp",
-      label: "EnteAlaOrange.webp",
-    },
-    {
-      value: "GriechischerSalat.webp",
-      label: "GriechischerSalat.webp",
-    },
-    {
-      value: "HaehnchenbrustMitKraeuterkruste.webp",
-      label: "HaehnchenbrustMitKraeuterkruste.webp",
-    },
-    {
-      value: "Kuerbissuppe.webp",
-      label: "Kuerbissuppe.webp",
-    },
-    {
-      value: "PastaCarbonara.webp",
-      label: "PastaCarbonara.webp",
-    },
-    {
-      value: "QuicheLorraine.webp",
-      label: "QuicheLorraine.webp",
-    },
-    {
-      value: "Ratatouille.webp",
-      label: "Ratatouille.webp",
-    },
-    {
-      value: "SpaghettiBolognese.webp",
-      label: "SpaghettiBolognese.webp",
-    },
-  ];
-
   if (!mayEdit)
     return (
       <h3 className="missing">
@@ -399,15 +326,18 @@ function Write() {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
       <h2>{firebaseId ? "Edit Rezept" : "Add Rezept"}</h2>
 
-      <h1>NEW</h1>
       <div
         style={{
           display: "grid",
@@ -437,7 +367,7 @@ function Write() {
         <div>
           {!title && (
             <span
-              className="pi pi-exclamation-circle"
+              className="exclamation-circle"
               style={{ color: "#D13438", fontSize: "1.5rem" }}
             />
           )}
@@ -459,7 +389,7 @@ function Write() {
         <div>
           {!description && (
             <span
-              className="pi pi-exclamation-circle"
+              className="exclamation-circle"
               style={{ color: "#D13438", fontSize: "1.5rem" }}
             />
           )}
@@ -561,7 +491,7 @@ function Write() {
                 <div>
                   {!description && manual.length === 0 && (
                     <span
-                      className="pi pi-exclamation-circle"
+                      className="exclamation-circle"
                       style={{ color: "#D13438", fontSize: "1.5rem" }}
                     />
                   )}
@@ -581,7 +511,7 @@ function Write() {
           return editIngredientIndex === index ? (
             <React.Fragment key={index}>
               <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
-                <div className="p-inputgroup">
+                <div className="inputgroup">
                   <TextField
                     label="Zutaten"
                     variant={!currentStep ? "filled" : "outlined"}
@@ -674,8 +604,9 @@ function Write() {
                   label="Zutat"
                   variant="outlined"
                   value={currentIngredient.text}
-                  placeholder={`Zutat ${ingredients.length > 0 ? "(optional)" : ""
-                    }`}
+                  placeholder={`Zutat ${
+                    ingredients.length > 0 ? "(optional)" : ""
+                  }`}
                   onChange={(e) =>
                     handleIngredientChange("text", e.target.value)
                   }
@@ -736,7 +667,7 @@ function Write() {
                 <div>
                   {!description && ingredients.length === 0 && (
                     <span
-                      className="pi pi-exclamation-circle"
+                      className="exclamation-circle"
                       style={{ color: "#D13438", fontSize: "1.5rem" }}
                     />
                   )}
@@ -747,7 +678,7 @@ function Write() {
         )}
 
         <div style={{ gridColumnStart: 1, gridColumnEnd: 2 }}>
-          Benötigte Zeit xxx
+          Benötigte Zeit
         </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
           <TextField
@@ -793,14 +724,13 @@ function Write() {
         </div>
         <div style={{ gridColumnStart: 2, gridColumnEnd: 3 }}>
           <TextField
-            id=""
             select
             label="Schwierigkeitsgrad"
             defaultValue="leicht"
             style={{ width: "100%" }}
           >
-            {Schwierigkeitsgrade.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
+            {_.map(DataSelectDifficulty, (option, i) => (
+              <MenuItem key={i} value={option.value}>
                 {option.label}
               </MenuItem>
             ))}
@@ -845,8 +775,8 @@ function Write() {
             defaultValue="noImage.webp"
             style={{ width: "100%" }}
           >
-            {Bilder.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
+            {_.map(DataSelectImages, (option, i) => (
+              <MenuItem key={i} value={option.value}>
                 <div
                   style={{ display: "flex", alignItems: "center", height: 40 }}
                 >
@@ -902,7 +832,7 @@ function Write() {
         />
         <div>
           {firebaseId && (
-            <div className="p-inputgroup" style={{ width: "100%" }}>
+            <div className="inputgroup" style={{ width: "100%" }}>
               <ConfirmButton
                 action={() => deleteRezept(firebaseId)}
                 style={{ float: "left" }}
